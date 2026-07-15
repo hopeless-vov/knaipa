@@ -1,4 +1,4 @@
-# Project: kutok
+# Project: knaipa
 
 Place discovery app — Tinder-like swipe UI for finding restaurants, museums, parks, cafés and other venues nearby. Users swipe right to save, left to pass. Saved places appear in a collection with map view, visited/pending filters, and city grouping.
 
@@ -60,7 +60,7 @@ docs/             # API reference docs, architecture notes
 ### store/ — Zustand state
 - One store: useAppStore.ts
 - May import from api/ directly
-- Filter persistence uses expo-secure-store (key: @kutok/filters)
+- Filter persistence uses expo-secure-store (key: @knaipa/filters)
 
 ### types/ — split by domain
 - Never add types to source files — keep them in types/

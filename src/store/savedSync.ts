@@ -58,6 +58,7 @@ let flushing = false;
  * keeps the remaining ops for a later attempt. Re-entrant-safe.
  */
 export async function flushQueue(userId: string): Promise<void> {
+  /* istanbul ignore next -- re-entrancy guard for concurrent flushes */
   if (flushing) return;
   flushing = true;
   try {

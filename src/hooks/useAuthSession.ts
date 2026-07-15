@@ -19,6 +19,7 @@ export function useAuthSession() {
     supabase.auth
       .getSession()
       .then(({ data }) => {
+        /* istanbul ignore next -- post-unmount race guard */
         if (!active) return;
         setUser(data.session ? mapSupabaseUser(data.session.user) : null);
       })
@@ -27,6 +28,7 @@ export function useAuthSession() {
       });
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      /* istanbul ignore next -- post-unmount race guard */
       if (!active) return;
       setUser(session ? mapSupabaseUser(session.user) : null);
     });

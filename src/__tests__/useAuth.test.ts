@@ -145,6 +145,15 @@ describe('useAuth.signOut', () => {
 
     expect(useAppStore.getState().user).toBeNull();
   });
+
+  it('surfaces sign-out errors', async () => {
+    signOutMock.mockRejectedValueOnce(new Error('network'));
+    const { result } = renderHook(() => useAuth());
+    await act(async () => {
+      await result.current.signOut();
+    });
+    expect(result.current.error).toBe('network');
+  });
 });
 
 describe('useAuth.sendPasswordReset', () => {

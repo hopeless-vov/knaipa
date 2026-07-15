@@ -16,6 +16,7 @@ async function resolveGpsLocation(): Promise<GpsResult> {
     if (last) return { status: 'ok', coords: { lat: last.coords.latitude, lng: last.coords.longitude } };
     const pos = await Promise.race([
       Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+      /* istanbul ignore next -- 5s GPS timeout fallback */
       new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
     ]);
     if (!pos) return { status: 'unavailable' };

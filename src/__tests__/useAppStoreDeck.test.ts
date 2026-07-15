@@ -159,4 +159,11 @@ describe('fetchMoreDeck', () => {
     expect(ids).toEqual(['place-1', 'place-2', 'place-3']);
     expect(useAppStore.getState().nextPageToken).toBeNull();
   });
+
+  it('clears the loading-more flag when the fetch fails', async () => {
+    useAppStore.setState({ nextPageToken: 'TKN', isLoadingMore: false });
+    mockedApi.fetchNearbyPlaces.mockRejectedValueOnce(new Error('boom'));
+    await useAppStore.getState().fetchMoreDeck();
+    expect(useAppStore.getState().isLoadingMore).toBe(false);
+  });
 });

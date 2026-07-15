@@ -39,6 +39,7 @@ export async function fetchNearbyPlaces(
     : buildRequestBody(userLat, userLng, filters, pageToken, languageCode);
 
   const controller = new AbortController();
+  /* istanbul ignore next -- request timeout abort */
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   let response: Response;

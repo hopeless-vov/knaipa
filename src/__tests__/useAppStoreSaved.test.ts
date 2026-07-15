@@ -57,6 +57,14 @@ describe('swipeLike', () => {
     const raw = await AsyncStorage.getItem(SAVED_KEY);
     expect(raw && JSON.parse(raw)[p1.id]).toBeTruthy();
   });
+
+  it('flushes the sync queue when a user is signed in', async () => {
+    useAppStore.setState({ user: { id: 'u1', email: 'e', name: 'n', createdAt: '2025-01-01' } });
+    useAppStore.getState().swipeLike(p1);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(mockedSync.flushQueue).toHaveBeenCalledWith('u1');
+  });
 });
 
 describe('swipePass', () => {

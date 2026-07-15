@@ -85,7 +85,7 @@
 | `curbsidePickup` |
 | `delivery` |
 | `dineIn` |
-| `editorialSummary` | ← **kutok currently uses this — triggers +Atmosphere billing** |
+| `editorialSummary` | ← **knaipa currently uses this — triggers +Atmosphere billing** |
 | `evChargeAmenitySummary` |
 | `evChargeOptions` |
 | `fuelOptions` |
@@ -118,7 +118,7 @@
 
 ---
 
-## kutok Current FIELD_MASK Audit
+## knaipa Current FIELD_MASK Audit
 
 | Field | SKU | Used for |
 |---|---|---|

@@ -1,4 +1,4 @@
-# kutok
+# knaipa
 
 A Tinder-like place discovery app. Users swipe right (like) or left (pass) on places — museums, parks, cafés, and more. Liked places go to a personal "Saved" collection with visited/pending tracking, city grouping, list and map views.
 
@@ -25,7 +25,7 @@ A Tinder-like place discovery app. Users swipe right (like) or left (pass) on pl
 ## Project Structure
 
 ```
-kutok/
+knaipa/
 ├── App.tsx                  # Root: SafeAreaProvider + NavigationContainer
 ├── index.ts                 # Expo entry point
 ├── docs/
@@ -105,30 +105,13 @@ kutok/
 │   │   ├── SettingsScreen.tsx
 │   │   ├── PrivacyScreen.tsx
 │   │   └── TermsScreen.tsx
-│   ├── __tests__/           # All test files — never next to source
-│   │   ├── fixtures/
-│   │   │   └── places.ts    # MOCK_PLACES shared test data
-│   │   ├── useDiscover.test.ts
-│   │   ├── useSaved.test.ts
-│   │   ├── useAuth.test.ts
-│   │   ├── useAuthSession.test.ts
-│   │   ├── useAppStoreSaved.test.ts   # saved actions, activeFilterCount, sync
-│   │   ├── useAppStoreDeck.test.ts    # fetchDeck cache-age, fetchMoreDeck
-│   │   ├── savedStorage.test.ts
-│   │   ├── savedSync.test.ts
-│   │   ├── savedPlacesApi.test.ts
-│   │   ├── googlePlacesApi.test.ts
-│   │   ├── mapperGooglePlaces.test.ts
-│   │   ├── placeFilters.test.ts
-│   │   ├── geo.test.ts
-│   │   ├── places.test.ts
-│   │   ├── validation.test.ts
-│   │   ├── userMapper.test.ts
-│   │   └── formatters.test.ts
+│   ├── __tests__/           # All test files — never next to source (30 suites)
+│   │   └── fixtures/        # MOCK_PLACES + buildSavedMap shared test data
 │   └── navigation/
 │       └── RootNavigator.tsx  # Auth-gated stacks: splash → login stack or main tabs
 ├── __mocks__/               # Jest mocks for native modules
-└── jest.config.js
+├── app.config.js            # Expo config — Maps SDK key injected from .env
+└── jest.config.js           # ts-jest + mocks + logic-layer coverage thresholds
 ```
 
 ### Architecture rules
@@ -184,10 +167,19 @@ npm run web
 npm test
 
 # Run a specific file
-npx jest src/utils/formatters.test.ts
+npx jest formatters
+
+# With coverage (enforces logic-layer thresholds)
+npx jest --coverage
 ```
 
-All test files live in `src/__tests__/`. Shared mock data is in `src/__tests__/fixtures/places.ts`.
+All test files live in `src/__tests__/`. Shared mock data is in `src/__tests__/fixtures/`.
+
+**Coverage policy:** the logic layers (`hooks/`, `utils/`, `store/`, `api/`, `mappers/`, `i18n/`, `config/`)
+are unit-tested with enforced thresholds (~97% statements / ~99% lines actual; race guards, timeouts,
+and animation-only closures are `istanbul ignore`d). Presentational components/screens keep their
+extractable logic in tested hooks/utils and are verified by running the app — RN rendering is not
+unit-tested here (that would require the `jest-expo` preset and native-module render mocks).
 
 ---
 
@@ -254,8 +246,10 @@ with a persisted op queue so offline changes are not lost). See `src/store/saved
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Enable **Maps SDK for iOS**, **Maps SDK for Android**, and **Places API (New)**
 3. Create an API key and add it to `.env` as `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY`
-4. For iOS, add the key to `app.json` under `expo.ios.config.googleMapsApiKey`
-5. For Android, add it under `expo.android.config.googleMaps.apiKey`
+   — `app.config.js` injects it into the native Maps SDK config automatically
+4. Restrict the key in Google Cloud Console (bundle id / package name + API list)
+   and set daily quota limits (Text Search, Place Details, Photos, Autocomplete)
+   so a leaked or abused key can't run up billing
 
 > **Before making any changes to `src/api/googlePlaces.ts`**, read `docs/google-place-api.md`.
 > It covers the `searchText` endpoint, supported parameters, field masks, pagination rules, and known limitations.

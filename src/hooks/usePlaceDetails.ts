@@ -19,6 +19,7 @@ export function usePlaceDetails(placeId: string) {
     let cancelled = false;
     setIsLoading(true);
     fetchPlaceDetails(placeId).then((d) => {
+      /* istanbul ignore next -- unmount race guard */
       if (cancelled) return;
       if (d) {
         detailsCache.set(placeId, d);

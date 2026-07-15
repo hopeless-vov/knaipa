@@ -23,4 +23,7 @@ RN.Dimensions = {
 
 RN.Platform = { OS: 'ios', select: (obj) => obj.ios };
 
+RN.Linking = { openURL: jest.fn(() => Promise.resolve()) };
+RN.Share = { share: jest.fn(() => Promise.resolve({ action: 'sharedAction' })) };
+
 module.exports = RN;

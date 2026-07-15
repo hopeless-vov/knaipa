@@ -74,6 +74,16 @@ describe('useDiscover', () => {
     expect(result.current.deck.length).toBe(initialLength);
   });
 
+  it('like()/pass() are no-ops when the deck is empty', () => {
+    useAppStore.setState({ deck: [], history: [] });
+    const { result } = renderHook(() => useDiscover());
+    act(() => {
+      result.current.like();
+      result.current.pass();
+    });
+    expect(useAppStore.getState().history).toHaveLength(0);
+  });
+
   it('reset() restores the full deck', () => {
     const { result } = renderHook(() => useDiscover());
 
