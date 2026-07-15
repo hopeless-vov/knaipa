@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Place } from '../types';
-import { INK, MUTED } from '../utils/theme';
+import { INK, PAPER, SCRIM, GLASS, CATEGORY_ON_IMAGE } from '../utils/theme';
 import { padIndex } from '../utils/formatters';
 
 interface PlaceCoverProps {
@@ -39,7 +39,7 @@ export default function PlaceCover({
       />
 
       <LinearGradient
-        colors={['transparent', 'rgba(0,0,0,0.7)']}
+        colors={['transparent', SCRIM]}
         style={StyleSheet.absoluteFillObject}
         start={{ x: 0, y: 0.5 }}
         end={{ x: 0, y: 1 }}
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 16,
     left: 16,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: GLASS,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 4,
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 16,
     right: 16,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    backgroundColor: GLASS,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 4,
@@ -126,13 +126,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 2,
-    color: 'rgba(255,255,255,0.75)',
+    color: CATEGORY_ON_IMAGE,
     marginBottom: 4,
   },
   nameText: {
     fontSize: 28,
     fontWeight: '900',
     letterSpacing: -0.5,
-    color: 'white',
+    color: PAPER,
   },
 });

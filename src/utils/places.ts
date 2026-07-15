@@ -89,3 +89,11 @@ export function isOpenEvening(hours: OpeningHours | undefined): boolean {
   if (!period?.close) return false;
   return (period.close.hour ?? 0) * 60 + (period.close.minute ?? 0) >= 20 * 60;
 }
+
+// ─── Filter option lists (derived from the maps above to avoid drift) ──────────
+export const RADIUS_OPTIONS = Object.keys(RADIUS_MAP);
+export const PRICE_OPTIONS = ['any', ...Object.keys(PRICE_FILTER_MAP)];
+export const RATING_OPTIONS = ['any', '4.0+', '4.5+', '4.8+'];
+export const AVAILABILITY_OPTIONS = ['any', 'Open now', 'Open evening'];
+export const SORT_OPTIONS = ['relevance', 'distance', 'rating'];
+export const MIN_REVIEWS_OPTIONS = ['any', '50+', '200+', '500+'];

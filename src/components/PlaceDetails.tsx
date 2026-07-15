@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet, Linking, Share, Platform } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, Linking } from 'react-native';
 import { Image } from 'expo-image';
-import * as Clipboard from 'expo-clipboard';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Place, PlaceExtraDetails } from '../types';
 import { INK, PAPER, MUTED, HAIR, SCREEN_PADDING } from '../utils/theme';
@@ -9,6 +8,7 @@ import Tag from '../ui/Tag';
 import Rule from '../ui/Rule';
 import PhotoViewer from './PhotoViewer';
 import { useTranslation } from '../hooks/useTranslation';
+import { usePlaceActions } from '../hooks/usePlaceActions';
 
 const THUMB_SIZE = 160;
 const GALLERY_PREVIEW = 2; // photos shown before "show all"
@@ -34,37 +34,11 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
   const visiblePhotos = galleryExpanded ? place.gallery : place.gallery.slice(0, GALLERY_PREVIEW);
   const hasMore = place.gallery.length > GALLERY_PREVIEW && !galleryExpanded;
 
+  const { openMaps, copyAddress, openWebsite, share } = usePlaceActions(place, details);
+
   const openPhoto = (index: number) => {
     setViewerIndex(index);
     setViewerVisible(true);
-  };
-
-  const handleOpenMaps = () => {
-    const query = encodeURIComponent(`${place.name}, ${place.address}`);
-    const url = Platform.select({
-      ios: `maps://?q=${query}`,
-      android: `geo:0,0?q=${query}`,
-      default: `https://www.google.com/maps/search/?api=1&query=${query}`,
-    });
-    Linking.openURL(url!);
-  };
-
-  const handleCopy = async () => {
-    await Clipboard.setStringAsync(place.address);
-  };
-
-  const handleWebsite = () => {
-    const url = details?.websiteUri ?? `https://www.google.com/search?q=${encodeURIComponent(place.name)}`;
-    Linking.openURL(url);
-  };
-
-  const handleShare = async () => {
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${place.name}, ${place.address}`)}`;
-    await Share.share({
-      title: place.name,
-      message: `${place.name}\n${place.address}\n${mapsUrl}`,
-      url: mapsUrl,
-    });
   };
 
   return (
@@ -185,7 +159,7 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
 
         {/* Map preview */}
         {place.lat !== 0 && place.lng !== 0 && (
-          <Pressable onPress={handleOpenMaps} style={styles.mapContainer}>
+          <Pressable onPress={openMaps} style={styles.mapContainer}>
             <MapView
               provider={PROVIDER_GOOGLE}
               style={styles.map}
@@ -209,16 +183,16 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
 
         <Text style={styles.addressText}>{place.address}</Text>
         <View style={styles.locationButtons}>
-          <Pressable onPress={handleOpenMaps} style={styles.locationBtn}>
+          <Pressable onPress={openMaps} style={styles.locationBtn}>
             <Text style={styles.locationBtnText}>{t('place.openMaps')}</Text>
           </Pressable>
-          <Pressable onPress={handleCopy} style={styles.locationBtn}>
+          <Pressable onPress={copyAddress} style={styles.locationBtn}>
             <Text style={styles.locationBtnText}>{t('place.copy')}</Text>
           </Pressable>
-          <Pressable onPress={handleWebsite} style={styles.locationBtn}>
+          <Pressable onPress={openWebsite} style={styles.locationBtn}>
             <Text style={styles.locationBtnText}>{t('place.website')}</Text>
           </Pressable>
-          <Pressable onPress={handleShare} style={styles.locationBtn}>
+          <Pressable onPress={share} style={styles.locationBtn}>
             <Text style={styles.locationBtnText}>{t('place.share')}</Text>
           </Pressable>
         </View>

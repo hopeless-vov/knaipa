@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Pressable, Animated, StyleSheet } from 'react-native';
-import { INK } from '../utils/theme';
+import { INK, PAPER, TRACK_OFF } from '../utils/theme';
 
 const TRACK_WIDTH = 48;
 const TRACK_HEIGHT = 28;
@@ -30,7 +30,7 @@ export default function Toggle({ value, onValueChange }: ToggleProps) {
 
   const trackColor = anim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#E8E8E6', INK],
+    outputRange: [TRACK_OFF, INK],
   });
 
   return (
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: THUMB_SIZE / 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: PAPER,
     position: 'absolute',
   },
 });

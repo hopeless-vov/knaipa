@@ -15,19 +15,21 @@ import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
 import ChipGroup from '../ui/ChipGroup';
+import Toggle from '../ui/Toggle';
 import Rule from '../ui/Rule';
 import { useFilters } from '../hooks/useFilters';
 import { useLocationInput } from '../hooks/useLocationInput';
 import { useTranslation } from '../hooks/useTranslation';
+import {
+  RADIUS_OPTIONS,
+  PRICE_OPTIONS,
+  RATING_OPTIONS,
+  AVAILABILITY_OPTIONS,
+  SORT_OPTIONS,
+  MIN_REVIEWS_OPTIONS,
+} from '../utils/places';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Filters'>;
-
-const RADIUS_OPTIONS = ['near', '5km', '10km', '25km', '50km'];
-const PRICE_OPTIONS = ['any', 'Free', '£', '££', '£££'];
-const RATING_OPTIONS = ['any', '4.0+', '4.5+', '4.8+'];
-const AVAILABILITY_OPTIONS = ['any', 'Open now', 'Open evening'];
-const SORT_OPTIONS = ['relevance', 'distance', 'rating'];
-const MIN_REVIEWS_OPTIONS = ['any', '50+', '200+', '500+'];
 
 const PRESETS: { labelKey: string; emoji: string; filters: Partial<Filters> }[] = [
   { labelKey: 'filters.presetTonight', emoji: '🌙', filters: { availability: 'Open evening' } },
@@ -182,18 +184,16 @@ export default function FiltersScreen({ navigation }: Props) {
         </View>
 
         {/* Hide seen */}
-        <Pressable
-          style={styles.toggleRow}
-          onPress={() => updateLocal({ hideSeen: !localFilters.hideSeen })}
-        >
+        <View style={styles.toggleRow}>
           <View style={styles.toggleInfo}>
             <Text style={styles.toggleLabel}>{t('filters.hideSeen')}</Text>
             <Text style={styles.toggleSub}>{t('filters.hideSeenSub')}</Text>
           </View>
-          <View style={[styles.toggleTrack, localFilters.hideSeen && styles.toggleTrackOn]}>
-            <View style={[styles.toggleThumb, localFilters.hideSeen && styles.toggleThumbOn]} />
-          </View>
-        </Pressable>
+          <Toggle
+            value={localFilters.hideSeen}
+            onValueChange={(v) => updateLocal({ hideSeen: v })}
+          />
+        </View>
 
         <Pressable onPress={resetFilters} style={styles.resetBtn}>
           <Text style={styles.resetBtnText}>{t('filters.reset')}</Text>
@@ -309,26 +309,6 @@ const styles = StyleSheet.create({
   toggleSub: {
     fontSize: 12,
     color: MUTED,
-  },
-  toggleTrack: {
-    width: 44,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: HAIR,
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  toggleTrackOn: {
-    backgroundColor: INK,
-  },
-  toggleThumb: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: PAPER,
-  },
-  toggleThumbOn: {
-    alignSelf: 'flex-end',
   },
   resetBtn: {
     alignItems: 'center',

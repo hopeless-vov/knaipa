@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
-import { INK, PAPER, MUTED } from '../utils/theme';
+import { INK, PAPER } from '../utils/theme';
 
 interface ChipProps {
   label: string;

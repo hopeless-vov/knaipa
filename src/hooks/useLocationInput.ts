@@ -1,17 +1,9 @@
 import { useState, useRef, useCallback } from 'react';
 import * as Location from 'expo-location';
 import { autocompletePlaces, fetchPlaceLocation } from '../api/googlePlaces';
-import { AutocompleteSuggestion } from '../types';
+import { AutocompleteSuggestion, Filters } from '../types';
 import { useAppStore } from '../store/useAppStore';
-import { Filters } from '../types';
-
-// crypto.randomUUID() is not available in Hermes — use a Math.random UUID v4
-function generateUUID(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-  });
-}
+import { generateUUID } from '../utils/uuid';
 
 export function useLocationInput(updateLocal: (updates: Partial<Filters>) => void) {
   const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
@@ -20,6 +12,7 @@ export function useLocationInput(updateLocal: (updates: Partial<Filters>) => voi
   // Session token groups all autocomplete keystrokes + final Place Details into one free billing session
   const sessionTokenRef = useRef<string>(generateUUID());
   const setUserLocation = useAppStore((s) => s.setUserLocation);
+  const language = useAppStore((s) => s.preferences.language);
 
   const resetSessionToken = useCallback(() => {
     sessionTokenRef.current = generateUUID();
@@ -41,12 +34,12 @@ export function useLocationInput(updateLocal: (updates: Partial<Filters>) => voi
         return;
       }
 
-      const results = await autocompletePlaces(text, sessionTokenRef.current);
+      const results = await autocompletePlaces(text, sessionTokenRef.current, language);
       cacheRef.current.set(key, results);
       if (cacheRef.current.size > 50) cacheRef.current.clear();
       setSuggestions(results);
     }, 350);
-  }, [updateLocal, resetSessionToken]);
+  }, [updateLocal, resetSessionToken, language]);
 
   const onSelectSuggestion = useCallback(async (suggestion: AutocompleteSuggestion) => {
     updateLocal({ locText: suggestion.text });

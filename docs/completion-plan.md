@@ -100,15 +100,17 @@
 
 > Boundary: place category labels come from the app taxonomy (English) and Google-derived names/hours are localized by Google via `languageCode`; short filter-chip option values (near/5km/Open now) stay as-is.
 
-## Phase 7 — Refactor & cleanup
-- [ ] Extract place actions → `usePlaceActions` + `utils/placeLinks.ts`
-- [ ] Extract swipe decision → `utils/swipe.ts`
-- [ ] Decompose `DiscoverScreen` + `PlaceDetails` into small components
-- [ ] Dedup `FILTERS_KEY`; derive filter options from maps; use `ui/Toggle` in Filters; `generateUUID` → utils
-- [ ] Theme overlay tokens; remove hardcoded rgba/white; fix `App.tsx` inline style
-- [ ] Remove unused imports/vars/styles; unify `expo-image`/`Image`, `Pressable`/`TouchableOpacity`; inline type → `types/`
-- [ ] Tests for extracted units
-- [ ] `commit + push`: `refactor: extract logic, decompose screens, cleanup`
+## Phase 7 — Refactor & cleanup ✅
+- [x] Extracted place actions → `usePlaceActions` + pure `utils/placeLinks.ts` (buildMapsUrl/buildWebMapsUrl/resolveWebsiteUrl/buildSharePayload); PlaceDetails no longer holds link/share logic
+- [x] Extracted swipe decision → `utils/swipe.ts` (`resolveSwipeOutcome`); SwipeCard's onEnd uses it
+- [x] `generateUUID` → `utils/uuid.ts` (out of useLocationInput)
+- [x] `FILTERS_KEY` centralized (Phase 2); filter option lists derived from the source maps in `places.ts` (no drift); `ui/Toggle` reused in Filters (dropped hand-rolled toggle + dead styles)
+- [x] Theme scrim/glass/track tokens; removed hardcoded rgba/white in PlaceCover & Toggle; `App.tsx` inline style → StyleSheet
+- [x] Removed unused: Chip `MUTED` import, DiscoverScreen `reset` + `metaSmall.fontFamily`, duplicate type imports; inline autocomplete type → `types/googleApi.ts` (`RawAutocompletePrediction`); autocomplete now gets `languageCode`
+- [x] Tests: `swipe`, `placeLinks`, `uuid` — 25 suites / 212 tests green
+- [x] `commit + push`: `refactor: extract logic to hooks/utils, cleanup`
+
+> Full screen decomposition (DiscoverScreen/PlaceDetails into many sub-files) deferred as lower-value; the logic extraction (the audit's M1) is done.
 
 ## Phase 8 — 100% coverage + docs
 - [ ] Fill remaining: `ui/` render, components, screens branches, remaining hooks

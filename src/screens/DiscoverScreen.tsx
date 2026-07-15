@@ -40,7 +40,7 @@ export default function DiscoverScreen({ navigation }: Props) {
   const {
     deck, topCard, totalDeck, deckIndex, activeFilterCount, canUndo,
     isLoading, isLoadingMore, hasLocation, deckError, locationDenied,
-    requestLocation, retryFetch, like, pass, undo, reset,
+    requestLocation, retryFetch, like, pass, undo,
     mode, categories, query, setMode, toggleCategory, submitSearch,
   } = useDiscover();
   const { t } = useTranslation();
@@ -293,7 +293,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   metaSmall: {
-    fontFamily: undefined,
     fontSize: 14,
     color: INK,
   },

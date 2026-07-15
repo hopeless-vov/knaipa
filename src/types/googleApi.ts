@@ -50,3 +50,15 @@ export interface AutocompleteSuggestion {
   mainText: string;
   secondaryText: string;
 }
+
+/** Raw shape of a single autocomplete prediction from the API response. */
+export interface RawAutocompletePrediction {
+  placePrediction?: {
+    placeId?: string;
+    text?: { text?: string };
+    structuredFormat?: {
+      mainText?: { text?: string };
+      secondaryText?: { text?: string };
+    };
+  };
+}

@@ -1,5 +1,5 @@
 import { Place, Filters } from '../types';
-import { GooglePlace, AutocompleteSuggestion } from '../types/googleApi';
+import { GooglePlace, AutocompleteSuggestion, RawAutocompletePrediction } from '../types/googleApi';
 import { RADIUS_MAP } from '../utils/places';
 import { haversineDistance } from '../utils/geo';
 import { buildRequestBody, buildNearbyRequestBody, mapGooglePlace } from '../mappers/googlePlaces';
@@ -148,16 +148,7 @@ export async function autocompletePlaces(
     return (data.suggestions ?? [])
       .slice(0, 5)
       .map(
-        (s: {
-          placePrediction?: {
-            placeId?: string;
-            text?: { text?: string };
-            structuredFormat?: {
-              mainText?: { text?: string };
-              secondaryText?: { text?: string };
-            };
-          };
-        }) => ({
+        (s: RawAutocompletePrediction) => ({
           placeId: s.placePrediction?.placeId ?? '',
           text: s.placePrediction?.text?.text ?? '',
           mainText:

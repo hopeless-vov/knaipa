@@ -10,9 +10,9 @@ import { Place } from '../types';
 import { INK, PAPER } from '../utils/theme';
 import PlaceCover from './PlaceCover';
 import { useTranslation } from '../hooks/useTranslation';
+import { resolveSwipeOutcome, SWIPE_THRESHOLD } from '../utils/swipe';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const SWIPE_THRESHOLD = 80;
 
 export interface SwipeCardRef {
   animateLike: () => void;
@@ -99,13 +99,14 @@ const SwipeCard = React.memo(
         })
         .onEnd((e) => {
           if (!isTopRef.current) return;
-          if (e.translationX > SWIPE_THRESHOLD || e.velocityX > 800) {
+          const outcome = resolveSwipeOutcome(e.translationX, e.velocityX);
+          if (outcome === 'like') {
             Animated.timing(position, {
               toValue: { x: SCREEN_WIDTH * 1.5, y: e.translationY },
               duration: 250,
               useNativeDriver: true,
             }).start(() => onLikeRef.current());
-          } else if (e.translationX < -SWIPE_THRESHOLD || e.velocityX < -800) {
+          } else if (outcome === 'pass') {
             Animated.timing(position, {
               toValue: { x: -SCREEN_WIDTH * 1.5, y: e.translationY },
               duration: 250,
