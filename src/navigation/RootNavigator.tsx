@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { RootStackParamList, TabParamList } from '../types';
 import BottomNav from '../components/BottomNav';
+import SplashView from '../components/SplashView';
+import { useAuthSession } from '../hooks/useAuthSession';
 
 // Auth screens
 import LoginScreen from '../screens/LoginScreen';
@@ -35,38 +37,43 @@ function TabNavigator() {
 }
 
 export default function RootNavigator() {
+  const { user, restoring } = useAuthSession();
+
+  if (restoring) {
+    return <SplashView />;
+  }
+
   return (
     <Stack.Navigator
-      initialRouteName="Login"
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
         animationDuration: 280,
       }}
     >
-      {/* Auth — slide right */}
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
-      <Stack.Screen name="Forgot" component={ForgotScreen} />
+      {user ? (
+        <>
+          {/* Main tabs */}
+          <Stack.Screen name="Main" component={TabNavigator} />
 
-      {/* Main tabs */}
-      <Stack.Screen
-        name="Main"
-        component={TabNavigator}
-      />
+          {/* Place detail */}
+          <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
 
-      {/* Place detail */}
-      <Stack.Screen
-        name="PlaceDetail"
-        component={PlaceDetailScreen}
-      />
-
-      {/* Filters — modal slide */}
-      <Stack.Screen
-        name="Filters"
-        component={FiltersScreen}
-        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-      />
+          {/* Filters — modal slide */}
+          <Stack.Screen
+            name="Filters"
+            component={FiltersScreen}
+            options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+          />
+        </>
+      ) : (
+        <>
+          {/* Auth — slide right */}
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignupScreen} />
+          <Stack.Screen name="Forgot" component={ForgotScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 }

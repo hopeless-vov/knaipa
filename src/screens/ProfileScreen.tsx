@@ -53,8 +53,8 @@ export default function ProfileScreen({ navigation }: Props) {
   const cities = new Set(savedPlaces.map((p) => p.city)).size;
 
   const handleSignOut = async () => {
+    // The auth-gated navigator swaps back to the login stack automatically
     await signOut();
-    navigation.replace('Login');
   };
 
   const displayName = user?.name ?? 'Explorer';

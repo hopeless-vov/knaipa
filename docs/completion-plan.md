@@ -19,25 +19,25 @@
 ---
 
 ## Baseline
-- [ ] Fix `.gitignore` to ignore `.env` (secret-leak guard); keep `.env.example`
-- [ ] Baseline commit of current untracked state (so rename/feature diffs are visible)
+- [x] Fix `.gitignore` to ignore `.env` (secret-leak guard); keep `.env.example`
+- [x] Baseline commit of current untracked state (so rename/feature diffs are visible)
 
-## Phase 0 — Rename + test infrastructure
+## Phase 0 — Rename + test infrastructure *(partially pulled into Phase 1)*
 - [ ] Rename `kutok → knaipa`: `package.json`, `app.json` (name/slug), README, CLAUDE.md, storage keys (`@kutok/*` → `@knaipa/*`), legal text (`Kutok`/`kutok.app`), Wordmark/brand strings
-- [ ] Add Jest mocks: `expo-secure-store`, `async-storage`, `expo-clipboard`, `expo-image`, `expo-linear-gradient`
-- [ ] Wire mocks into `jest.config.js` `moduleNameMapper`
+- [~] Add Jest mocks: `expo-secure-store` ✓, `async-storage` ✓ (done in Phase 1); `expo-clipboard`, `expo-image`, `expo-linear-gradient` pending
+- [x] Wire storage mocks into `jest.config.js` `moduleNameMapper`
 - [ ] Add `collectCoverageFrom` + `coverageThreshold` (start realistic, ratchet later)
-- [ ] Green the 2 broken suites; confirm component-render env works
-- [ ] `commit + push`: `chore: rename to knaipa, fix test infra & coverage config`
+- [x] Green the 2 broken suites (7 suites / 50 tests pass)
+- [ ] `commit + push`: `chore: rename to knaipa, coverage config`
 
-## Phase 1 — Auth & session correctness
-- [ ] Supabase client: SecureStore storage adapter + `persistSession` + `autoRefreshToken`
-- [ ] Session restore on launch (`getSession`/`onAuthStateChange`); RootNavigator gates auth vs main (splash)
-- [ ] Fix `handleLogin`/`handleSignup`: navigate only on success; surface errors (logic in hook)
-- [ ] `utils/validation.ts` (email/password) — pure + tested
-- [ ] Remove Google/Apple social buttons
-- [ ] Tests: `useAuth`, `validation`, nav gating, session restore
-- [ ] `commit + push`: `feat: persist auth session, gate navigation, fix login flow`
+## Phase 1 — Auth & session correctness ✅
+- [x] Supabase client: SecureStore storage adapter + `persistSession` + `autoRefreshToken`
+- [x] Session restore on launch (`useAuthSession`: `getSession`/`onAuthStateChange`); RootNavigator gates auth vs main stacks (SplashView while restoring)
+- [x] Fix `handleLogin`/`handleSignup`: navigator swaps on auth state only — no manual navigate-on-failure; errors surfaced from hook (signIn/signUp return boolean)
+- [x] `utils/validation.ts` (email/password/name) — pure + tested; `mappers/user.ts` dedups session→User mapping
+- [x] Remove Google/Apple social buttons (Login + Signup)
+- [x] Tests: `useAuth` (12), `validation` (15), `userMapper` (4), `useAuthSession` (5) — 50 total green
+- [x] `commit + push`: `feat: persist auth session, gate navigation, fix login flow`
 
 ## Phase 2 — Saved persistence (hybrid)
 - [ ] Persist `savedIds`, `visitedMap`, place snapshots to AsyncStorage

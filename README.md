@@ -40,18 +40,30 @@ kutok/
 │   │   └── googleApi.ts     # Raw Google Places API response shapes, AutocompleteSuggestion
 │   ├── utils/
 │   │   ├── theme.ts         # INK, PAPER, PAPER2, MUTED, RED, HAIR constants
-│   │   └── formatters.ts    # padIndex(), getSubcategory()
+│   │   ├── formatters.ts    # padIndex(), getSubcategory(), formatHours()
+│   │   ├── geo.ts           # haversineDistance(), formatDistance()
+│   │   ├── placeFilters.ts  # applyPostFetchFilters() — client-side filters
+│   │   ├── places.ts        # category/radius/price maps, isOpenEvening()
+│   │   └── validation.ts    # isValidEmail(), validateSignIn(), validateSignUp()
+│   ├── config/
+│   │   └── googlePlaces.ts  # API key, endpoint URLs, FIELD_MASK constants
+│   ├── mappers/
+│   │   ├── googlePlaces.ts  # buildRequestBody(), mapGooglePlace()
+│   │   └── user.ts          # mapSupabaseUser() — session user → User
 │   ├── api/
 │   │   ├── googlePlaces.ts  # fetchNearbyPlaces, autocompletePlaces, fetchPlaceLocation
 │   │   ├── savedPlaces.ts   # fetchSavedPlaces, savePlace, unsavePlace, toggleVisited
-│   │   └── supabase.ts      # Supabase client
+│   │   └── supabase.ts      # Supabase client (SecureStore-persisted session)
 │   ├── store/
 │   │   └── useAppStore.ts   # Single Zustand store; DEFAULT_FILTERS
 │   ├── hooks/
 │   │   ├── useDiscover.ts   # Deck logic: like, pass, undo, reset, auto-fetch
 │   │   ├── useSaved.ts      # Tab filtering + city grouping
-│   │   ├── useAuth.ts       # signIn, signUp, signOut, sendPasswordReset
+│   │   ├── useAuth.ts       # signIn, signUp, signOut, sendPasswordReset (validate first, return success)
+│   │   ├── useAuthSession.ts # Session restore on launch + auth state subscription
 │   │   ├── useFilters.ts    # Local filter state + applyFilters()
+│   │   ├── useFindPlace.ts  # Look up a place by id from fetched pool
+│   │   ├── usePlaceDetails.ts # Lazy Place Details (phone/website), cached
 │   │   └── useLocationInput.ts  # Location text input, autocomplete, GPS
 │   ├── ui/                  # Logic-free primitives
 │   │   ├── Button.tsx
@@ -69,6 +81,8 @@ kutok/
 │   │   ├── SwipeCard.tsx    # Pan gesture + LIKE/PASS stamps
 │   │   ├── BottomNav.tsx    # Custom tab bar
 │   │   ├── SavedRow.tsx     # Horizontal row for saved list
+│   │   ├── SplashView.tsx   # Branded splash shown while session restores
+│   │   ├── LegalScreen.tsx  # Shared layout for Privacy/Terms content
 │   │   └── MapMarker.tsx    # Diamond pin for map view
 │   ├── screens/
 │   │   ├── LoginScreen.tsx
@@ -87,9 +101,13 @@ kutok/
 │   │   │   └── places.ts    # MOCK_PLACES shared test data
 │   │   ├── useDiscover.test.ts
 │   │   ├── useSaved.test.ts
+│   │   ├── useAuth.test.ts
+│   │   ├── useAuthSession.test.ts
+│   │   ├── validation.test.ts
+│   │   ├── userMapper.test.ts
 │   │   └── formatters.test.ts
 │   └── navigation/
-│       └── RootNavigator.tsx  # Stack + tab navigation tree
+│       └── RootNavigator.tsx  # Auth-gated stacks: splash → login stack or main tabs
 ├── __mocks__/               # Jest mocks for native modules
 └── jest.config.js
 ```

@@ -1,10 +1,14 @@
 module.exports = {
   createClient: jest.fn(() => ({
     auth: {
-      signInWithPassword: jest.fn(),
-      signUp: jest.fn(),
-      signOut: jest.fn(),
-      resetPasswordForEmail: jest.fn(),
+      signInWithPassword: jest.fn(async () => ({ data: { user: null, session: null }, error: null })),
+      signUp: jest.fn(async () => ({ data: { user: null, session: null }, error: null })),
+      signOut: jest.fn(async () => ({ error: null })),
+      resetPasswordForEmail: jest.fn(async () => ({ data: {}, error: null })),
+      getSession: jest.fn(async () => ({ data: { session: null }, error: null })),
+      onAuthStateChange: jest.fn(() => ({
+        data: { subscription: { unsubscribe: jest.fn() } },
+      })),
     },
     from: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),

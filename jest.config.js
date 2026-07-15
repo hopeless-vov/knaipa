@@ -13,6 +13,8 @@ module.exports = {
     '^react-native-maps$': '<rootDir>/__mocks__/react-native-maps.js',
     '^@react-navigation/.*$': '<rootDir>/__mocks__/react-navigation.js',
     '^expo-location$': '<rootDir>/__mocks__/expo-location.js',
+    '^expo-secure-store$': '<rootDir>/__mocks__/expo-secure-store.js',
+    '^@react-native-async-storage/async-storage$': '<rootDir>/__mocks__/async-storage.js',
     '^@supabase/supabase-js$': '<rootDir>/__mocks__/supabase.js',
     '^@expo/vector-icons$': '<rootDir>/__mocks__/expo-vector-icons.js',
   },

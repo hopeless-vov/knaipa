@@ -15,7 +15,6 @@ import { INK, PAPER, MUTED, RED, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
-import Rule from '../ui/Rule';
 import { useAuth } from '../hooks/useAuth';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
@@ -27,8 +26,8 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
+    // On success the auth-gated navigator swaps to the main stack automatically
     await signIn(email, password);
-    navigation.replace('Main');
   };
 
   return (
@@ -75,17 +74,6 @@ export default function LoginScreen({ navigation }: Props) {
           </Pressable>
         </View>
 
-        <View style={styles.dividerRow}>
-          <Rule faint />
-          <Text style={styles.orText}>OR</Text>
-          <Rule faint />
-        </View>
-
-        <View style={styles.socialButtons}>
-          <Button label="Continue with Google" onPress={() => {}} variant="outline" size="lg" full />
-          <Button label="Continue with Apple" onPress={() => {}} variant="outline" size="lg" full />
-        </View>
-
         <Pressable onPress={() => navigation.navigate('Signup')} style={styles.centered}>
           <Text style={styles.signupLink}>New to Kutok? Create an account</Text>
         </Pressable>
@@ -127,20 +115,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: MUTED,
     textDecorationLine: 'underline',
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  orText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: MUTED,
-    letterSpacing: 1.5,
-  },
-  socialButtons: {
-    gap: 10,
   },
   signupLink: {
     fontSize: 13,
