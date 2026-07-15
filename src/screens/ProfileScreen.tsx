@@ -44,10 +44,9 @@ function MenuRow({
 export default function ProfileScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
-  const savedPlacesGetter = useAppStore((s) => s.savedPlaces);
-  const visitedMap = useAppStore((s) => s.visitedMap);
+  const savedPlacesById = useAppStore((s) => s.savedPlacesById);
 
-  const savedPlaces = savedPlacesGetter();
+  const savedPlaces = Object.values(savedPlacesById);
   const visitedCount = savedPlaces.filter((p) => p.visited).length;
   const pendingCount = savedPlaces.length - visitedCount;
   const cities = new Set(savedPlaces.map((p) => p.city)).size;

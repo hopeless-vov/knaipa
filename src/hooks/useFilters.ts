@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { useAppStore, DEFAULT_FILTERS } from '../store/useAppStore';
+import { useAppStore, DEFAULT_FILTERS, FILTERS_KEY } from '../store/useAppStore';
 import { Filters } from '../types';
-
-const FILTERS_KEY = '@kutok/filters';
 
 export function useFilters() {
   const storeFilters = useAppStore((s) => s.filters);

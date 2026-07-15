@@ -5,6 +5,7 @@ import { RootStackParamList, TabParamList } from '../types';
 import BottomNav from '../components/BottomNav';
 import SplashView from '../components/SplashView';
 import { useAuthSession } from '../hooks/useAuthSession';
+import { useSavedBootstrap } from '../hooks/useSavedBootstrap';
 
 // Auth screens
 import LoginScreen from '../screens/LoginScreen';
@@ -38,6 +39,7 @@ function TabNavigator() {
 
 export default function RootNavigator() {
   const { user, restoring } = useAuthSession();
+  useSavedBootstrap();
 
   if (restoring) {
     return <SplashView />;

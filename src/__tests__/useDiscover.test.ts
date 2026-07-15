@@ -7,16 +7,15 @@ beforeEach(() => {
   useAppStore.setState({
     deck: [...MOCK_PLACES],
     allFetchedPlaces: [...MOCK_PLACES],
-    savedIds: new Set(),
+    savedPlacesById: {},
     history: [],
-    visitedMap: {},
     swipedIds: new Set(),
     totalFetched: MOCK_PLACES.length,
   });
 });
 
 describe('useDiscover', () => {
-  it('like() removes top card from deck and adds to savedIds', () => {
+  it('like() removes top card from deck and saves it', () => {
     const { result } = renderHook(() => useDiscover());
 
     const initialLength = result.current.deck.length;
@@ -29,7 +28,7 @@ describe('useDiscover', () => {
     });
 
     expect(result.current.deck.length).toBe(initialLength - 1);
-    expect(useAppStore.getState().savedIds.has(topCardId!)).toBe(true);
+    expect(useAppStore.getState().isSaved(topCardId!)).toBe(true);
   });
 
   it('pass() removes top card from deck without saving', () => {
@@ -43,7 +42,7 @@ describe('useDiscover', () => {
     });
 
     expect(result.current.deck.length).toBe(initialLength - 1);
-    expect(useAppStore.getState().savedIds.has(topCardId!)).toBe(false);
+    expect(useAppStore.getState().isSaved(topCardId!)).toBe(false);
   });
 
   it('undo() reverses the last like action', () => {
@@ -55,12 +54,12 @@ describe('useDiscover', () => {
     act(() => { result.current.like(); });
 
     expect(result.current.deck.length).toBe(initialLength - 1);
-    expect(useAppStore.getState().savedIds.has(topCardId!)).toBe(true);
+    expect(useAppStore.getState().isSaved(topCardId!)).toBe(true);
 
     act(() => { result.current.undo(); });
 
     expect(result.current.deck.length).toBe(initialLength);
-    expect(useAppStore.getState().savedIds.has(topCardId!)).toBe(false);
+    expect(useAppStore.getState().isSaved(topCardId!)).toBe(false);
   });
 
   it('undo() reverses the last pass action', () => {

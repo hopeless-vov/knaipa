@@ -39,15 +39,19 @@
 - [x] Tests: `useAuth` (12), `validation` (15), `userMapper` (4), `useAuthSession` (5) — 50 total green
 - [x] `commit + push`: `feat: persist auth session, gate navigation, fix login flow`
 
-## Phase 2 — Saved persistence (hybrid)
-- [ ] Persist `savedIds`, `visitedMap`, place snapshots to AsyncStorage
-- [ ] Decouple `savedPlaces()` from `allFetchedPlaces` (dedicated `savedPlacesById`)
-- [ ] Real `savedAt` timestamps
-- [ ] Wire `api/savedPlaces.ts`: save→upsert `places` + insert `saved_places`; unsave→delete; visited→update; login→fetch+merge
-- [ ] Simple sync queue (flush when online/authed)
-- [ ] Fix `activeFilterCount` (include sort/minReviews/hideSeen)
-- [ ] Tests: store saved actions, `savedPlaces.ts`, merge/sync, `useSaved.validPlaces`
-- [ ] `commit + push`: `feat: hybrid local+Supabase persistence for saved places`
+## Phase 2 — Saved persistence (hybrid) ✅
+- [x] Persist place snapshots to AsyncStorage (`store/savedStorage.ts`, key `@knaipa/saved`)
+- [x] Decouple saved from `allFetchedPlaces` — dedicated `savedPlacesById` snapshot map is the source of truth (survives deck refetch + restart)
+- [x] Real `savedAt` timestamps (preserved across re-like)
+- [x] Rework `api/savedPlaces.ts` to JSONB snapshot (`fetchRemoteSaved`, `pushSave` upsert, `pushUnsave`, `pushVisited`); README schema updated (JSONB + RLS)
+- [x] Persisted sync queue + flush (`store/savedSync.ts`, `@knaipa/syncQueue`) with `pullAndMerge` (remote ∪ pending-local-wins); `useSavedBootstrap` hydrates on launch + syncs on login (mounted in RootNavigator)
+- [x] Fix `activeFilterCount` (now includes availability/sort/minReviews/hideSeen)
+- [x] Removed dead `addSaved`; added `isSaved` getter
+- [x] Storage keys renamed `@kutok/*` → `@knaipa/*` (filters, deck cache)
+- [x] Tests: `savedStorage`, `savedSync`, `savedPlaces` api, `useAppStoreSaved` (+ migrated useDiscover/useSaved) — 11 suites / 93 tests green
+- [x] `commit + push`: `feat: hybrid local+Supabase persistence for saved places`
+
+> Note: `fetchDeck`/`fetchMoreDeck` unit tests deferred to Phase 3 (that phase reworks deck fetching/caching).
 
 ## Phase 3 — useDiscover bug + cost/caching
 - [ ] Stop `PlaceDetailScreen` using full `useDiscover`; thin `swipeLike/swipePass` selector; act on viewed place

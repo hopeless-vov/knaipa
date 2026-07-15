@@ -195,48 +195,38 @@ eas build --platform android
 
 ## Supabase Schema
 
-Run these migrations in the Supabase SQL editor:
+Run this migration in the Supabase SQL editor:
 
 ```sql
--- User profiles (extends auth.users)
-create table profiles (
-  id uuid references auth.users primary key,
-  name text not null,
-  created_at timestamptz default now()
-);
-
--- Places catalogue
-create table places (
-  id text primary key,
-  name text,
-  category text,
-  cover text,
-  gallery text[],
-  distance text,
-  about text,
-  hours text,
-  price text,
-  rating text,
-  type text,
-  highlights text[],
-  address text,
-  city text,
-  neighborhood text,
-  lat float8,
-  lng float8
-);
-
--- User saved places
+-- User saved places.
+-- The full place snapshot is stored as JSONB (place_data) so the app never
+-- re-fetches (and re-pays Google for) a place the user already saved.
 create table saved_places (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references profiles(id) on delete cascade,
-  place_id text references places(id),
-  visited boolean default false,
-  saved_at timestamptz default now()
+  user_id    uuid references auth.users on delete cascade,
+  place_id   text not null,
+  place_data jsonb not null,
+  visited    boolean default false,
+  saved_at   timestamptz default now(),
+  primary key (user_id, place_id)
 );
+
+-- Row Level Security: each user only sees/edits their own rows
+alter table saved_places enable row level security;
+
+create policy "own rows - select" on saved_places
+  for select using (auth.uid() = user_id);
+create policy "own rows - insert" on saved_places
+  for insert with check (auth.uid() = user_id);
+create policy "own rows - update" on saved_places
+  for update using (auth.uid() = user_id);
+create policy "own rows - delete" on saved_places
+  for delete using (auth.uid() = user_id);
 ```
 
-Enable Row Level Security and add policies so users can only read/write their own rows.
+User identity/name come from Supabase Auth (`auth.users` + `user_metadata.name`), so no
+separate `profiles` table is required. Saved state is **local-first**: it persists to the
+device (AsyncStorage) immediately and syncs to Supabase in the background (last-write-wins,
+with a persisted op queue so offline changes are not lost). See `src/store/savedSync.ts`.
 
 ---
 

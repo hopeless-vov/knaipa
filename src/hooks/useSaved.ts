@@ -1,17 +1,16 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../store/useAppStore';
+import { toSavedList } from '../store/savedStorage';
 import { SavedPlace } from '../types';
 
 type Tab = 'all' | 'been' | 'havent';
 
 export function useSaved() {
   const [activeTab, setActiveTab] = useState<Tab>('all');
-  const savedPlacesGetter = useAppStore((s) => s.savedPlaces);
-  // Subscribe to reactive slices so the hook re-renders when they change
-  useAppStore((s) => s.savedIds);
-  useAppStore((s) => s.visitedMap);
+  // Subscribe to the snapshot map so the hook re-renders on any saved change
+  const savedPlacesById = useAppStore((s) => s.savedPlacesById);
 
-  const all = savedPlacesGetter();
+  const all = useMemo<SavedPlace[]>(() => toSavedList(savedPlacesById), [savedPlacesById]);
 
   const filteredPlaces = useMemo<SavedPlace[]>(() => {
     switch (activeTab) {

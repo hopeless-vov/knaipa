@@ -24,7 +24,7 @@ const SECTIONS: LegalSection[] = [
   },
   {
     title: 'Your Rights',
-    body: 'You have the right to access, correct, or delete your personal information. You may also object to or restrict certain processing of your data. To exercise these rights, please contact us at privacy@kutok.app.',
+    body: 'You have the right to access, correct, or delete your personal information. You may also object to or restrict certain processing of your data. To exercise these rights, please contact us at privacy@knaipa.app.',
   },
   {
     title: 'Changes to This Policy',

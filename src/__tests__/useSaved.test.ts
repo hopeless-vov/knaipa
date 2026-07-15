@@ -2,27 +2,21 @@ import { act, renderHook } from '@testing-library/react-native';
 import { useSaved } from '../hooks/useSaved';
 import { useAppStore } from '../store/useAppStore';
 import { MOCK_PLACES } from './fixtures/places';
+import { buildSavedMap } from './fixtures/saved';
 
-// place-1, place-2, place-3 are in London; place-4 in Kyiv; place-5 in London
-const SAVED_IDS = ['place-1', 'place-2', 'place-3', 'place-4', 'place-5'];
-
+// place-1, place-2, place-3, place-5 are in London; place-4 in Kyiv
 beforeEach(() => {
   useAppStore.setState({
-    allFetchedPlaces: [...MOCK_PLACES],
-    savedIds: new Set(SAVED_IDS),
-    visitedMap: {
-      'place-1': true,
-      'place-2': false,
-      'place-3': true,
-      'place-4': false,
-      'place-5': false,
-    },
+    savedPlacesById: buildSavedMap(MOCK_PLACES, {
+      'place-1': { visited: true },
+      'place-3': { visited: true },
+    }),
     history: [],
   });
 });
 
 afterEach(() => {
-  useAppStore.setState({ savedIds: new Set(), visitedMap: {}, history: [] });
+  useAppStore.setState({ savedPlacesById: {}, history: [] });
 });
 
 describe('useSaved', () => {
