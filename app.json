@@ -13,7 +13,14 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.kutok.app",
+      "config": {
+        "googleMapsApiKey": "AIzaSyDPj7zaiapPuhe4wGO0B4NNWgdBNfkP8K4"
+      },
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Kutok uses your location to find nearby places to visit."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,8 +28,16 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.kutok.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDPj7zaiapPuhe4wGO0B4NNWgdBNfkP8K4"
+        }
+      },
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
     },
+    "plugins": ["expo-font", "expo-location"],
     "web": {
       "favicon": "./assets/favicon.png"
     }
