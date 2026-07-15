@@ -3,7 +3,12 @@ import { GooglePlace, AddressComponent } from '../types/googleApi';
 import { haversineDistance, formatDistance } from '../utils/geo';
 import { formatHours } from '../utils/formatters';
 import { FALLBACK_IMAGE, PRICE_LEVEL_MAP, PRIMARY_TYPE_LABEL_MAP, RADIUS_MAP, CATEGORY_QUERY_MAP, PRICE_FILTER_MAP } from '../utils/places';
-import { PLACES_BASE_URL } from '../config/googlePlaces';
+import {
+  PLACES_BASE_URL,
+  PHOTO_COVER_WIDTH_PX,
+  PHOTO_GALLERY_WIDTH_PX,
+  GALLERY_MAX,
+} from '../config/googlePlaces';
 
 const PAGE_SIZE = 20;
 
@@ -46,8 +51,8 @@ export function buildRequestBody(
 
 // ─── Response mapper ───────────────────────────────────────────────────────────
 
-function getPhotoUrl(photoName: string, apiKey: string): string {
-  return `${PLACES_BASE_URL}/${photoName}/media?maxWidthPx=800&key=${apiKey}`;
+function getPhotoUrl(photoName: string, apiKey: string, maxWidthPx: number): string {
+  return `${PLACES_BASE_URL}/${photoName}/media?maxWidthPx=${maxWidthPx}&key=${apiKey}`;
 }
 
 function extractAddressComponents(
@@ -74,8 +79,13 @@ export function mapGooglePlace(
 ): Place {
   const lat = gPlace.location?.latitude ?? 0;
   const lng = gPlace.location?.longitude ?? 0;
-  const photos = (gPlace.photos ?? []).map((p) => getPhotoUrl(p.name, apiKey));
-  const gallery = photos.slice(1, 3);
+  const photoNames = (gPlace.photos ?? []).map((p) => p.name);
+  const cover = photoNames.length
+    ? getPhotoUrl(photoNames[0], apiKey, PHOTO_COVER_WIDTH_PX)
+    : FALLBACK_IMAGE;
+  const gallery = photoNames
+    .slice(1, 1 + GALLERY_MAX)
+    .map((name) => getPhotoUrl(name, apiKey, PHOTO_GALLERY_WIDTH_PX));
   if (gallery.length === 0) gallery.push(FALLBACK_IMAGE);
 
   const hoursSource = gPlace.currentOpeningHours ?? gPlace.regularOpeningHours;
@@ -86,7 +96,7 @@ export function mapGooglePlace(
     category:
       PRIMARY_TYPE_LABEL_MAP[gPlace.primaryType ?? ''] ??
       (gPlace.primaryType ?? '').replace(/_/g, ' '),
-    cover: photos[0] ?? FALLBACK_IMAGE,
+    cover,
     gallery,
     distance: formatDistance(haversineDistance(userLat, userLng, lat, lng)),
     hours: formatHours(hoursSource, new Date().getDay()),

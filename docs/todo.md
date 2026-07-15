@@ -8,10 +8,11 @@
   - Pass token in every `autocompletePlaces()` call
   - Pass same token in `fetchPlaceLocation()` call
   - Reset token after: suggestion selected / GPS used / input cleared
-- [ ] Move Enterprise fields to lazy load (Place Details on card open)
-  - Remove from main FIELD_MASK: `rating`, `userRatingCount`, `priceLevel`, `regularOpeningHours`, `currentOpeningHours`
-  - Fetch via Place Details only when user opens a card
-  - Main search drops from Enterprise ($35) to Pro ($32/1k)
+- [~] Move Enterprise fields to lazy load (Place Details on card open)
+  - DECISION (2026-07): NOT doing this — product choice to keep rating + hours
+    visible on the swipe deck cards. Main search stays Enterprise ($35/1k).
+  - (Reference) would have removed from FIELD_MASK: `rating`, `userRatingCount`,
+    `priceLevel`, `regularOpeningHours`, `currentOpeningHours` → Pro ($32/1k)
 - [ ] Set hard quota limits in Google Cloud Console
   - Places API Text Search: ~50 requests/day
   - Place Details Photos: ~100 requests/day

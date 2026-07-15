@@ -240,3 +240,22 @@ When quota is hit, API returns 429 — app shows "no results" gracefully instead
 
 Main search cost drops from **$40 → $32/1k** (−20%).
 Photo cost drops from the main billing driver to near-zero for users who don't open cards.
+
+---
+
+## Implementation status (updated 2026-07)
+
+| # | Item | Status |
+|---|---|---|
+| 1 | Remove `editorialSummary` | ✅ Done |
+| 2 | Lazy Enterprise fields (rating/hours) | ❌ **Not doing** — product choice to keep rating + hours on deck cards; search stays Enterprise $35/1k |
+| 3 | Lazy gallery photos | ✅ Done — `PlaceDetails lazyGallery` prop; in-deck preview loads **zero** gallery photos until the user taps "SHOW PHOTOS" |
+| 4 | Smaller photos | ✅ Done — cover 600px, gallery 800px (config `PHOTO_*_WIDTH_PX`). One width per photo so each stays a single cached request (splitting sizes would double-bill) |
+| 5 | Autocomplete session tokens | ✅ Done |
+| 6 | Cloud Console quota caps | ⚪ Console-side (see below) |
+
+**Additional cost fixes (not in original doc):**
+- **Deck detail open no longer triggers a search.** `PlaceDetailScreen` used `useDiscover`, whose mount effect re-ran GPS + a billed `searchText` on *every* card open — removed.
+- **Deck cache now actually saves searches.** A cache hit within 10 min serves with **no** background request; only 10–30 min old caches revalidate (`DECK_REVALIDATE_AFTER_MS`). Previously every `fetchDeck` fired a billed request regardless of cache.
+
+**Reminder — still a manual step (#6):** set hard daily quota caps in Google Cloud Console (Text Search ~50/day, Place Details ~200/day, Photos ~100/day) so a bug or bot can't run up the bill.

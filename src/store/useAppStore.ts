@@ -13,7 +13,10 @@ import { SyncOp, enqueue, flushQueue, pullAndMerge } from './savedSync';
 
 export const FILTERS_KEY = '@knaipa/filters';
 const DECK_CACHE_PREFIX = '@knaipa/deck:';
-const DECK_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const DECK_CACHE_TTL_MS = 30 * 60 * 1000; // 30 min — cache still usable
+// Within this window a cache hit is served with NO background request (saves
+// billed searches on repeat opens). Between this and the TTL we revalidate.
+const DECK_REVALIDATE_AFTER_MS = 10 * 60 * 1000; // 10 minutes
 
 export const DEFAULT_FILTERS: Filters = {
   locText: '',
@@ -178,9 +181,13 @@ export const useAppStore = create<AppState>((set, get) => {
         const raw = await AsyncStorage.getItem(cacheKey);
         if (raw) {
           const { data, nextPageToken, timestamp } = JSON.parse(raw) as { data: Place[]; nextPageToken: string | null; timestamp: number };
-          if (Date.now() - timestamp < DECK_CACHE_TTL_MS) {
+          const age = Date.now() - timestamp;
+          if (age < DECK_CACHE_TTL_MS) {
             applyPlaces(data, nextPageToken);
-            fetchFresh(true); // silent background revalidation
+            // Only spend a billed request revalidating once the cache is stale-ish
+            if (age >= DECK_REVALIDATE_AFTER_MS) {
+              fetchFresh(true); // silent background revalidation
+            }
             return;
           }
         }

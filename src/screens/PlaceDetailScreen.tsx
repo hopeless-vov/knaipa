@@ -12,7 +12,7 @@ import PlaceCover from '../components/PlaceCover';
 import PlaceDetails from '../components/PlaceDetails';
 import { useFindPlace } from '../hooks/useFindPlace';
 import { usePlaceDetails } from '../hooks/usePlaceDetails';
-import { useDiscover } from '../hooks/useDiscover';
+import { useAppStore } from '../store/useAppStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PlaceDetail'>;
 
@@ -21,7 +21,9 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
   const { placeId, fromDiscover } = route.params;
   const place = useFindPlace(placeId);
   const { details } = usePlaceDetails(placeId);
-  const { like, pass } = useDiscover();
+  // Act on the viewed place directly — avoid useDiscover's GPS/fetch lifecycle
+  const swipeLike = useAppStore((s) => s.swipeLike);
+  const swipePass = useAppStore((s) => s.swipePass);
 
   if (!place) {
     return (
@@ -61,7 +63,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
           <Button
             label="Pass"
             onPress={() => {
-              pass();
+              swipePass(place);
               navigation.goBack();
             }}
             variant="outline"
@@ -71,7 +73,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
           <Button
             label="Like"
             onPress={() => {
-              like();
+              swipeLike(place);
               navigation.goBack();
             }}
             variant="filled"

@@ -218,7 +218,7 @@ export default function DiscoverScreen({ navigation }: Props) {
               <Text style={styles.detailsLabel}>About this place</Text>
               <Text style={styles.scrollHint}>scroll ↓</Text>
             </View>
-            <PlaceDetails place={displayedCard} />
+            <PlaceDetails place={displayedCard} lazyGallery />
             <View style={{ height: 24 }} />
           </Animated.View>
         )}

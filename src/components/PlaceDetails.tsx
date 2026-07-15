@@ -15,12 +15,19 @@ const GALLERY_PREVIEW = 2; // photos shown before "show all"
 interface PlaceDetailsProps {
   place: Place;
   details?: PlaceExtraDetails | null;
+  /**
+   * Defer loading gallery photos until the user taps to reveal them. Use in the
+   * Discover deck preview so passed-over cards never fire photo requests.
+   */
+  lazyGallery?: boolean;
 }
 
-export default function PlaceDetails({ place, details }: PlaceDetailsProps) {
+export default function PlaceDetails({ place, details, lazyGallery = false }: PlaceDetailsProps) {
   const [viewerIndex, setViewerIndex] = useState(0);
   const [viewerVisible, setViewerVisible] = useState(false);
   const [galleryExpanded, setGalleryExpanded] = useState(false);
+  // When lazy, images (and their photo requests) are held back until revealed
+  const [galleryRevealed, setGalleryRevealed] = useState(!lazyGallery);
 
   const visiblePhotos = galleryExpanded ? place.gallery : place.gallery.slice(0, GALLERY_PREVIEW);
   const hasMore = place.gallery.length > GALLERY_PREVIEW && !galleryExpanded;
@@ -60,59 +67,68 @@ export default function PlaceDetails({ place, details }: PlaceDetailsProps) {
 
   return (
     <View style={styles.container}>
-      <PhotoViewer
-        photos={place.gallery}
-        initialIndex={viewerIndex}
-        visible={viewerVisible}
-        onClose={() => setViewerVisible(false)}
-      />
-
       {/* Gallery */}
       {place.gallery.length > 0 && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>GALLERY</Text>
           <Rule faint />
-          {visiblePhotos.length > 2 ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              nestedScrollEnabled
-              contentContainerStyle={styles.galleryScroll}
-              style={styles.galleryScrollView}
-            >
-              {visiblePhotos.map((uri, i) => (
-                <Pressable key={i} onPress={() => openPhoto(i)}>
-                  <Image
-                    source={{ uri }}
-                    style={styles.galleryThumb}
-                    contentFit="cover"
-                    cachePolicy="memory-disk"
-                    recyclingKey={uri}
-                    priority="low"
-                  />
-                </Pressable>
-              ))}
-            </ScrollView>
-          ) : (
-            <View style={styles.gallery}>
-              {visiblePhotos.map((uri, i) => (
-                <Pressable key={i} onPress={() => openPhoto(i)} style={styles.galleryItem}>
-                  <Image
-                    source={{ uri }}
-                    style={styles.galleryImage}
-                    contentFit="cover"
-                    cachePolicy="memory-disk"
-                    recyclingKey={uri}
-                    priority="low"
-                  />
-                </Pressable>
-              ))}
-            </View>
-          )}
-          {hasMore && (
-            <Pressable onPress={() => setGalleryExpanded(true)} style={styles.showAllBtn}>
-              <Text style={styles.showAllText}>SHOW ALL {place.gallery.length} PHOTOS</Text>
+          {!galleryRevealed ? (
+            <Pressable onPress={() => setGalleryRevealed(true)} style={styles.showAllBtn}>
+              <Text style={styles.showAllText}>
+                SHOW {place.gallery.length} {place.gallery.length === 1 ? 'PHOTO' : 'PHOTOS'}
+              </Text>
             </Pressable>
+          ) : (
+            <>
+              <PhotoViewer
+                photos={place.gallery}
+                initialIndex={viewerIndex}
+                visible={viewerVisible}
+                onClose={() => setViewerVisible(false)}
+              />
+              {visiblePhotos.length > 2 ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  nestedScrollEnabled
+                  contentContainerStyle={styles.galleryScroll}
+                  style={styles.galleryScrollView}
+                >
+                  {visiblePhotos.map((uri, i) => (
+                    <Pressable key={i} onPress={() => openPhoto(i)}>
+                      <Image
+                        source={{ uri }}
+                        style={styles.galleryThumb}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        recyclingKey={uri}
+                        priority="low"
+                      />
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              ) : (
+                <View style={styles.gallery}>
+                  {visiblePhotos.map((uri, i) => (
+                    <Pressable key={i} onPress={() => openPhoto(i)} style={styles.galleryItem}>
+                      <Image
+                        source={{ uri }}
+                        style={styles.galleryImage}
+                        contentFit="cover"
+                        cachePolicy="memory-disk"
+                        recyclingKey={uri}
+                        priority="low"
+                      />
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+              {hasMore && (
+                <Pressable onPress={() => setGalleryExpanded(true)} style={styles.showAllBtn}>
+                  <Text style={styles.showAllText}>SHOW ALL {place.gallery.length} PHOTOS</Text>
+                </Pressable>
+              )}
+            </>
           )}
         </View>
       )}

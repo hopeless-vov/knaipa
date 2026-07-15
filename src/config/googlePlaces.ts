@@ -6,6 +6,15 @@ export const REQUEST_TIMEOUT_MS = 10000;
 
 export const DETAILS_FIELD_MASK = ['websiteUri', 'nationalPhoneNumber'].join(',');
 
+// Photo fetch sizes (px). Billing is per-request regardless of size, so each
+// photo keeps ONE width (cover URL === the URL reused everywhere it appears) to
+// stay a single cached request. These tune bandwidth only.
+export const PHOTO_COVER_WIDTH_PX = 600;
+export const PHOTO_GALLERY_WIDTH_PX = 800;
+// How many gallery photos (after the cover) to keep references for. Rendering is
+// lazy, so extra references cost nothing until the user reveals them.
+export const GALLERY_MAX = 7;
+
 export const FIELD_MASK = [
   'places.id',
   'places.displayName',

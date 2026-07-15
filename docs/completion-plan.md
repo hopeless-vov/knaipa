@@ -53,15 +53,17 @@
 
 > Note: `fetchDeck`/`fetchMoreDeck` unit tests deferred to Phase 3 (that phase reworks deck fetching/caching).
 
-## Phase 3 — useDiscover bug + cost/caching
-- [ ] Stop `PlaceDetailScreen` using full `useDiscover`; thin `swipeLike/swipePass` selector; act on viewed place
-- [ ] Gate `fetchDeck` background revalidation on cache age
-- [ ] Lazy gallery render (onLayout/scroll guard) in in-deck `PlaceDetails`
-- [ ] 400px covers (separate higher-res for fullscreen), smaller thumbs
-- [ ] Fix dead gallery cap / SHOW ALL branch
-- [ ] Don't bake API key into persisted cached URLs
-- [ ] Tests: cache-age logic, `fetchMoreDeck` dedupe, mapper, `googlePlaces` api, `placeFilters`, `geo`, `formatHours`, `isOpenEvening`
-- [ ] `commit + push`: `perf: fix redundant fetches, gate cache, lazy photos`
+## Phase 3 — useDiscover bug + cost/caching ✅
+- [x] `PlaceDetailScreen` now calls store `swipeLike`/`swipePass` on the *viewed* place — dropped `useDiscover` (killed GPS + billed `searchText` on every card open)
+- [x] Gate `fetchDeck` background revalidation on cache age (`DECK_REVALIDATE_AFTER_MS` = 10 min; fresh cache serves with NO billed request)
+- [x] Lazy gallery in in-deck `PlaceDetails` (`lazyGallery` prop → reveal button; no photo requests until tapped). Full detail page loads normally
+- [x] Photo widths parameterized in config (cover 600 / gallery 800); one width per photo → single cached request (no double-billing)
+- [x] Gallery cap raised to `GALLERY_MAX`=7 → "SHOW ALL N PHOTOS" branch reachable
+- [~] API key in persisted cached URLs — **deferred to Phase 7** (public `EXPO_PUBLIC` client key = low risk; clean fix touches types + 3 image components which Phase 7 refactors)
+- [x] Tests: `useAppStoreDeck` (cache-age + fetchMoreDeck dedupe), `mapperGooglePlaces`, `googlePlacesApi`, `placeFilters`, `geo`, `formatHours`, `places.isOpenEvening` — 17 suites / 150 tests green
+- [x] `commit + push`: `perf: fix redundant fetches, gate cache, lazy photos`
+
+> Cost-opt #2 (lazy Enterprise fields) intentionally NOT done — user chose to keep rating/hours on deck cards.
 
 ## Phase 4 — Discovery Browse / Search
 - [ ] Add `searchNearby` to `api/` + `config/` (FIELD_MASK, `includedTypes`, `POPULARITY`, `locationRestriction.circle`)
