@@ -9,10 +9,12 @@ import { useAppStore } from '../store/useAppStore';
 export function useSavedBootstrap() {
   const userId = useAppStore((s) => s.user?.id ?? null);
   const hydrateSaved = useAppStore((s) => s.hydrateSaved);
+  const hydratePreferences = useAppStore((s) => s.hydratePreferences);
   const syncSaved = useAppStore((s) => s.syncSaved);
 
   useEffect(() => {
     hydrateSaved();
+    hydratePreferences();
   }, []);
 
   useEffect(() => {

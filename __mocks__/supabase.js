@@ -9,6 +9,7 @@ module.exports = {
       onAuthStateChange: jest.fn(() => ({
         data: { subscription: { unsubscribe: jest.fn() } },
       })),
+      updateUser: jest.fn(async () => ({ data: { user: null }, error: null })),
     },
     from: jest.fn(() => ({
       select: jest.fn().mockReturnThis(),

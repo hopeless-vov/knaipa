@@ -109,6 +109,27 @@ describe('fetchDeck', () => {
     expect(ids).not.toContain('place-2');
     expect(ids).toHaveLength(MOCK_PLACES.length - 2);
   });
+
+  it('passes the distance unit through to the API', async () => {
+    useAppStore.setState({
+      preferences: { ...useAppStore.getState().preferences, distanceUnit: 'mi' },
+    });
+    await useAppStore.getState().fetchDeck();
+    // fetchNearbyPlaces(lat, lng, filters, pageToken, distanceUnit)
+    expect(mockedApi.fetchNearbyPlaces.mock.calls[0][4]).toBe('mi');
+  });
+
+  it('sets deckError on a failed fresh fetch and clears it on the next success', async () => {
+    mockedApi.fetchNearbyPlaces.mockRejectedValueOnce(new Error('network down'));
+    await useAppStore.getState().fetchDeck();
+    expect(useAppStore.getState().deckError).toBeTruthy();
+    expect(useAppStore.getState().isLoading).toBe(false);
+
+    now += 60 * MIN; // bust the cache
+    await useAppStore.getState().fetchDeck();
+    expect(useAppStore.getState().deckError).toBeNull();
+    expect(useAppStore.getState().deck.length).toBe(MOCK_PLACES.length);
+  });
 });
 
 describe('fetchMoreDeck', () => {

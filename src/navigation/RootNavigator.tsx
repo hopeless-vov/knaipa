@@ -20,6 +20,9 @@ import ProfileScreen from '../screens/ProfileScreen';
 // Stack screens
 import PlaceDetailScreen from '../screens/PlaceDetailScreen';
 import FiltersScreen from '../screens/FiltersScreen';
+import SettingsScreen from '../screens/SettingsScreen';
+import PrivacyScreen from '../screens/PrivacyScreen';
+import TermsScreen from '../screens/TermsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -60,6 +63,11 @@ export default function RootNavigator() {
 
           {/* Place detail */}
           <Stack.Screen name="PlaceDetail" component={PlaceDetailScreen} />
+
+          {/* Settings & legal */}
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="Privacy" component={PrivacyScreen} />
+          <Stack.Screen name="Terms" component={TermsScreen} />
 
           {/* Filters — modal slide */}
           <Stack.Screen

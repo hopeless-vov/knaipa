@@ -5,6 +5,7 @@ export interface Place {
   cover: string;
   gallery: string[];
   distance: string;
+  distanceMeters: number;
   hours: string;
   price: string;
   rating: string;

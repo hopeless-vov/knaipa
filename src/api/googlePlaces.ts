@@ -26,7 +26,8 @@ export async function fetchNearbyPlaces(
   userLat: number,
   userLng: number,
   filters: Filters,
-  pageToken?: string
+  pageToken?: string,
+  distanceUnit: 'km' | 'mi' = 'km'
 ): Promise<{ places: Place[]; nextPageToken: string | null }> {
   const radius = RADIUS_MAP[filters.radius] ?? 1500;
   const isBrowse = filters.mode === 'browse';
@@ -69,7 +70,7 @@ export async function fetchNearbyPlaces(
     return haversineDistance(userLat, userLng, lat, lng) <= radius;
   });
 
-  const mapped = rawPlaces.map((g) => mapGooglePlace(g, userLat, userLng, GOOGLE_API_KEY));
+  const mapped = rawPlaces.map((g) => mapGooglePlace(g, userLat, userLng, GOOGLE_API_KEY, distanceUnit));
   const places = applyPostFetchFilters(mapped, rawPlaces, filters);
 
   // searchNearby has no pagination

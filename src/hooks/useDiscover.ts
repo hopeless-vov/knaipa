@@ -1,22 +1,27 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as Location from 'expo-location';
 import { useAppStore } from '../store/useAppStore';
 import { Place, Filters } from '../types';
 
-async function resolveGpsLocation(): Promise<{ lat: number; lng: number } | null> {
+type GpsResult =
+  | { status: 'ok'; coords: { lat: number; lng: number } }
+  | { status: 'denied' }
+  | { status: 'unavailable' };
+
+async function resolveGpsLocation(): Promise<GpsResult> {
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') return null;
+    if (status !== 'granted') return { status: 'denied' };
     const last = await Location.getLastKnownPositionAsync({});
-    if (last) return { lat: last.coords.latitude, lng: last.coords.longitude };
+    if (last) return { status: 'ok', coords: { lat: last.coords.latitude, lng: last.coords.longitude } };
     const pos = await Promise.race([
       Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
       new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
     ]);
-    if (!pos) return null;
-    return { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    if (!pos) return { status: 'unavailable' };
+    return { status: 'ok', coords: { lat: pos.coords.latitude, lng: pos.coords.longitude } };
   } catch {
-    return null;
+    return { status: 'unavailable' };
   }
 }
 
@@ -40,7 +45,9 @@ export function useDiscover() {
   const totalFetched = useAppStore((s) => s.totalFetched);
   const nextPageToken = useAppStore((s) => s.nextPageToken);
   const userLocation = useAppStore((s) => s.userLocation);
+  const deckError = useAppStore((s) => s.deckError);
 
+  const [locationDenied, setLocationDenied] = useState(false);
   const isMounted = useRef(false);
 
   // Auto-fetch more when 3 cards remain and a next page exists
@@ -51,18 +58,36 @@ export function useDiscover() {
     }
   }, [deck.length, nextPageToken, isLoading, isLoadingMore]);
 
-  // On mount: load saved filters first, then try GPS
+  // On mount: load saved filters first, then try GPS (unless the user disabled
+  // location services in Settings — then we never prompt).
   useEffect(() => {
     (async () => {
       await hydrateFilters();
-      const loc = await resolveGpsLocation();
-      if (loc) {
-        setUserLocation(loc);
-        await fetchDeck();
+      const locationEnabled = useAppStore.getState().preferences.notifications.location;
+      if (locationEnabled) {
+        const res = await resolveGpsLocation();
+        if (res.status === 'ok') {
+          setUserLocation(res.coords);
+          await fetchDeck();
+        } else if (res.status === 'denied') {
+          setLocationDenied(true);
+        }
       }
       isMounted.current = true;
     })();
   }, []);
+
+  // Re-request GPS on demand (e.g. from the "enable location" empty state)
+  const requestLocation = async () => {
+    const res = await resolveGpsLocation();
+    if (res.status === 'ok') {
+      setLocationDenied(false);
+      setUserLocation(res.coords);
+      fetchDeck();
+    } else if (res.status === 'denied') {
+      setLocationDenied(true);
+    }
+  };
 
   // Re-fetch when filter values actually change (skip if same). Debounced so
   // rapid browse-category toggles collapse into a single request.
@@ -125,6 +150,10 @@ export function useDiscover() {
     isLoading,
     isLoadingMore,
     hasLocation: userLocation !== null,
+    deckError,
+    locationDenied,
+    requestLocation,
+    retryFetch: fetchDeck,
     mode: filters.mode,
     categories: filters.categories,
     query: filters.query,

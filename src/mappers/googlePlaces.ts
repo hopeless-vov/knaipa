@@ -114,10 +114,12 @@ export function mapGooglePlace(
   gPlace: GooglePlace,
   userLat: number,
   userLng: number,
-  apiKey: string
+  apiKey: string,
+  distanceUnit: 'km' | 'mi' = 'km'
 ): Place {
   const lat = gPlace.location?.latitude ?? 0;
   const lng = gPlace.location?.longitude ?? 0;
+  const distanceMeters = haversineDistance(userLat, userLng, lat, lng);
   const photoNames = (gPlace.photos ?? []).map((p) => p.name);
   const cover = photoNames.length
     ? getPhotoUrl(photoNames[0], apiKey, PHOTO_COVER_WIDTH_PX)
@@ -137,7 +139,8 @@ export function mapGooglePlace(
       (gPlace.primaryType ?? '').replace(/_/g, ' '),
     cover,
     gallery,
-    distance: formatDistance(haversineDistance(userLat, userLng, lat, lng)),
+    distance: formatDistance(distanceMeters, distanceUnit),
+    distanceMeters,
     hours: formatHours(hoursSource, new Date().getDay()),
     price: PRICE_LEVEL_MAP[gPlace.priceLevel ?? ''] ?? '—',
     rating: gPlace.rating != null ? String(gPlace.rating) : 'N/A',

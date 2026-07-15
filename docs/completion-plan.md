@@ -77,17 +77,17 @@
 - [x] Tests: `buildRequestBody`+`buildNearbyRequestBody`, both-engine fetch, browse client filters, `useDiscoverModes` — 18 suites / 163 tests green
 - [x] `commit + push`: `feat: dual-mode discovery (browse / search)`
 
-## Phase 5 — Settings, Legal, Profile, units, error states
-- [ ] Register `Settings`/`Privacy`/`Terms` routes + `RootStackParamList`
-- [ ] Fix Profile menu: Account settings → Settings; Privacy/Terms → legal; keep Log out
-- [ ] Settings back button; add Privacy/Terms/Log out rows (reuse)
-- [ ] Account edit flows: email change, password change, display-name edit (Supabase) — small modal/inline components, logic in `useAccount` hook
-- [ ] Persist `preferences`; "Location services" toggle gates GPS usage
-- [ ] Apply distance units (km/mi) in `formatDistance`
-- [ ] Profile real data (member-since, city); Guides placeholder
-- [ ] Error/empty/retry: deck-fetch error + retry; location-denied distinct state + re-request; load-more indicator
-- [ ] Tests: `useAccount`, profile stats util, prefs logic, geo units, `useFilters`, error-state logic
-- [ ] `commit + push`: `feat: wire settings/legal, account editing, real profile, error states`
+## Phase 5 — Settings, Legal, Profile, units, error states ✅
+- [x] Registered `Settings`/`Privacy`/`Terms` routes + `RootStackParamList`
+- [x] Profile menu fixed: Account settings → Settings; Privacy/Terms → legal (was a dead PlaceDetail placeholder / no-ops); Log out kept
+- [x] Settings: back button + LEGAL section with Privacy/Terms links
+- [x] Account editing: `useAccount` hook (updateName/updatePassword/updateEmail via `supabase.auth.updateUser`) + `AccountEditRow` inline-edit component; email change surfaces a confirmation message; validation reused
+- [x] Preferences persisted (`@knaipa/preferences`, hydrated on launch); "Location services" toggle gates GPS (no prompt when off)
+- [x] Distance units: `formatDistance(m, unit)` (km/mi + feet); `Place.distanceMeters` stored; unit threaded through fetch/mapper; unit change reformats the loaded deck instantly (no refetch)
+- [x] Profile real data: `computeProfileStats` + `memberSince(createdAt)` + `homeCity(saved)`; Guides kept as placeholder
+- [x] Error/empty/retry: `deckError` + TRY AGAIN; location-denied distinct state + ENABLE LOCATION; load-more indicator (revived dead styles)
+- [x] Tests: `useAccount`, `profile`, geo miles, `useAppStorePrefs`, deckError/unit in `useAppStoreDeck`, +supabase `updateUser` mock — 21 suites / 188 tests green
+- [x] `commit + push`: `feat: wire settings/legal, account editing, real profile, error states`
 
 ## Phase 6 — i18n (en, uk)
 - [ ] i18n layer + en/uk locale files; drop `es`

@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Place, SavedPlace, User, Filters, SwipeHistoryEntry, UserPreferences } from '../types';
 import { fetchNearbyPlaces } from '../api/googlePlaces';
+import { formatDistance } from '../utils/geo';
 import {
   SavedPlacesById,
   loadSavedPlaces,
@@ -12,6 +13,7 @@ import {
 import { SyncOp, enqueue, flushQueue, pullAndMerge } from './savedSync';
 
 export const FILTERS_KEY = '@knaipa/filters';
+const PREFS_KEY = '@knaipa/preferences';
 const DECK_CACHE_PREFIX = '@knaipa/deck:';
 const DECK_CACHE_TTL_MS = 30 * 60 * 1000; // 30 min — cache still usable
 // Within this window a cache hit is served with NO background request (saves
@@ -59,6 +61,7 @@ interface AppState {
   isLoadingMore: boolean;
   totalFetched: number;
   nextPageToken: string | null;
+  deckError: string | null;
 
   // Actions
   setUser: (user: User | null) => void;
@@ -74,6 +77,7 @@ interface AppState {
   fetchDeck: () => Promise<void>;
   fetchMoreDeck: () => Promise<void>;
   hydrateFilters: () => Promise<void>;
+  hydratePreferences: () => Promise<void>;
   hydrateSaved: () => Promise<void>;
   syncSaved: (userId: string) => Promise<void>;
 
@@ -112,6 +116,7 @@ export const useAppStore = create<AppState>((set, get) => {
     isLoadingMore: false,
     totalFetched: 0,
     nextPageToken: null,
+    deckError: null,
 
     setUser: (user) => set({ user }),
 
@@ -123,6 +128,16 @@ export const useAppStore = create<AppState>((set, get) => {
         if (raw) {
           const saved = JSON.parse(raw) as Partial<Filters>;
           set((state) => ({ filters: { ...DEFAULT_FILTERS, ...state.filters, ...saved } }));
+        }
+      } catch {}
+    },
+
+    hydratePreferences: async () => {
+      try {
+        const raw = await AsyncStorage.getItem(PREFS_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw) as Partial<UserPreferences>;
+          set((state) => ({ preferences: { ...DEFAULT_PREFERENCES, ...state.preferences, ...saved } }));
         }
       } catch {}
     },
@@ -160,6 +175,7 @@ export const useAppStore = create<AppState>((set, get) => {
           nextPageToken,
           seenIds: new Set(visible.map((p) => p.id)),
           isLoading: false,
+          deckError: null,
         });
       };
 
@@ -167,13 +183,19 @@ export const useAppStore = create<AppState>((set, get) => {
         const s = get();
         if (!s.userLocation) return;
         try {
-          const { places, nextPageToken } = await fetchNearbyPlaces(s.userLocation.lat, s.userLocation.lng, s.filters);
+          const { places, nextPageToken } = await fetchNearbyPlaces(
+            s.userLocation.lat,
+            s.userLocation.lng,
+            s.filters,
+            undefined,
+            s.preferences.distanceUnit
+          );
           await AsyncStorage.setItem(cacheKey, JSON.stringify({ data: places, nextPageToken, timestamp: Date.now() }));
           applyPlaces(places, nextPageToken);
         } catch (err) {
           if (!background) {
             console.error('fetchDeck error:', err);
-            set({ isLoading: false });
+            set({ isLoading: false, deckError: 'Could not load places. Check your connection and try again.' });
           }
         }
       };
@@ -196,7 +218,7 @@ export const useAppStore = create<AppState>((set, get) => {
       } catch {}
 
       // No valid cache — show spinner
-      set({ isLoading: true, deck: [], nextPageToken: null, seenIds: new Set() });
+      set({ isLoading: true, deck: [], nextPageToken: null, seenIds: new Set(), deckError: null });
       await fetchFresh(false);
     },
 
@@ -209,7 +231,8 @@ export const useAppStore = create<AppState>((set, get) => {
           state.userLocation.lat,
           state.userLocation.lng,
           state.filters,
-          state.nextPageToken
+          state.nextPageToken,
+          state.preferences.distanceUnit
         );
         const { seenIds, swipedIds, filters, deck, allFetchedPlaces } = get();
         let fresh = newPlaces.filter((p) => !seenIds.has(p.id));
@@ -302,6 +325,16 @@ export const useAppStore = create<AppState>((set, get) => {
 
     setPreference: (key, value) => {
       set((state) => ({ preferences: { ...state.preferences, [key]: value } }));
+      AsyncStorage.setItem(PREFS_KEY, JSON.stringify(get().preferences)).catch(() => {});
+      // Re-format already-loaded distances immediately, no network needed
+      if (key === 'distanceUnit') {
+        const unit = value as UserPreferences['distanceUnit'];
+        const remap = (p: Place) => ({ ...p, distance: formatDistance(p.distanceMeters ?? 0, unit) });
+        set((state) => ({
+          deck: state.deck.map(remap),
+          allFetchedPlaces: state.allFetchedPlaces.map(remap),
+        }));
+      }
     },
 
     savedPlaces: () => toSavedList(get().savedPlacesById),

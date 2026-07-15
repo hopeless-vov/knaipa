@@ -17,11 +17,18 @@ export function haversineDistance(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+const METRES_PER_MILE = 1609.344;
+
 /**
- * Formats a distance in metres to a human-readable string.
- * < 1 000 m → "450 m", >= 1 000 m → "1.5 km"
+ * Formats a distance in metres to a human-readable string in the given unit.
+ * km: < 1 000 m → "450 m", >= 1 000 m → "1.5 km"
+ * mi: < 0.1 mi → feet ("320 ft"), else "1.2 mi"
  */
-export function formatDistance(metres: number): string {
+export function formatDistance(metres: number, unit: 'km' | 'mi' = 'km'): string {
+  if (unit === 'mi') {
+    const miles = metres / METRES_PER_MILE;
+    return miles < 0.1 ? `${Math.round(metres * 3.28084)} ft` : `${miles.toFixed(1)} mi`;
+  }
   return metres < 1000
     ? `${Math.round(metres)} m`
     : `${(metres / 1000).toFixed(1)} km`;

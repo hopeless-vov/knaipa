@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Main: undefined;
   PlaceDetail: { placeId: string; fromDiscover?: boolean };
   Filters: undefined;
+  Settings: undefined;
   Privacy: undefined;
   Terms: undefined;
 };

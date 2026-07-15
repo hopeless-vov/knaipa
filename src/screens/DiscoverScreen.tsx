@@ -38,7 +38,8 @@ export default function DiscoverScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const {
     deck, topCard, totalDeck, deckIndex, activeFilterCount, canUndo,
-    isLoading, isLoadingMore, hasLocation, like, pass, undo, reset,
+    isLoading, isLoadingMore, hasLocation, deckError, locationDenied,
+    requestLocation, retryFetch, like, pass, undo, reset,
     mode, categories, query, setMode, toggleCategory, submitSearch,
   } = useDiscover();
 
@@ -145,12 +146,29 @@ export default function DiscoverScreen({ navigation }: Props) {
               <Text style={styles.loadingText}>Finding places nearby...</Text>
             </View>
           </View>
+        ) : deckError && deck.length === 0 ? (
+          <View style={styles.emptyDeck}>
+            <Text style={styles.emptyTitle}>SOMETHING WENT WRONG</Text>
+            <Text style={styles.emptySub}>{deckError}</Text>
+            <TouchableOpacity style={styles.resetBtn} onPress={() => retryFetch()} activeOpacity={0.8}>
+              <Text style={styles.resetBtnText}>TRY AGAIN</Text>
+            </TouchableOpacity>
+          </View>
         ) : !hasLocation ? (
           <View style={styles.emptyDeck}>
-            <Text style={styles.emptyTitle}>NO LOCATION SET</Text>
-            <Text style={styles.emptySub}>
-              Enter a city or area in Filters{'\n'}to discover places nearby.
+            <Text style={styles.emptyTitle}>
+              {locationDenied ? 'LOCATION OFF' : 'NO LOCATION SET'}
             </Text>
+            <Text style={styles.emptySub}>
+              {locationDenied
+                ? 'Location permission is denied.\nAllow it, or set a city in Filters.'
+                : 'Enter a city or area in Filters\nto discover places nearby.'}
+            </Text>
+            {locationDenied && (
+              <TouchableOpacity style={styles.resetBtn} onPress={() => requestLocation()} activeOpacity={0.8}>
+                <Text style={styles.resetBtnText}>ENABLE LOCATION</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.resetBtn}
               onPress={() => navigation.navigate('Filters')}
@@ -193,6 +211,14 @@ export default function DiscoverScreen({ navigation }: Props) {
             >
               <Text style={styles.resetBtnText}>CHANGE FILTERS</Text>
             </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Loading more indicator */}
+        {isLoadingMore && (
+          <View style={styles.loadingMore}>
+            <ActivityIndicator color={MUTED} size="small" />
+            <Text style={styles.loadingMoreText}>Loading more places…</Text>
           </View>
         )}
 

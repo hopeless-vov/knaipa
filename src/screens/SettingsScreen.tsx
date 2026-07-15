@@ -1,19 +1,19 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Pressable,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
-import { INK, MUTED, HAIR, PAPER, SCREEN_PADDING } from '../utils/theme';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types';
+import { INK, MUTED, RED, PAPER, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
 import Toggle from '../ui/Toggle';
 import SegmentedControl from '../ui/SegmentedControl';
+import AccountEditRow from '../components/AccountEditRow';
 import { useAppStore } from '../store/useAppStore';
+import { useAccount } from '../hooks/useAccount';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 const DISTANCE_OPTIONS = [
   { value: 'km', label: 'KM' },
@@ -23,14 +23,13 @@ const DISTANCE_OPTIONS = [
 const LANGUAGE_OPTIONS = [
   { value: 'en', label: 'EN' },
   { value: 'uk', label: 'UK' },
-  { value: 'es', label: 'ES' },
 ];
 
-export default function SettingsScreen() {
+export default function SettingsScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const preferences = useAppStore((s) => s.preferences);
   const setPreference = useAppStore((s) => s.setPreference);
-  const user = useAppStore((s) => s.user);
+  const { user, loading, error, message, updateName, updatePassword, updateEmail } = useAccount();
 
   return (
     <ScrollView
@@ -40,47 +39,53 @@ export default function SettingsScreen() {
         { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 40 },
       ]}
       showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
     >
       {/* Header */}
       <View style={styles.headerTop}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.back}>
+          <Feather name="arrow-left" size={16} color={INK} />
+        </Pressable>
         <Text style={styles.metaText}>Account</Text>
       </View>
 
       <Wordmark size={56}>Settings</Wordmark>
 
-      {/* Account section */}
+      {/* Account */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>ACCOUNT</Text>
         <Rule faint />
-        <View style={styles.row}>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Email</Text>
-            <Text style={styles.rowValue}>{user?.email ?? '—'}</Text>
-          </View>
-          <Pressable style={styles.rowAction}>
-            <Text style={styles.rowActionText}>CHANGE</Text>
-          </Pressable>
-        </View>
+        <AccountEditRow
+          label="Email"
+          value={user?.email ?? ''}
+          initialDraft={user?.email ?? ''}
+          actionLabel="CHANGE"
+          placeholder="New email address"
+          loading={loading}
+          onSave={updateEmail}
+        />
         <Rule faint />
-        <View style={styles.row}>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Password</Text>
-            <Text style={styles.rowValue}>••••••••</Text>
-          </View>
-          <Pressable style={styles.rowAction}>
-            <Text style={styles.rowActionText}>UPDATE</Text>
-          </Pressable>
-        </View>
+        <AccountEditRow
+          label="Password"
+          value="••••••••"
+          actionLabel="UPDATE"
+          placeholder="New password"
+          secureTextEntry
+          loading={loading}
+          onSave={updatePassword}
+        />
         <Rule faint />
-        <View style={styles.row}>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Display name</Text>
-            <Text style={styles.rowValue}>{user?.name ?? '—'}</Text>
-          </View>
-          <Pressable style={styles.rowAction}>
-            <Text style={styles.rowActionText}>EDIT</Text>
-          </Pressable>
-        </View>
+        <AccountEditRow
+          label="Display name"
+          value={user?.name ?? ''}
+          initialDraft={user?.name ?? ''}
+          actionLabel="EDIT"
+          placeholder="Your name"
+          loading={loading}
+          onSave={updateName}
+        />
+        {!!error && <Text style={styles.error}>{error}</Text>}
+        {!!message && <Text style={styles.message}>{message}</Text>}
       </View>
 
       {/* Notifications */}
@@ -108,7 +113,10 @@ export default function SettingsScreen() {
         </View>
         <Rule faint />
         <View style={styles.row}>
-          <Text style={styles.rowLabel}>Location services</Text>
+          <View style={styles.rowInfo}>
+            <Text style={styles.rowLabel}>Location services</Text>
+            <Text style={styles.rowValue}>Use your GPS to find places nearby</Text>
+          </View>
           <Toggle
             value={preferences.notifications.location}
             onValueChange={(v) =>
@@ -140,23 +148,30 @@ export default function SettingsScreen() {
           />
         </View>
       </View>
+
+      {/* Legal */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>LEGAL</Text>
+        <Rule faint />
+        <Pressable style={styles.linkRow} onPress={() => navigation.navigate('Privacy')}>
+          <Text style={styles.rowLabel}>Privacy policy</Text>
+          <Feather name="chevron-right" size={16} color={MUTED} />
+        </Pressable>
+        <Rule faint />
+        <Pressable style={styles.linkRow} onPress={() => navigation.navigate('Terms')}>
+          <Text style={styles.rowLabel}>Terms of service</Text>
+          <Feather name="chevron-right" size={16} color={MUTED} />
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-    backgroundColor: PAPER,
-  },
-  content: {
-    paddingHorizontal: SCREEN_PADDING,
-    gap: 24,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  scroll: { flex: 1, backgroundColor: PAPER },
+  content: { paddingHorizontal: SCREEN_PADDING, gap: 24 },
+  headerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  back: { padding: 4 },
   metaText: {
     fontSize: 11,
     fontWeight: '700',
@@ -164,9 +179,7 @@ const styles = StyleSheet.create({
     color: MUTED,
     textTransform: 'uppercase',
   },
-  section: {
-    gap: 0,
-  },
+  section: { gap: 0 },
   sectionTitle: {
     fontSize: 10,
     fontWeight: '800',
@@ -180,26 +193,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 14,
   },
-  rowInfo: {
-    gap: 2,
+  linkRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
   },
-  rowLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: INK,
-  },
-  rowValue: {
-    fontSize: 13,
-    color: MUTED,
-  },
-  rowAction: {
-    padding: 4,
-  },
-  rowActionText: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    color: INK,
-    textDecorationLine: 'underline',
-  },
+  rowInfo: { gap: 2, flex: 1 },
+  rowLabel: { fontSize: 15, fontWeight: '500', color: INK },
+  rowValue: { fontSize: 13, color: MUTED },
+  error: { fontSize: 13, color: RED, paddingTop: 10 },
+  message: { fontSize: 13, color: INK, paddingTop: 10 },
 });

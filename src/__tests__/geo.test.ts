@@ -35,4 +35,22 @@ describe('formatDistance', () => {
   it('formats kilometres to one decimal', () => {
     expect(formatDistance(1543)).toBe('1.5 km');
   });
+
+  it('defaults to km when no unit is given', () => {
+    expect(formatDistance(1500)).toBe('1.5 km');
+  });
+
+  describe('miles', () => {
+    it('formats a mile', () => {
+      expect(formatDistance(1609.344, 'mi')).toBe('1.0 mi');
+    });
+
+    it('formats multiple miles to one decimal', () => {
+      expect(formatDistance(3218.688, 'mi')).toBe('2.0 mi');
+    });
+
+    it('uses feet for very short distances', () => {
+      expect(formatDistance(100, 'mi')).toBe('328 ft');
+    });
+  });
 });

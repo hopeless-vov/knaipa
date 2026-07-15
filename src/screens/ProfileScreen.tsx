@@ -18,6 +18,7 @@ import Rule from '../ui/Rule';
 import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../store/useAppStore';
 import { padIndex } from '../utils/formatters';
+import { computeProfileStats, memberSince, homeCity } from '../utils/profile';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, 'Profile'>,
@@ -47,9 +48,9 @@ export default function ProfileScreen({ navigation }: Props) {
   const savedPlacesById = useAppStore((s) => s.savedPlacesById);
 
   const savedPlaces = Object.values(savedPlacesById);
-  const visitedCount = savedPlaces.filter((p) => p.visited).length;
-  const pendingCount = savedPlaces.length - visitedCount;
-  const cities = new Set(savedPlaces.map((p) => p.city)).size;
+  const { visited: visitedCount, pending: pendingCount, cities } = computeProfileStats(savedPlaces);
+  const since = memberSince(user?.createdAt);
+  const city = homeCity(savedPlaces);
 
   const handleSignOut = async () => {
     // The auth-gated navigator swaps back to the login stack automatically
@@ -70,17 +71,19 @@ export default function ProfileScreen({ navigation }: Props) {
       {/* Header */}
       <View style={styles.headerTop}>
         <Text style={styles.metaText}>User profile</Text>
-        <Text style={styles.metaRight}>Since 2024</Text>
+        {!!since && <Text style={styles.metaRight}>{since}</Text>}
       </View>
 
       {/* User name */}
       <Wordmark size={56}>{displayName}</Wordmark>
 
       {/* Location */}
-      <View style={styles.locationRow}>
-        <Feather name="map-pin" size={14} color={MUTED} />
-        <Text style={styles.locationText}>London, UK</Text>
-      </View>
+      {!!city && (
+        <View style={styles.locationRow}>
+          <Feather name="map-pin" size={14} color={MUTED} />
+          <Text style={styles.locationText}>{city}</Text>
+        </View>
+      )}
 
       <Rule faint />
 
@@ -108,11 +111,11 @@ export default function ProfileScreen({ navigation }: Props) {
 
       {/* Menu */}
       <View style={styles.menu}>
-        <MenuRow label="Account settings" onPress={() => navigation.navigate('PlaceDetail', { placeId: '' })} />
+        <MenuRow label="Account settings" onPress={() => navigation.navigate('Settings')} />
         <Rule faint />
-        <MenuRow label="Privacy policy" onPress={() => {}} />
+        <MenuRow label="Privacy policy" onPress={() => navigation.navigate('Privacy')} />
         <Rule faint />
-        <MenuRow label="Terms of service" onPress={() => {}} />
+        <MenuRow label="Terms of service" onPress={() => navigation.navigate('Terms')} />
         <Rule faint />
         <MenuRow label="Log out" onPress={handleSignOut} danger />
       </View>

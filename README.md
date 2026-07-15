@@ -41,7 +41,8 @@ kutok/
 │   ├── utils/
 │   │   ├── theme.ts         # INK, PAPER, PAPER2, MUTED, RED, HAIR constants
 │   │   ├── formatters.ts    # padIndex(), getSubcategory(), formatHours()
-│   │   ├── geo.ts           # haversineDistance(), formatDistance()
+│   │   ├── geo.ts           # haversineDistance(), formatDistance(m, km|mi)
+│   │   ├── profile.ts       # computeProfileStats(), memberSince(), homeCity()
 │   │   ├── placeFilters.ts  # applyPostFetchFilters() — client-side filters
 │   │   ├── places.ts        # category/radius/price maps, isOpenEvening()
 │   │   └── validation.ts    # isValidEmail(), validateSignIn(), validateSignUp()
@@ -61,6 +62,8 @@ kutok/
 │   │   ├── useSaved.ts      # Tab filtering + city grouping
 │   │   ├── useAuth.ts       # signIn, signUp, signOut, sendPasswordReset (validate first, return success)
 │   │   ├── useAuthSession.ts # Session restore on launch + auth state subscription
+│   │   ├── useAccount.ts    # Update display name / password / email via Supabase
+│   │   ├── useSavedBootstrap.ts # Hydrate saved + preferences on launch; sync on login
 │   │   ├── useFilters.ts    # Local filter state + applyFilters()
 │   │   ├── useFindPlace.ts  # Look up a place by id from fetched pool
 │   │   ├── usePlaceDetails.ts # Lazy Place Details (phone/website), cached
