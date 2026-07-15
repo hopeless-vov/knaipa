@@ -19,9 +19,11 @@ const DECK_CACHE_TTL_MS = 30 * 60 * 1000; // 30 min — cache still usable
 const DECK_REVALIDATE_AFTER_MS = 10 * 60 * 1000; // 10 minutes
 
 export const DEFAULT_FILTERS: Filters = {
+  mode: 'browse',
+  categories: [],
+  query: '',
   locText: '',
   radius: 'near',
-  category: 'All',
   price: 'any',
   rating: 'any',
   availability: 'any',
@@ -306,12 +308,13 @@ export const useAppStore = create<AppState>((set, get) => {
 
     isSaved: (placeId) => placeId in get().savedPlacesById,
 
+    // Counts only the refinements hidden behind the Filters modal.
+    // Mode / categories / query live in the Discover header (always visible).
     activeFilterCount: () => {
       const { filters } = get();
       let count = 0;
       if (filters.locText) count++;
       if (filters.radius !== DEFAULT_FILTERS.radius) count++;
-      if (filters.category !== DEFAULT_FILTERS.category) count++;
       if (filters.price !== DEFAULT_FILTERS.price) count++;
       if (filters.rating !== DEFAULT_FILTERS.rating) count++;
       if (filters.availability !== DEFAULT_FILTERS.availability) count++;

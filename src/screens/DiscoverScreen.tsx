@@ -23,6 +23,7 @@ import { INK, PAPER, MUTED, RED, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import SwipeCard, { SwipeCardRef } from '../components/SwipeCard';
 import PlaceDetails from '../components/PlaceDetails';
+import DiscoverSearchBar from '../components/DiscoverSearchBar';
 import { useDiscover } from '../hooks/useDiscover';
 import { padIndex } from '../utils/formatters';
 
@@ -35,8 +36,11 @@ const VISIBLE_CARDS = 3;
 
 export default function DiscoverScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
-  const { deck, topCard, totalDeck, deckIndex, activeFilterCount, canUndo, isLoading, isLoadingMore, hasLocation, like, pass, undo, reset } =
-    useDiscover();
+  const {
+    deck, topCard, totalDeck, deckIndex, activeFilterCount, canUndo,
+    isLoading, isLoadingMore, hasLocation, like, pass, undo, reset,
+    mode, categories, query, setMode, toggleCategory, submitSearch,
+  } = useDiscover();
 
   const visibleDeck = useMemo(() => deck.slice(0, VISIBLE_CARDS), [deck]);
   const reversedDeck = useMemo(() => [...visibleDeck].reverse(), [visibleDeck]);
@@ -122,6 +126,16 @@ export default function DiscoverScreen({ navigation }: Props) {
         <View style={styles.titleRow}>
           <Wordmark size={68}>Explore</Wordmark>
         </View>
+
+        {/* Browse / Search */}
+        <DiscoverSearchBar
+          mode={mode}
+          categories={categories}
+          query={query}
+          onModeChange={setMode}
+          onToggleCategory={toggleCategory}
+          onSubmitQuery={submitSearch}
+        />
 
         {/* Card deck */}
         {isLoading && deck.length === 0 ? (

@@ -19,10 +19,9 @@
 
 ## Google Places API
 
-- [ ] Research `nearbySearch` endpoint as replacement for `searchText` for category browsing
-  - Supports `includedTypes: string[]` — multiple categories natively
-  - `locationRestriction` (strict) vs `locationBias` (hint)
-  - `rankPreference: POPULARITY` more suitable for discovery
-  - Limitation: max 20 results, no pagination — evaluate if acceptable
-- [ ] Multi-category selection in filters UI
-  - Depends on nearbySearch migration (searchText supports only single `includedType`)
+- [x] `nearbySearch` for category browsing — DONE (Phase 4). Powers the new
+  **Browse** mode: `includedTypes`, `rankPreference: POPULARITY`,
+  `locationRestriction.circle`, max 20 / no pagination. `searchText` stays for
+  the free-text **Search** mode (keeps pagination / infinite deck).
+- [x] Multi-category selection — DONE (Phase 4). Browse chips are multi-select
+  (`filters.categories[]` → flattened `includedTypes`).

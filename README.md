@@ -57,7 +57,7 @@ kutok/
 │   ├── store/
 │   │   └── useAppStore.ts   # Single Zustand store; DEFAULT_FILTERS
 │   ├── hooks/
-│   │   ├── useDiscover.ts   # Deck logic: like, pass, undo, reset, auto-fetch
+│   │   ├── useDiscover.ts   # Deck logic: like/pass/undo/reset, auto-fetch, browse/search mode + category/query controls
 │   │   ├── useSaved.ts      # Tab filtering + city grouping
 │   │   ├── useAuth.ts       # signIn, signUp, signOut, sendPasswordReset (validate first, return success)
 │   │   ├── useAuthSession.ts # Session restore on launch + auth state subscription
@@ -82,6 +82,7 @@ kutok/
 │   │   ├── BottomNav.tsx    # Custom tab bar
 │   │   ├── SavedRow.tsx     # Horizontal row for saved list
 │   │   ├── SplashView.tsx   # Branded splash shown while session restores
+│   │   ├── DiscoverSearchBar.tsx # Browse/Search toggle + category chips / query input
 │   │   ├── LegalScreen.tsx  # Shared layout for Privacy/Terms content
 │   │   └── MapMarker.tsx    # Diamond pin for map view
 │   ├── screens/

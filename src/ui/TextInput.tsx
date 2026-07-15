@@ -8,6 +8,8 @@ interface TextInputProps {
   placeholder?: string;
   secureTextEntry?: boolean;
   rightElement?: React.ReactNode;
+  onSubmitEditing?: () => void;
+  returnKeyType?: 'done' | 'go' | 'search' | 'send';
 }
 
 export default function TextInput({
@@ -16,6 +18,8 @@ export default function TextInput({
   placeholder,
   secureTextEntry,
   rightElement,
+  onSubmitEditing,
+  returnKeyType,
 }: TextInputProps) {
   return (
     <View style={styles.container}>
@@ -27,6 +31,8 @@ export default function TextInput({
         placeholderTextColor={MUTED}
         secureTextEntry={secureTextEntry}
         autoCapitalize="none"
+        onSubmitEditing={onSubmitEditing}
+        returnKeyType={returnKeyType}
       />
       {rightElement && <View style={styles.rightElement}>{rightElement}</View>}
     </View>

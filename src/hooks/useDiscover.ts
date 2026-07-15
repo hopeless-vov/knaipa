@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as Location from 'expo-location';
 import { useAppStore } from '../store/useAppStore';
-import { Place } from '../types';
+import { Place, Filters } from '../types';
 
 async function resolveGpsLocation(): Promise<{ lat: number; lng: number } | null> {
   try {
@@ -29,6 +29,7 @@ export function useDiscover() {
   const undoSwipe = useAppStore((s) => s.undoSwipe);
   const resetDeck = useAppStore((s) => s.resetDeck);
   const activeFilterCount = useAppStore((s) => s.activeFilterCount);
+  const setFilters = useAppStore((s) => s.setFilters);
   const fetchDeck = useAppStore((s) => s.fetchDeck);
   const fetchMoreDeck = useAppStore((s) => s.fetchMoreDeck);
   const hydrateFilters = useAppStore((s) => s.hydrateFilters);
@@ -63,16 +64,22 @@ export function useDiscover() {
     })();
   }, []);
 
-  // Re-fetch when filter values actually change (skip if same)
+  // Re-fetch when filter values actually change (skip if same). Debounced so
+  // rapid browse-category toggles collapse into a single request.
   const filtersKey = JSON.stringify(filters);
   const prevFiltersKey = useRef(filtersKey);
+  const refetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!isMounted.current) return;
     if (prevFiltersKey.current === filtersKey) return;
     prevFiltersKey.current = filtersKey;
 
-    fetchDeck();
+    if (refetchTimer.current) clearTimeout(refetchTimer.current);
+    refetchTimer.current = setTimeout(() => fetchDeck(), 400);
+    return () => {
+      if (refetchTimer.current) clearTimeout(refetchTimer.current);
+    };
   }, [filtersKey]);
 
   const topCard: Place | undefined = deck[0];
@@ -96,6 +103,18 @@ export function useDiscover() {
     resetDeck();
   };
 
+  const setMode = (mode: Filters['mode']) => setFilters({ mode });
+
+  const toggleCategory = (category: string) => {
+    const current = filters.categories;
+    const next = current.includes(category)
+      ? current.filter((c) => c !== category)
+      : [...current, category];
+    setFilters({ categories: next });
+  };
+
+  const submitSearch = (text: string) => setFilters({ query: text });
+
   return {
     deck,
     topCard,
@@ -106,6 +125,12 @@ export function useDiscover() {
     isLoading,
     isLoadingMore,
     hasLocation: userLocation !== null,
+    mode: filters.mode,
+    categories: filters.categories,
+    query: filters.query,
+    setMode,
+    toggleCategory,
+    submitSearch,
     like,
     pass,
     undo,

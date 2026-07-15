@@ -16,22 +16,25 @@ export const RADIUS_MAP: Record<string, number> = {
   '50km': 50000,
 };
 
+/** Fallback textQuery for search mode when the user hasn't typed anything. */
+export const DEFAULT_TEXT_QUERY = 'things to do';
+
 /**
- * UI category label → Google Places textQuery.
- * Each value must be a single search intent — never mix unrelated place types
- * in one query (e.g. "McDonalds KFC Kyiv" is explicitly banned by the API docs).
- * Synonyms for the same concept are fine ("cafes and coffee shops").
+ * Browse-mode category label → Google Places `includedTypes` (Table A).
+ * Used by searchNearby, which filters by type rather than free text.
  */
-export const CATEGORY_QUERY_MAP: Record<string, string> = {
-  All: 'things to do',
-  Culture: 'cultural attractions',
-  Café: 'cafes and coffee shops',
-  Museum: 'museums and art galleries',
-  Nature: 'parks and nature',
-  Food: 'restaurants',
-  Market: 'markets',
-  Bar: 'bars and nightlife',
+export const CATEGORY_INCLUDED_TYPES_MAP: Record<string, string[]> = {
+  Food: ['restaurant'],
+  Café: ['cafe', 'coffee_shop'],
+  Museum: ['museum', 'art_gallery'],
+  Nature: ['park', 'national_park', 'garden'],
+  Bar: ['bar', 'night_club'],
+  Market: ['market', 'supermarket'],
+  Culture: ['tourist_attraction', 'cultural_center', 'historical_landmark'],
 };
+
+/** Ordered category labels shown as browse chips in the Discover header. */
+export const BROWSE_CATEGORIES = Object.keys(CATEGORY_INCLUDED_TYPES_MAP);
 
 /** UI price label → Google API priceLevels array */
 export const PRICE_FILTER_MAP: Record<string, string[]> = {

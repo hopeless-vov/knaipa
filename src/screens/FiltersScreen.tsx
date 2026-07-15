@@ -22,7 +22,6 @@ import { useLocationInput } from '../hooks/useLocationInput';
 type Props = NativeStackScreenProps<RootStackParamList, 'Filters'>;
 
 const RADIUS_OPTIONS = ['near', '5km', '10km', '25km', '50km'];
-const CATEGORY_OPTIONS = ['All', 'Culture', 'Café', 'Museum', 'Nature', 'Food', 'Market', 'Bar'];
 const PRICE_OPTIONS = ['any', 'Free', '£', '££', '£££'];
 const RATING_OPTIONS = ['any', '4.0+', '4.5+', '4.8+'];
 const AVAILABILITY_OPTIONS = ['any', 'Open now', 'Open evening'];
@@ -121,17 +120,6 @@ export default function FiltersScreen({ navigation }: Props) {
             options={RADIUS_OPTIONS}
             value={localFilters.radius}
             onChange={(v) => updateLocal({ radius: v })}
-            size="sm"
-          />
-        </View>
-
-        {/* Category */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>CATEGORY</Text>
-          <ChipGroup
-            options={CATEGORY_OPTIONS}
-            value={localFilters.category}
-            onChange={(v) => updateLocal({ category: v })}
             size="sm"
           />
         </View>

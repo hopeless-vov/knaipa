@@ -144,18 +144,21 @@ describe('activeFilterCount', () => {
     expect(useAppStore.getState().activeFilterCount()).toBe(0);
   });
 
-  it('counts every non-default filter including sort, minReviews, hideSeen', () => {
+  it('counts modal refinements (locText, sort, minReviews, hideSeen) but not header categories/query', () => {
     useAppStore.setState({
       filters: {
         ...DEFAULT_FILTERS,
+        // header controls — must NOT be counted
+        categories: ['Food', 'Bar'],
+        query: 'ramen',
+        // modal refinements — counted
         locText: 'Kyiv',
-        category: 'Cafe',
         sort: 'rating',
         minReviews: '200+',
         hideSeen: true,
       },
     });
-    expect(useAppStore.getState().activeFilterCount()).toBe(5);
+    expect(useAppStore.getState().activeFilterCount()).toBe(4);
   });
 });
 

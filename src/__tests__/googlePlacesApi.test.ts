@@ -5,6 +5,10 @@ import {
   autocompletePlaces,
 } from '../api/googlePlaces';
 import { DEFAULT_FILTERS } from '../store/useAppStore';
+import { Filters } from '../types';
+
+const SEARCH_FILTERS: Filters = { ...DEFAULT_FILTERS, mode: 'search' };
+const BROWSE_FILTERS: Filters = { ...DEFAULT_FILTERS, mode: 'browse' };
 
 const okJson = (body: unknown) => ({ ok: true, json: async () => body, text: async () => '' });
 const errRes = (status = 500) => ({ ok: false, status, json: async () => ({}), text: async () => 'err' });
@@ -22,22 +26,31 @@ describe('fetchNearbyPlaces', () => {
   const near = { id: 'near', location: { latitude: 50.45, longitude: 30.52 }, displayName: { text: 'Near' }, types: [] };
   const far = { id: 'far', location: { latitude: 51.5, longitude: -0.1 }, displayName: { text: 'Far' }, types: [] };
 
-  it('maps results and enforces radius post-fetch', async () => {
+  it('SEARCH mode: hits searchText, maps results and keeps the page token', async () => {
     fetchMock.mockResolvedValueOnce(okJson({ places: [near, far], nextPageToken: 'TKN' }));
-    const { places, nextPageToken } = await fetchNearbyPlaces(50.45, 30.52, DEFAULT_FILTERS);
+    const { places, nextPageToken } = await fetchNearbyPlaces(50.45, 30.52, SEARCH_FILTERS);
+    expect(fetchMock.mock.calls[0][0]).toContain(':searchText');
     expect(places.map((p) => p.id)).toEqual(['near']); // far one filtered out by radius
     expect(nextPageToken).toBe('TKN');
   });
 
+  it('BROWSE mode: hits searchNearby and never returns a page token', async () => {
+    fetchMock.mockResolvedValueOnce(okJson({ places: [near], nextPageToken: 'TKN' }));
+    const { places, nextPageToken } = await fetchNearbyPlaces(50.45, 30.52, BROWSE_FILTERS);
+    expect(fetchMock.mock.calls[0][0]).toContain(':searchNearby');
+    expect(places.map((p) => p.id)).toEqual(['near']);
+    expect(nextPageToken).toBeNull(); // searchNearby has no pagination
+  });
+
   it('returns null nextPageToken when absent', async () => {
     fetchMock.mockResolvedValueOnce(okJson({ places: [] }));
-    const { nextPageToken } = await fetchNearbyPlaces(50.45, 30.52, DEFAULT_FILTERS);
+    const { nextPageToken } = await fetchNearbyPlaces(50.45, 30.52, SEARCH_FILTERS);
     expect(nextPageToken).toBeNull();
   });
 
   it('throws on a non-ok response', async () => {
     fetchMock.mockResolvedValueOnce(errRes(429));
-    await expect(fetchNearbyPlaces(50.45, 30.52, DEFAULT_FILTERS)).rejects.toThrow(/429/);
+    await expect(fetchNearbyPlaces(50.45, 30.52, SEARCH_FILTERS)).rejects.toThrow(/429/);
   });
 });
 

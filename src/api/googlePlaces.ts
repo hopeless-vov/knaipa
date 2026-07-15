@@ -2,19 +2,26 @@ import { Place, Filters } from '../types';
 import { GooglePlace, AutocompleteSuggestion } from '../types/googleApi';
 import { RADIUS_MAP } from '../utils/places';
 import { haversineDistance } from '../utils/geo';
-import { buildRequestBody, mapGooglePlace } from '../mappers/googlePlaces';
+import { buildRequestBody, buildNearbyRequestBody, mapGooglePlace } from '../mappers/googlePlaces';
 import { applyPostFetchFilters } from '../utils/placeFilters';
 import {
   GOOGLE_API_KEY,
   PLACES_BASE_URL,
   SEARCH_URL,
+  NEARBY_SEARCH_URL,
   AUTOCOMPLETE_URL,
   REQUEST_TIMEOUT_MS,
   FIELD_MASK,
+  NEARBY_FIELD_MASK,
   DETAILS_FIELD_MASK,
 } from '../config/googlePlaces';
 import { PlaceExtraDetails } from '../types';
 
+/**
+ * Fetches a page of places for the deck. BROWSE mode uses searchNearby
+ * (category + popularity, max 20, no pagination); SEARCH mode uses searchText
+ * (free text, paginated). Radius is always enforced strictly post-fetch.
+ */
 export async function fetchNearbyPlaces(
   userLat: number,
   userLng: number,
@@ -22,19 +29,24 @@ export async function fetchNearbyPlaces(
   pageToken?: string
 ): Promise<{ places: Place[]; nextPageToken: string | null }> {
   const radius = RADIUS_MAP[filters.radius] ?? 1500;
-  const body = buildRequestBody(userLat, userLng, filters, pageToken);
+  const isBrowse = filters.mode === 'browse';
+  const url = isBrowse ? NEARBY_SEARCH_URL : SEARCH_URL;
+  const fieldMask = isBrowse ? NEARBY_FIELD_MASK : FIELD_MASK;
+  const body = isBrowse
+    ? buildNearbyRequestBody(userLat, userLng, filters)
+    : buildRequestBody(userLat, userLng, filters, pageToken);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   let response: Response;
   try {
-    response = await fetch(SEARCH_URL, {
+    response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': GOOGLE_API_KEY,
-        'X-Goog-FieldMask': FIELD_MASK,
+        'X-Goog-FieldMask': fieldMask,
       },
       body: JSON.stringify(body),
       signal: controller.signal,
@@ -60,7 +72,8 @@ export async function fetchNearbyPlaces(
   const mapped = rawPlaces.map((g) => mapGooglePlace(g, userLat, userLng, GOOGLE_API_KEY));
   const places = applyPostFetchFilters(mapped, rawPlaces, filters);
 
-  return { places, nextPageToken: data.nextPageToken ?? null };
+  // searchNearby has no pagination
+  return { places, nextPageToken: isBrowse ? null : data.nextPageToken ?? null };
 }
 
 export async function fetchPlaceLocation(

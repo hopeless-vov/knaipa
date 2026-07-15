@@ -1,4 +1,4 @@
-import { buildRequestBody, mapGooglePlace } from '../mappers/googlePlaces';
+import { buildRequestBody, buildNearbyRequestBody, mapGooglePlace } from '../mappers/googlePlaces';
 import { GooglePlace } from '../types/googleApi';
 import { DEFAULT_FILTERS } from '../store/useAppStore';
 import { Filters } from '../types';
@@ -12,9 +12,9 @@ function filters(o: Partial<Filters>): Filters {
 beforeEach(() => jest.spyOn(Date.prototype, 'getDay').mockReturnValue(MONDAY));
 afterEach(() => jest.restoreAllMocks());
 
-describe('buildRequestBody', () => {
-  it('builds a relevance query with location bias for defaults', () => {
-    const body = buildRequestBody(51.5, -0.1, filters({})) as Record<string, any>;
+describe('buildRequestBody (search mode)', () => {
+  it('falls back to a default query with location bias', () => {
+    const body = buildRequestBody(51.5, -0.1, filters({ query: '' })) as Record<string, any>;
     expect(body.textQuery).toBe('things to do');
     expect(body.rankPreference).toBe('RELEVANCE');
     expect(body.locationBias.circle.radius).toBe(1500);
@@ -24,18 +24,22 @@ describe('buildRequestBody', () => {
     expect(body.priceLevels).toBeUndefined();
   });
 
+  it('uses the trimmed free-text query', () => {
+    const body = buildRequestBody(0, 0, filters({ query: '  rooftop bar  ' })) as Record<string, any>;
+    expect(body.textQuery).toBe('rooftop bar');
+  });
+
   it('uses DISTANCE ranking when sorting by distance', () => {
     const body = buildRequestBody(0, 0, filters({ sort: 'distance' })) as Record<string, any>;
     expect(body.rankPreference).toBe('DISTANCE');
   });
 
-  it('maps category, radius, openNow, minRating and priceLevels', () => {
+  it('maps radius, openNow, minRating and priceLevels', () => {
     const body = buildRequestBody(
       0,
       0,
-      filters({ category: 'Café', radius: '5km', availability: 'Open now', rating: '4.5', price: '££' })
+      filters({ radius: '5km', availability: 'Open now', rating: '4.5', price: '££' })
     ) as Record<string, any>;
-    expect(body.textQuery).toBe('cafes and coffee shops');
     expect(body.locationBias.circle.radius).toBe(5000);
     expect(body.openNow).toBe(true);
     expect(body.minRating).toBe(4.5);
@@ -50,6 +54,28 @@ describe('buildRequestBody', () => {
   it('omits minRating when rating is "any"', () => {
     const body = buildRequestBody(0, 0, filters({ rating: 'any' })) as Record<string, any>;
     expect(body.minRating).toBeUndefined();
+  });
+});
+
+describe('buildNearbyRequestBody (browse mode)', () => {
+  it('ranks by popularity with a location restriction and no includedTypes when empty', () => {
+    const body = buildNearbyRequestBody(51.5, -0.1, filters({ categories: [] })) as Record<string, any>;
+    expect(body.rankPreference).toBe('POPULARITY');
+    expect(body.maxResultCount).toBe(20);
+    expect(body.locationRestriction.circle.radius).toBe(1500);
+    expect(body.locationRestriction.circle.center).toEqual({ latitude: 51.5, longitude: -0.1 });
+    expect(body.includedTypes).toBeUndefined();
+    expect(body.textQuery).toBeUndefined();
+  });
+
+  it('flattens selected categories into includedTypes', () => {
+    const body = buildNearbyRequestBody(0, 0, filters({ categories: ['Café', 'Bar'] })) as Record<string, any>;
+    expect(body.includedTypes).toEqual(['cafe', 'coffee_shop', 'bar', 'night_club']);
+  });
+
+  it('uses DISTANCE ranking when sorting by distance', () => {
+    const body = buildNearbyRequestBody(0, 0, filters({ sort: 'distance' })) as Record<string, any>;
+    expect(body.rankPreference).toBe('DISTANCE');
   });
 });
 

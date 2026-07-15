@@ -65,14 +65,17 @@
 
 > Cost-opt #2 (lazy Enterprise fields) intentionally NOT done — user chose to keep rating/hours on deck cards.
 
-## Phase 4 — Discovery Browse / Search
-- [ ] Add `searchNearby` to `api/` + `config/` (FIELD_MASK, `includedTypes`, `POPULARITY`, `locationRestriction.circle`)
-- [ ] Store mode `'browse' | 'search'`
-- [ ] Browse: multi-category chips → top-20, auto-fetch-more disabled
-- [ ] Search: free-text input → `searchText` + pagination
-- [ ] UI: segmented Browse/Search in Discover header; multi-select chips; search input (reuse `SegmentedControl`, `Chip`, `TextInput`)
-- [ ] Tests: `buildRequestBody` both engines, mode switching, multi-category mapping, `searchNearby` api
-- [ ] `commit + push`: `feat: dual-mode discovery (browse / search)`
+## Phase 4 — Discovery Browse / Search ✅
+- [x] `searchNearby` added to `api/` + `config/` (`NEARBY_SEARCH_URL`, `NEARBY_FIELD_MASK`, `includedTypes`, `POPULARITY`, `locationRestriction.circle`, max 20)
+- [x] Filters model reworked: `mode: 'browse' | 'search'`, `categories: string[]`, `query: string` (dropped single `category`)
+- [x] Browse: multi-category chips → `searchNearby` top-20; `nextPageToken` forced null → auto-fetch-more naturally disabled
+- [x] Search: free-text input → `searchText` + pagination (submit on return key)
+- [x] `searchNearby` can't filter rating/price/openNow → enforced client-side in `applyPostFetchFilters` (browse mode only)
+- [x] UI: `DiscoverSearchBar` component (reuses `SegmentedControl`/`Chip`/`TextInput`) in Discover header; category selection moved out of Filters modal
+- [x] `useDiscover` exposes `setMode`/`toggleCategory`/`submitSearch`; filter re-fetch debounced 400ms so multi-toggle = one request
+- [x] `activeFilterCount` now counts only modal refinements (not header categories/query)
+- [x] Tests: `buildRequestBody`+`buildNearbyRequestBody`, both-engine fetch, browse client filters, `useDiscoverModes` — 18 suites / 163 tests green
+- [x] `commit + push`: `feat: dual-mode discovery (browse / search)`
 
 ## Phase 5 — Settings, Legal, Profile, units, error states
 - [ ] Register `Settings`/`Privacy`/`Terms` routes + `RootStackParamList`

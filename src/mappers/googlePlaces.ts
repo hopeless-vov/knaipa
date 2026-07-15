@@ -2,23 +2,32 @@ import { Place, Filters } from '../types';
 import { GooglePlace, AddressComponent } from '../types/googleApi';
 import { haversineDistance, formatDistance } from '../utils/geo';
 import { formatHours } from '../utils/formatters';
-import { FALLBACK_IMAGE, PRICE_LEVEL_MAP, PRIMARY_TYPE_LABEL_MAP, RADIUS_MAP, CATEGORY_QUERY_MAP, PRICE_FILTER_MAP } from '../utils/places';
+import {
+  FALLBACK_IMAGE,
+  PRICE_LEVEL_MAP,
+  PRIMARY_TYPE_LABEL_MAP,
+  RADIUS_MAP,
+  PRICE_FILTER_MAP,
+  CATEGORY_INCLUDED_TYPES_MAP,
+  DEFAULT_TEXT_QUERY,
+} from '../utils/places';
 import {
   PLACES_BASE_URL,
   PHOTO_COVER_WIDTH_PX,
   PHOTO_GALLERY_WIDTH_PX,
   GALLERY_MAX,
+  NEARBY_MAX_RESULTS,
 } from '../config/googlePlaces';
 
 const PAGE_SIZE = 20;
 
-// ─── Request builder ───────────────────────────────────────────────────────────
+// ─── Request builders ──────────────────────────────────────────────────────────
 
 /**
- * Builds the request body for the Google Places searchText endpoint.
+ * Builds the request body for the searchText endpoint (SEARCH mode).
  * Server-side filters: openNow, minRating, priceLevels.
- * Client-side-only filters (minReviews, Open evening, sort by rating)
- * are applied in utils/placeFilters.ts after the response arrives.
+ * Client-side-only filters (minReviews, Open evening, sort by rating) are
+ * applied in utils/placeFilters.ts after the response arrives.
  */
 export function buildRequestBody(
   userLat: number,
@@ -29,7 +38,7 @@ export function buildRequestBody(
   const radius = RADIUS_MAP[filters.radius] ?? 1500;
 
   const base: Record<string, unknown> = {
-    textQuery: CATEGORY_QUERY_MAP[filters.category] ?? CATEGORY_QUERY_MAP.All,
+    textQuery: filters.query.trim() || DEFAULT_TEXT_QUERY,
     pageSize: PAGE_SIZE,
     rankPreference: filters.sort === 'distance' ? 'DISTANCE' : 'RELEVANCE',
     languageCode: 'en',
@@ -47,6 +56,36 @@ export function buildRequestBody(
   if (priceLevels) base.priceLevels = priceLevels;
 
   return pageToken ? { ...base, pageToken } : base;
+}
+
+/**
+ * Builds the request body for the searchNearby endpoint (BROWSE mode).
+ * searchNearby filters by type, ranks by popularity, and returns up to 20
+ * results with NO pagination. It has no openNow/minRating/priceLevels params —
+ * those are enforced client-side in utils/placeFilters.ts.
+ */
+export function buildNearbyRequestBody(
+  userLat: number,
+  userLng: number,
+  filters: Filters
+): Record<string, unknown> {
+  const radius = RADIUS_MAP[filters.radius] ?? 1500;
+  const includedTypes = filters.categories.flatMap(
+    (c) => CATEGORY_INCLUDED_TYPES_MAP[c] ?? []
+  );
+
+  const body: Record<string, unknown> = {
+    maxResultCount: NEARBY_MAX_RESULTS,
+    rankPreference: filters.sort === 'distance' ? 'DISTANCE' : 'POPULARITY',
+    languageCode: 'en',
+    locationRestriction: {
+      circle: { center: { latitude: userLat, longitude: userLng }, radius },
+    },
+  };
+
+  if (includedTypes.length) body.includedTypes = includedTypes;
+
+  return body;
 }
 
 // ─── Response mapper ───────────────────────────────────────────────────────────
