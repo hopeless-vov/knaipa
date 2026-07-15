@@ -18,6 +18,7 @@ import ChipGroup from '../ui/ChipGroup';
 import Rule from '../ui/Rule';
 import { useFilters } from '../hooks/useFilters';
 import { useLocationInput } from '../hooks/useLocationInput';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Filters'>;
 
@@ -28,15 +29,16 @@ const AVAILABILITY_OPTIONS = ['any', 'Open now', 'Open evening'];
 const SORT_OPTIONS = ['relevance', 'distance', 'rating'];
 const MIN_REVIEWS_OPTIONS = ['any', '50+', '200+', '500+'];
 
-const PRESETS: { label: string; emoji: string; filters: Partial<Filters> }[] = [
-  { label: 'Tonight', emoji: '🌙', filters: { availability: 'Open evening' } },
-  { label: 'Budget', emoji: '💸', filters: { price: '£' } },
-  { label: 'Top Rated', emoji: '⭐', filters: { rating: '4.8+', sort: 'rating' } },
+const PRESETS: { labelKey: string; emoji: string; filters: Partial<Filters> }[] = [
+  { labelKey: 'filters.presetTonight', emoji: '🌙', filters: { availability: 'Open evening' } },
+  { labelKey: 'filters.presetBudget', emoji: '💸', filters: { price: '£' } },
+  { labelKey: 'filters.presetTopRated', emoji: '⭐', filters: { rating: '4.8+', sort: 'rating' } },
 ];
 
 export default function FiltersScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { localFilters, updateLocal, applyFilters, resetFilters } = useFilters();
+  const { t } = useTranslation();
   const { suggestions, onLocationChange, onSelectSuggestion, onCurrentLocation, clearSuggestions } =
     useLocationInput(updateLocal);
 
@@ -49,7 +51,7 @@ export default function FiltersScreen({ navigation }: Props) {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Wordmark size={32}>Filters</Wordmark>
+        <Wordmark size={32}>{t('filters.title')}</Wordmark>
         <Pressable onPress={() => navigation.goBack()}>
           <Feather name="x" size={24} color={INK} />
         </Pressable>
@@ -65,16 +67,16 @@ export default function FiltersScreen({ navigation }: Props) {
       >
         {/* Presets */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>QUICK FILTERS</Text>
+          <Text style={styles.sectionLabel}>{t('filters.quick')}</Text>
           <View style={styles.presets}>
             {PRESETS.map((preset) => (
               <Pressable
-                key={preset.label}
+                key={preset.labelKey}
                 style={styles.preset}
                 onPress={() => updateLocal(preset.filters)}
               >
                 <Text style={styles.presetEmoji}>{preset.emoji}</Text>
-                <Text style={styles.presetLabel}>{preset.label}</Text>
+                <Text style={styles.presetLabel}>{t(preset.labelKey)}</Text>
               </Pressable>
             ))}
           </View>
@@ -82,14 +84,14 @@ export default function FiltersScreen({ navigation }: Props) {
 
         {/* Location */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>LOCATION</Text>
+          <Text style={styles.sectionLabel}>{t('filters.location')}</Text>
           <TextInput
             value={localFilters.locText}
             onChangeText={onLocationChange}
-            placeholder="City, area or address"
+            placeholder={t('filters.locationPlaceholder')}
             rightElement={
               <Pressable onPress={onCurrentLocation}>
-                <Text style={styles.currentBtn}>CURRENT</Text>
+                <Text style={styles.currentBtn}>{t('filters.current')}</Text>
               </Pressable>
             }
           />
@@ -115,7 +117,7 @@ export default function FiltersScreen({ navigation }: Props) {
 
         {/* Radius */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>RADIUS</Text>
+          <Text style={styles.sectionLabel}>{t('filters.radius')}</Text>
           <ChipGroup
             options={RADIUS_OPTIONS}
             value={localFilters.radius}
@@ -126,7 +128,7 @@ export default function FiltersScreen({ navigation }: Props) {
 
         {/* Sort */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>SORT BY</Text>
+          <Text style={styles.sectionLabel}>{t('filters.sortBy')}</Text>
           <ChipGroup
             options={SORT_OPTIONS}
             value={localFilters.sort}
@@ -137,7 +139,7 @@ export default function FiltersScreen({ navigation }: Props) {
 
         {/* Price */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>PRICE</Text>
+          <Text style={styles.sectionLabel}>{t('filters.price')}</Text>
           <ChipGroup
             options={PRICE_OPTIONS}
             value={localFilters.price}
@@ -148,7 +150,7 @@ export default function FiltersScreen({ navigation }: Props) {
 
         {/* Rating */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>RATING</Text>
+          <Text style={styles.sectionLabel}>{t('filters.rating')}</Text>
           <ChipGroup
             options={RATING_OPTIONS}
             value={localFilters.rating}
@@ -159,7 +161,7 @@ export default function FiltersScreen({ navigation }: Props) {
 
         {/* Min reviews */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>MIN REVIEWS</Text>
+          <Text style={styles.sectionLabel}>{t('filters.minReviews')}</Text>
           <ChipGroup
             options={MIN_REVIEWS_OPTIONS}
             value={localFilters.minReviews}
@@ -170,7 +172,7 @@ export default function FiltersScreen({ navigation }: Props) {
 
         {/* Availability */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>AVAILABILITY</Text>
+          <Text style={styles.sectionLabel}>{t('filters.availability')}</Text>
           <ChipGroup
             options={AVAILABILITY_OPTIONS}
             value={localFilters.availability}
@@ -185,8 +187,8 @@ export default function FiltersScreen({ navigation }: Props) {
           onPress={() => updateLocal({ hideSeen: !localFilters.hideSeen })}
         >
           <View style={styles.toggleInfo}>
-            <Text style={styles.toggleLabel}>HIDE SEEN PLACES</Text>
-            <Text style={styles.toggleSub}>Skip places you've already swiped</Text>
+            <Text style={styles.toggleLabel}>{t('filters.hideSeen')}</Text>
+            <Text style={styles.toggleSub}>{t('filters.hideSeenSub')}</Text>
           </View>
           <View style={[styles.toggleTrack, localFilters.hideSeen && styles.toggleTrackOn]}>
             <View style={[styles.toggleThumb, localFilters.hideSeen && styles.toggleThumbOn]} />
@@ -194,14 +196,14 @@ export default function FiltersScreen({ navigation }: Props) {
         </Pressable>
 
         <Pressable onPress={resetFilters} style={styles.resetBtn}>
-          <Text style={styles.resetBtnText}>RESET ALL FILTERS</Text>
+          <Text style={styles.resetBtnText}>{t('filters.reset')}</Text>
         </Pressable>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
         <Rule thick />
         <View style={styles.footerInner}>
-          <Button label="Apply filters" onPress={handleApply} variant="filled" size="lg" full />
+          <Button label={t('filters.apply')} onPress={handleApply} variant="filled" size="lg" full />
         </View>
       </View>
     </View>

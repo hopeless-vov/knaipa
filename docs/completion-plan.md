@@ -89,12 +89,16 @@
 - [x] Tests: `useAccount`, `profile`, geo miles, `useAppStorePrefs`, deckError/unit in `useAppStoreDeck`, +supabase `updateUser` mock — 21 suites / 188 tests green
 - [x] `commit + push`: `feat: wire settings/legal, account editing, real profile, error states`
 
-## Phase 6 — i18n (en, uk)
-- [ ] i18n layer + en/uk locale files; drop `es`
-- [ ] Extract all hardcoded strings (incl. legal content) to keys
-- [ ] `preferences.language` switches locale + persists; pass `languageCode` to Google API
-- [ ] Tests: locale resolution, formatters w/ locale, key coverage
-- [ ] `commit + push`: `feat: i18n layer (en, uk)`
+## Phase 6 — i18n (en, uk) ✅
+- [x] i18n layer (`src/i18n/`): `en.ts` + `uk.ts` dictionaries, `translate`/`translateCount`/`translateList`, reactive `useTranslation` hook; dropped `es`
+- [x] Extracted all UI strings across every screen/component (incl. full legal Privacy/Terms content translated to Ukrainian) to keys
+- [x] Validation messages return i18n keys; `useAuth`/`useAccount` translate them (raw Supabase errors passed through)
+- [x] `preferences.language` switches locale reactively + persists; `languageCode` threaded through `searchText`/`searchNearby`/autocomplete; deck refetches on language change (localized Google names/hours), cache keyed by language
+- [x] Brand text fixed kutok→knaipa in auth/splash wordmarks
+- [x] Tests: `i18n` (translate/plural/list/parity) — 22 suites / 200 tests green
+- [x] `commit + push`: `feat: i18n layer (en, uk)`
+
+> Boundary: place category labels come from the app taxonomy (English) and Google-derived names/hours are localized by Google via `languageCode`; short filter-chip option values (near/5km/Open now) stay as-is.
 
 ## Phase 7 — Refactor & cleanup
 - [ ] Extract place actions → `usePlaceActions` + `utils/placeLinks.ts`

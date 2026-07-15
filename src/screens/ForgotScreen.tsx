@@ -17,12 +17,14 @@ import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
 import { useAuth } from '../hooks/useAuth';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Forgot'>;
 
 export default function ForgotScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { sendPasswordReset, loading, error } = useAuth();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
 
@@ -45,20 +47,20 @@ export default function ForgotScreen({ navigation }: Props) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Wordmark size={72} showTm>kutok</Wordmark>
-          <Text style={styles.subtitle}>Reset your password</Text>
+          <Wordmark size={72} showTm>knaipa</Wordmark>
+          <Text style={styles.subtitle}>{t('auth.resetTitle')}</Text>
         </View>
 
         <View style={styles.form}>
           {error && <Text style={styles.error}>{error}</Text>}
-          {sent && <Text style={styles.success}>Check your inbox for the reset link.</Text>}
+          {sent && <Text style={styles.success}>{t('auth.resetSent')}</Text>}
           <TextInput
             value={email}
             onChangeText={setEmail}
-            placeholder="Email address"
+            placeholder={t('auth.email')}
           />
           <Button
-            label="Send reset link"
+            label={t('auth.sendReset')}
             onPress={handleSend}
             variant="filled"
             size="lg"
@@ -69,7 +71,7 @@ export default function ForgotScreen({ navigation }: Props) {
 
         <Pressable onPress={() => navigation.navigate('Login')} style={styles.centered}>
           <Feather name="arrow-left" size={14} color={MUTED} />
-          <Text style={styles.backLink}>Back to login</Text>
+          <Text style={styles.backLink}>{t('auth.backToLoginPlain')}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

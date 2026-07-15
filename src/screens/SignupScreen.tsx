@@ -17,12 +17,14 @@ import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
 import { useAuth } from '../hooks/useAuth';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
 export default function SignupScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { signUp, loading, error } = useAuth();
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,11 +50,11 @@ export default function SignupScreen({ navigation }: Props) {
       >
         <Pressable onPress={() => navigation.navigate('Login')} style={styles.back}>
           <Feather name="arrow-left" size={16} color={INK} />
-          <Text style={styles.backText}>BACK TO LOGIN</Text>
+          <Text style={styles.backText}>{t('auth.backToLogin')}</Text>
         </Pressable>
 
         <View style={styles.header}>
-          <Wordmark size={56}>{'create /\naccount'}</Wordmark>
+          <Wordmark size={56}>{t('auth.createAccountTitle')}</Wordmark>
         </View>
 
         <View style={styles.form}>
@@ -60,17 +62,17 @@ export default function SignupScreen({ navigation }: Props) {
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="Full name"
+            placeholder={t('auth.fullName')}
           />
           <TextInput
             value={email}
             onChangeText={setEmail}
-            placeholder="Email address"
+            placeholder={t('auth.email')}
           />
           <TextInput
             value={password}
             onChangeText={setPassword}
-            placeholder="Password"
+            placeholder={t('auth.password')}
             secureTextEntry
           />
 
@@ -81,12 +83,12 @@ export default function SignupScreen({ navigation }: Props) {
               color={INK}
             />
             <Text style={styles.termsText}>
-              I agree to the Terms of Service and Privacy Policy
+              {t('auth.agreeTerms')}
             </Text>
           </Pressable>
 
           <Button
-            label="Create account"
+            label={t('auth.createAccount')}
             onPress={handleSignup}
             variant="filled"
             size="lg"
@@ -96,7 +98,7 @@ export default function SignupScreen({ navigation }: Props) {
         </View>
 
         <Pressable onPress={() => navigation.navigate('Login')} style={styles.centered}>
-          <Text style={styles.loginLink}>Already have an account? Log in</Text>
+          <Text style={styles.loginLink}>{t('auth.toLogin')}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

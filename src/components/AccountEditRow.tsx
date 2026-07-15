@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { INK, MUTED, PAPER } from '../utils/theme';
 import TextInput from '../ui/TextInput';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface AccountEditRowProps {
   label: string;
@@ -27,6 +28,7 @@ export default function AccountEditRow({
 }: AccountEditRowProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(initialDraft);
+  const { t } = useTranslation();
 
   const open = () => {
     setDraft(initialDraft);
@@ -65,10 +67,10 @@ export default function AccountEditRow({
       />
       <View style={styles.editButtons}>
         <Pressable onPress={() => setEditing(false)} style={[styles.btn, styles.btnOutline]}>
-          <Text style={styles.btnOutlineText}>CANCEL</Text>
+          <Text style={styles.btnOutlineText}>{t('common.cancel')}</Text>
         </Pressable>
         <Pressable onPress={save} disabled={loading} style={[styles.btn, styles.btnFilled, loading && styles.btnDisabled]}>
-          <Text style={styles.btnFilledText}>{loading ? 'SAVING…' : 'SAVE'}</Text>
+          <Text style={styles.btnFilledText}>{loading ? t('common.saving') : t('common.save')}</Text>
         </Pressable>
       </View>
     </View>

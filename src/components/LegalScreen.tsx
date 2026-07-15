@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { INK, MUTED, PAPER, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
+import { useTranslation } from '../hooks/useTranslation';
 
 export interface LegalSection {
   title: string;
@@ -20,6 +21,7 @@ interface LegalScreenProps {
 
 export default function LegalScreen({ title, subtitle, sections, onBack }: LegalScreenProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   return (
     <ScrollView
@@ -33,7 +35,7 @@ export default function LegalScreen({ title, subtitle, sections, onBack }: Legal
         <Pressable onPress={onBack} style={styles.back}>
           <Feather name="arrow-left" size={16} color={INK} />
         </Pressable>
-        <Text style={styles.metaText}>Legal</Text>
+        <Text style={styles.metaText}>{t('legal.label')}</Text>
       </View>
 
       <Wordmark size={48}>{title}</Wordmark>

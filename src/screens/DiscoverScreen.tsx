@@ -25,6 +25,7 @@ import SwipeCard, { SwipeCardRef } from '../components/SwipeCard';
 import PlaceDetails from '../components/PlaceDetails';
 import DiscoverSearchBar from '../components/DiscoverSearchBar';
 import { useDiscover } from '../hooks/useDiscover';
+import { useTranslation } from '../hooks/useTranslation';
 import { padIndex } from '../utils/formatters';
 
 type Props = CompositeScreenProps<
@@ -42,6 +43,7 @@ export default function DiscoverScreen({ navigation }: Props) {
     requestLocation, retryFetch, like, pass, undo, reset,
     mode, categories, query, setMode, toggleCategory, submitSearch,
   } = useDiscover();
+  const { t } = useTranslation();
 
   const visibleDeck = useMemo(() => deck.slice(0, VISIBLE_CARDS), [deck]);
   const reversedDeck = useMemo(() => [...visibleDeck].reverse(), [visibleDeck]);
@@ -96,7 +98,7 @@ export default function DiscoverScreen({ navigation }: Props) {
         {/* Header meta row */}
         <View style={styles.headerRow}>
           <View style={styles.headerLeft}>
-            <Text style={styles.metaSmall}>Discover nearby</Text>
+            <Text style={styles.metaSmall}>{t('discover.meta')}</Text>
             {deck.length > 0 && (
               <Text style={styles.counter}>
                 {padIndex(deckIndex + 1)} / {padIndex(totalDeck)}
@@ -106,7 +108,7 @@ export default function DiscoverScreen({ navigation }: Props) {
           <View style={styles.headerRight}>
             {displayedCard && (
               <Animated.Text style={[styles.distance, { opacity: contentOpacity }]}>
-                {displayedCard.distance} away
+                {t('discover.distanceAway', { distance: displayedCard.distance })}
               </Animated.Text>
             )}
             <TouchableOpacity
@@ -114,7 +116,7 @@ export default function DiscoverScreen({ navigation }: Props) {
               onPress={() => navigation.navigate('Filters')}
               activeOpacity={0.7}
             >
-              <Text style={styles.filtersBtnText}>Filters</Text>
+              <Text style={styles.filtersBtnText}>{t('discover.filters')}</Text>
               {activeFilterCount > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{activeFilterCount}</Text>
@@ -125,7 +127,7 @@ export default function DiscoverScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.titleRow}>
-          <Wordmark size={68}>Explore</Wordmark>
+          <Wordmark size={68}>{t('discover.title')}</Wordmark>
         </View>
 
         {/* Browse / Search */}
@@ -143,30 +145,28 @@ export default function DiscoverScreen({ navigation }: Props) {
           <View style={styles.deckWrapper}>
             <View style={styles.loadingCard}>
               <ActivityIndicator color={INK} />
-              <Text style={styles.loadingText}>Finding places nearby...</Text>
+              <Text style={styles.loadingText}>{t('discover.loading')}</Text>
             </View>
           </View>
         ) : deckError && deck.length === 0 ? (
           <View style={styles.emptyDeck}>
-            <Text style={styles.emptyTitle}>SOMETHING WENT WRONG</Text>
-            <Text style={styles.emptySub}>{deckError}</Text>
+            <Text style={styles.emptyTitle}>{t('discover.errorTitle')}</Text>
+            <Text style={styles.emptySub}>{t(deckError)}</Text>
             <TouchableOpacity style={styles.resetBtn} onPress={() => retryFetch()} activeOpacity={0.8}>
-              <Text style={styles.resetBtnText}>TRY AGAIN</Text>
+              <Text style={styles.resetBtnText}>{t('common.tryAgain')}</Text>
             </TouchableOpacity>
           </View>
         ) : !hasLocation ? (
           <View style={styles.emptyDeck}>
             <Text style={styles.emptyTitle}>
-              {locationDenied ? 'LOCATION OFF' : 'NO LOCATION SET'}
+              {locationDenied ? t('discover.locationOffTitle') : t('discover.noLocationTitle')}
             </Text>
             <Text style={styles.emptySub}>
-              {locationDenied
-                ? 'Location permission is denied.\nAllow it, or set a city in Filters.'
-                : 'Enter a city or area in Filters\nto discover places nearby.'}
+              {locationDenied ? t('discover.locationOffBody') : t('discover.noLocationBody')}
             </Text>
             {locationDenied && (
               <TouchableOpacity style={styles.resetBtn} onPress={() => requestLocation()} activeOpacity={0.8}>
-                <Text style={styles.resetBtnText}>ENABLE LOCATION</Text>
+                <Text style={styles.resetBtnText}>{t('discover.enableLocation')}</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity
@@ -174,7 +174,7 @@ export default function DiscoverScreen({ navigation }: Props) {
               onPress={() => navigation.navigate('Filters')}
               activeOpacity={0.8}
             >
-              <Text style={styles.resetBtnText}>OPEN FILTERS</Text>
+              <Text style={styles.resetBtnText}>{t('common.openFilters')}</Text>
             </TouchableOpacity>
           </View>
         ) : deck.length > 0 ? (
@@ -200,16 +200,14 @@ export default function DiscoverScreen({ navigation }: Props) {
           </View>
         ) : (
           <View style={styles.emptyDeck}>
-            <Text style={styles.emptyTitle}>NO MORE RESULTS</Text>
-            <Text style={styles.emptySub}>
-              No more places match your current filters.{'\n'}Try changing location, radius or category.
-            </Text>
+            <Text style={styles.emptyTitle}>{t('discover.noResultsTitle')}</Text>
+            <Text style={styles.emptySub}>{t('discover.noResultsBody')}</Text>
             <TouchableOpacity
               style={styles.resetBtn}
               onPress={() => navigation.navigate('Filters')}
               activeOpacity={0.8}
             >
-              <Text style={styles.resetBtnText}>CHANGE FILTERS</Text>
+              <Text style={styles.resetBtnText}>{t('discover.changeFilters')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -218,7 +216,7 @@ export default function DiscoverScreen({ navigation }: Props) {
         {isLoadingMore && (
           <View style={styles.loadingMore}>
             <ActivityIndicator color={MUTED} size="small" />
-            <Text style={styles.loadingMoreText}>Loading more places…</Text>
+            <Text style={styles.loadingMoreText}>{t('discover.loadingMore')}</Text>
           </View>
         )}
 
@@ -230,7 +228,7 @@ export default function DiscoverScreen({ navigation }: Props) {
               onPress={handlePass}
               activeOpacity={0.8}
             >
-              <Text style={styles.actionOutlineText}>PASS</Text>
+              <Text style={styles.actionOutlineText}>{t('discover.pass')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -246,7 +244,7 @@ export default function DiscoverScreen({ navigation }: Props) {
               onPress={handleLike}
               activeOpacity={0.8}
             >
-              <Text style={styles.actionFilledText}>LIKE</Text>
+              <Text style={styles.actionFilledText}>{t('discover.like')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -255,8 +253,8 @@ export default function DiscoverScreen({ navigation }: Props) {
         {displayedCard && (
           <Animated.View style={[styles.detailsSection, { opacity: contentOpacity }]}>
             <View style={styles.detailsHeader}>
-              <Text style={styles.detailsLabel}>About this place</Text>
-              <Text style={styles.scrollHint}>scroll ↓</Text>
+              <Text style={styles.detailsLabel}>{t('discover.aboutThisPlace')}</Text>
+              <Text style={styles.scrollHint}>{t('discover.scrollHint')}</Text>
             </View>
             <PlaceDetails place={displayedCard} lazyGallery />
             <View style={{ height: 24 }} />

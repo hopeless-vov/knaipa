@@ -163,7 +163,7 @@ export const useAppStore = create<AppState>((set, get) => {
       if (!state.userLocation) return;
 
       const { lat, lng } = state.userLocation;
-      const cacheKey = `${DECK_CACHE_PREFIX}${JSON.stringify(state.filters)}:${Math.round(lat * 100)}:${Math.round(lng * 100)}`;
+      const cacheKey = `${DECK_CACHE_PREFIX}${state.preferences.language}:${JSON.stringify(state.filters)}:${Math.round(lat * 100)}:${Math.round(lng * 100)}`;
 
       const applyPlaces = (places: Place[], nextPageToken: string | null) => {
         const { swipedIds, filters } = get();
@@ -188,14 +188,15 @@ export const useAppStore = create<AppState>((set, get) => {
             s.userLocation.lng,
             s.filters,
             undefined,
-            s.preferences.distanceUnit
+            s.preferences.distanceUnit,
+            s.preferences.language
           );
           await AsyncStorage.setItem(cacheKey, JSON.stringify({ data: places, nextPageToken, timestamp: Date.now() }));
           applyPlaces(places, nextPageToken);
         } catch (err) {
           if (!background) {
             console.error('fetchDeck error:', err);
-            set({ isLoading: false, deckError: 'Could not load places. Check your connection and try again.' });
+            set({ isLoading: false, deckError: 'errors.loadDeck' }); // i18n key, translated in UI
           }
         }
       };
@@ -232,7 +233,8 @@ export const useAppStore = create<AppState>((set, get) => {
           state.userLocation.lng,
           state.filters,
           state.nextPageToken,
-          state.preferences.distanceUnit
+          state.preferences.distanceUnit,
+          state.preferences.language
         );
         const { seenIds, swipedIds, filters, deck, allFetchedPlaces } = get();
         let fresh = newPlaces.filter((p) => !seenIds.has(p.id));
@@ -334,6 +336,10 @@ export const useAppStore = create<AppState>((set, get) => {
           deck: state.deck.map(remap),
           allFetchedPlaces: state.allFetchedPlaces.map(remap),
         }));
+      }
+      // Language affects the Google `languageCode` (localized names/hours) — refetch
+      if (key === 'language') {
+        get().fetchDeck();
       }
     },
 

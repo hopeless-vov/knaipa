@@ -2,7 +2,14 @@ import { act, renderHook } from '@testing-library/react-native';
 import { useAccount } from '../hooks/useAccount';
 import { useAppStore } from '../store/useAppStore';
 import { supabase } from '../api/supabase';
-import { VALIDATION_MESSAGES } from '../utils/validation';
+import { MIN_PASSWORD_LENGTH } from '../utils/validation';
+import { translate } from '../i18n';
+
+const msg = {
+  nameRequired: translate('validation.nameRequired', 'en'),
+  passwordTooShort: translate('validation.passwordTooShort', 'en', { min: MIN_PASSWORD_LENGTH }),
+  emailInvalid: translate('validation.emailInvalid', 'en'),
+};
 
 const updateUserMock = supabase.auth.updateUser as jest.Mock;
 
@@ -34,7 +41,7 @@ describe('updateName', () => {
       ok = await result.current.updateName('   ');
     });
     expect(ok).toBe(false);
-    expect(result.current.error).toBe(VALIDATION_MESSAGES.nameRequired);
+    expect(result.current.error).toBe(msg.nameRequired);
     expect(updateUserMock).not.toHaveBeenCalled();
   });
 });
@@ -45,7 +52,7 @@ describe('updatePassword', () => {
     await act(async () => {
       await result.current.updatePassword('123');
     });
-    expect(result.current.error).toBe(VALIDATION_MESSAGES.passwordTooShort);
+    expect(result.current.error).toBe(msg.passwordTooShort);
     expect(updateUserMock).not.toHaveBeenCalled();
   });
 
@@ -64,7 +71,7 @@ describe('updateEmail', () => {
     await act(async () => {
       await result.current.updateEmail('nope');
     });
-    expect(result.current.error).toBe(VALIDATION_MESSAGES.emailInvalid);
+    expect(result.current.error).toBe(msg.emailInvalid);
   });
 
   it('surfaces a confirmation message on success without changing the local email', async () => {

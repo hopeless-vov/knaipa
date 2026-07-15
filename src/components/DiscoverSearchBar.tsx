@@ -6,11 +6,7 @@ import { SCREEN_PADDING } from '../utils/theme';
 import SegmentedControl from '../ui/SegmentedControl';
 import Chip from '../ui/Chip';
 import TextInput from '../ui/TextInput';
-
-const MODE_OPTIONS = [
-  { value: 'browse', label: 'Browse' },
-  { value: 'search', label: 'Search' },
-];
+import { useTranslation } from '../hooks/useTranslation';
 
 interface DiscoverSearchBarProps {
   mode: DiscoveryMode;
@@ -30,11 +26,16 @@ export default function DiscoverSearchBar({
   onSubmitQuery,
 }: DiscoverSearchBarProps) {
   const [draft, setDraft] = useState(query);
+  const { t } = useTranslation();
+  const modeOptions = [
+    { value: 'browse', label: t('discover.browse') },
+    { value: 'search', label: t('discover.search') },
+  ];
 
   return (
     <View style={styles.container}>
       <SegmentedControl
-        options={MODE_OPTIONS}
+        options={modeOptions}
         value={mode}
         onChange={(v) => onModeChange(v as DiscoveryMode)}
       />
@@ -60,7 +61,7 @@ export default function DiscoverSearchBar({
         <TextInput
           value={draft}
           onChangeText={setDraft}
-          placeholder="Search places — e.g. rooftop bar"
+          placeholder={t('discover.searchPlaceholder')}
           returnKeyType="search"
           onSubmitEditing={() => onSubmitQuery(draft.trim())}
         />

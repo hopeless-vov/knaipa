@@ -2,7 +2,13 @@ import { act, renderHook } from '@testing-library/react-native';
 import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../store/useAppStore';
 import { supabase } from '../api/supabase';
-import { VALIDATION_MESSAGES } from '../utils/validation';
+import { MIN_PASSWORD_LENGTH } from '../utils/validation';
+import { translate } from '../i18n';
+
+const msg = {
+  emailRequired: translate('validation.emailRequired', 'en'),
+  passwordTooShort: translate('validation.passwordTooShort', 'en', { min: MIN_PASSWORD_LENGTH }),
+};
 
 const SUPA_USER = {
   id: 'user-1',
@@ -76,7 +82,7 @@ describe('useAuth.signIn', () => {
     });
 
     expect(ok).toBe(false);
-    expect(result.current.error).toBe(VALIDATION_MESSAGES.emailRequired);
+    expect(result.current.error).toBe(msg.emailRequired);
     expect(signInMock).not.toHaveBeenCalled();
   });
 });
@@ -104,7 +110,7 @@ describe('useAuth.signUp', () => {
     });
 
     expect(ok).toBe(false);
-    expect(result.current.error).toBe(VALIDATION_MESSAGES.passwordTooShort);
+    expect(result.current.error).toBe(msg.passwordTooShort);
     expect(signUpMock).not.toHaveBeenCalled();
   });
 

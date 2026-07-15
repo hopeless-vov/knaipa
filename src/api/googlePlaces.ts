@@ -27,15 +27,16 @@ export async function fetchNearbyPlaces(
   userLng: number,
   filters: Filters,
   pageToken?: string,
-  distanceUnit: 'km' | 'mi' = 'km'
+  distanceUnit: 'km' | 'mi' = 'km',
+  languageCode = 'en'
 ): Promise<{ places: Place[]; nextPageToken: string | null }> {
   const radius = RADIUS_MAP[filters.radius] ?? 1500;
   const isBrowse = filters.mode === 'browse';
   const url = isBrowse ? NEARBY_SEARCH_URL : SEARCH_URL;
   const fieldMask = isBrowse ? NEARBY_FIELD_MASK : FIELD_MASK;
   const body = isBrowse
-    ? buildNearbyRequestBody(userLat, userLng, filters)
-    : buildRequestBody(userLat, userLng, filters, pageToken);
+    ? buildNearbyRequestBody(userLat, userLng, filters, languageCode)
+    : buildRequestBody(userLat, userLng, filters, pageToken, languageCode);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -125,7 +126,8 @@ export async function fetchPlaceDetails(
 
 export async function autocompletePlaces(
   input: string,
-  sessionToken?: string
+  sessionToken?: string,
+  languageCode = 'en'
 ): Promise<AutocompleteSuggestion[]> {
   if (!input.trim()) return [];
   try {
@@ -137,7 +139,7 @@ export async function autocompletePlaces(
       },
       body: JSON.stringify({
         input: input.trim(),
-        languageCode: 'en',
+        languageCode,
         ...(sessionToken && { sessionToken }),
       }),
     });

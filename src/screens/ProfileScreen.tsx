@@ -18,7 +18,8 @@ import Rule from '../ui/Rule';
 import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../store/useAppStore';
 import { padIndex } from '../utils/formatters';
-import { computeProfileStats, memberSince, homeCity } from '../utils/profile';
+import { computeProfileStats, homeCity } from '../utils/profile';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, 'Profile'>,
@@ -45,11 +46,13 @@ function MenuRow({
 export default function ProfileScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const savedPlacesById = useAppStore((s) => s.savedPlacesById);
 
   const savedPlaces = Object.values(savedPlacesById);
   const { visited: visitedCount, pending: pendingCount, cities } = computeProfileStats(savedPlaces);
-  const since = memberSince(user?.createdAt);
+  const year = user?.createdAt ? new Date(user.createdAt).getFullYear() : NaN;
+  const since = Number.isNaN(year) ? '' : t('profile.since', { year });
   const city = homeCity(savedPlaces);
 
   const handleSignOut = async () => {
@@ -57,7 +60,7 @@ export default function ProfileScreen({ navigation }: Props) {
     await signOut();
   };
 
-  const displayName = user?.name ?? 'Explorer';
+  const displayName = user?.name ?? t('profile.fallbackName');
 
   return (
     <ScrollView
@@ -70,7 +73,7 @@ export default function ProfileScreen({ navigation }: Props) {
     >
       {/* Header */}
       <View style={styles.headerTop}>
-        <Text style={styles.metaText}>User profile</Text>
+        <Text style={styles.metaText}>{t('profile.meta')}</Text>
         {!!since && <Text style={styles.metaRight}>{since}</Text>}
       </View>
 
@@ -91,19 +94,19 @@ export default function ProfileScreen({ navigation }: Props) {
       <View style={styles.statsGrid}>
         <View style={styles.statCell}>
           <Text style={styles.statNumber}>{padIndex(visitedCount)}</Text>
-          <Text style={styles.statLabel}>VISITED</Text>
+          <Text style={styles.statLabel}>{t('profile.visited')}</Text>
         </View>
         <View style={styles.statCell}>
           <Text style={styles.statNumber}>{padIndex(pendingCount)}</Text>
-          <Text style={styles.statLabel}>PENDING</Text>
+          <Text style={styles.statLabel}>{t('profile.pending')}</Text>
         </View>
         <View style={styles.statCell}>
           <Text style={styles.statNumber}>{padIndex(cities)}</Text>
-          <Text style={styles.statLabel}>CITIES</Text>
+          <Text style={styles.statLabel}>{t('profile.cities')}</Text>
         </View>
         <View style={styles.statCell}>
           <Text style={styles.statNumber}>{padIndex(0)}</Text>
-          <Text style={styles.statLabel}>GUIDES</Text>
+          <Text style={styles.statLabel}>{t('profile.guides')}</Text>
         </View>
       </View>
 
@@ -111,13 +114,13 @@ export default function ProfileScreen({ navigation }: Props) {
 
       {/* Menu */}
       <View style={styles.menu}>
-        <MenuRow label="Account settings" onPress={() => navigation.navigate('Settings')} />
+        <MenuRow label={t('profile.accountSettings')} onPress={() => navigation.navigate('Settings')} />
         <Rule faint />
-        <MenuRow label="Privacy policy" onPress={() => navigation.navigate('Privacy')} />
+        <MenuRow label={t('profile.privacy')} onPress={() => navigation.navigate('Privacy')} />
         <Rule faint />
-        <MenuRow label="Terms of service" onPress={() => navigation.navigate('Terms')} />
+        <MenuRow label={t('profile.terms')} onPress={() => navigation.navigate('Terms')} />
         <Rule faint />
-        <MenuRow label="Log out" onPress={handleSignOut} danger />
+        <MenuRow label={t('profile.logout')} onPress={handleSignOut} danger />
       </View>
     </ScrollView>
   );

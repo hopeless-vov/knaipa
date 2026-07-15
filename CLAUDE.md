@@ -72,6 +72,12 @@ docs/             # API reference docs, architecture notes
 - Shared mock data goes in __tests__/fixtures/
 - Use MOCK_PLACES from __tests__/fixtures/places.ts for store/hook tests
 
+### i18n
+- All user-visible text lives in `src/i18n/en.ts` + `src/i18n/uk.ts` (dot-addressed keys)
+- Components read strings via `useTranslation()` → `t('namespace.key')` — never hardcode UI copy
+- Pure functions/utils return i18n **keys**; the calling hook/component translates them
+- Google-derived data (place names, hours) is localized by the API `languageCode`, not the dictionary
+
 ### General
 - TypeScript everywhere — avoid `any`, use explicit types
 - Single responsibility per function and component

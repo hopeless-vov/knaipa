@@ -2,18 +2,20 @@ import { useState } from 'react';
 import { supabase } from '../api/supabase';
 import { useAppStore } from '../store/useAppStore';
 import { mapSupabaseUser } from '../mappers/user';
-import { validateSignIn, validateSignUp } from '../utils/validation';
+import { validateSignIn, validateSignUp, MIN_PASSWORD_LENGTH } from '../utils/validation';
+import { useTranslation } from './useTranslation';
 
 export function useAuth() {
   const user = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => s.setUser);
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const signIn = async (email: string, password: string): Promise<boolean> => {
     const validationError = validateSignIn(email, password);
     if (validationError) {
-      setError(validationError);
+      setError(t(validationError, { min: MIN_PASSWORD_LENGTH }));
       return false;
     }
     setLoading(true);
@@ -38,7 +40,7 @@ export function useAuth() {
   const signUp = async (name: string, email: string, password: string): Promise<boolean> => {
     const validationError = validateSignUp(name, email, password);
     if (validationError) {
-      setError(validationError);
+      setError(t(validationError, { min: MIN_PASSWORD_LENGTH }));
       return false;
     }
     setLoading(true);

@@ -12,6 +12,7 @@ import SegmentedControl from '../ui/SegmentedControl';
 import AccountEditRow from '../components/AccountEditRow';
 import { useAppStore } from '../store/useAppStore';
 import { useAccount } from '../hooks/useAccount';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
@@ -30,6 +31,7 @@ export default function SettingsScreen({ navigation }: Props) {
   const preferences = useAppStore((s) => s.preferences);
   const setPreference = useAppStore((s) => s.setPreference);
   const { user, loading, error, message, updateName, updatePassword, updateEmail } = useAccount();
+  const { t } = useTranslation();
 
   return (
     <ScrollView
@@ -46,41 +48,41 @@ export default function SettingsScreen({ navigation }: Props) {
         <Pressable onPress={() => navigation.goBack()} style={styles.back}>
           <Feather name="arrow-left" size={16} color={INK} />
         </Pressable>
-        <Text style={styles.metaText}>Account</Text>
+        <Text style={styles.metaText}>{t('settings.meta')}</Text>
       </View>
 
-      <Wordmark size={56}>Settings</Wordmark>
+      <Wordmark size={56}>{t('settings.title')}</Wordmark>
 
       {/* Account */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>ACCOUNT</Text>
+        <Text style={styles.sectionTitle}>{t('settings.account')}</Text>
         <Rule faint />
         <AccountEditRow
-          label="Email"
+          label={t('settings.email')}
           value={user?.email ?? ''}
           initialDraft={user?.email ?? ''}
-          actionLabel="CHANGE"
-          placeholder="New email address"
+          actionLabel={t('settings.change')}
+          placeholder={t('settings.newEmail')}
           loading={loading}
           onSave={updateEmail}
         />
         <Rule faint />
         <AccountEditRow
-          label="Password"
+          label={t('settings.password')}
           value="••••••••"
-          actionLabel="UPDATE"
-          placeholder="New password"
+          actionLabel={t('settings.update')}
+          placeholder={t('settings.newPassword')}
           secureTextEntry
           loading={loading}
           onSave={updatePassword}
         />
         <Rule faint />
         <AccountEditRow
-          label="Display name"
+          label={t('settings.displayName')}
           value={user?.name ?? ''}
           initialDraft={user?.name ?? ''}
-          actionLabel="EDIT"
-          placeholder="Your name"
+          actionLabel={t('settings.edit')}
+          placeholder={t('settings.yourName')}
           loading={loading}
           onSave={updateName}
         />
@@ -90,10 +92,10 @@ export default function SettingsScreen({ navigation }: Props) {
 
       {/* Notifications */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>NOTIFICATIONS</Text>
+        <Text style={styles.sectionTitle}>{t('settings.notifications')}</Text>
         <Rule faint />
         <View style={styles.row}>
-          <Text style={styles.rowLabel}>Push notifications</Text>
+          <Text style={styles.rowLabel}>{t('settings.push')}</Text>
           <Toggle
             value={preferences.notifications.push}
             onValueChange={(v) =>
@@ -103,7 +105,7 @@ export default function SettingsScreen({ navigation }: Props) {
         </View>
         <Rule faint />
         <View style={styles.row}>
-          <Text style={styles.rowLabel}>Email updates</Text>
+          <Text style={styles.rowLabel}>{t('settings.emailUpdates')}</Text>
           <Toggle
             value={preferences.notifications.email}
             onValueChange={(v) =>
@@ -114,8 +116,8 @@ export default function SettingsScreen({ navigation }: Props) {
         <Rule faint />
         <View style={styles.row}>
           <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>Location services</Text>
-            <Text style={styles.rowValue}>Use your GPS to find places nearby</Text>
+            <Text style={styles.rowLabel}>{t('settings.locationServices')}</Text>
+            <Text style={styles.rowValue}>{t('settings.locationServicesSub')}</Text>
           </View>
           <Toggle
             value={preferences.notifications.location}
@@ -128,10 +130,10 @@ export default function SettingsScreen({ navigation }: Props) {
 
       {/* Preferences */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>PREFERENCES</Text>
+        <Text style={styles.sectionTitle}>{t('settings.preferences')}</Text>
         <Rule faint />
         <View style={styles.row}>
-          <Text style={styles.rowLabel}>Distance unit</Text>
+          <Text style={styles.rowLabel}>{t('settings.distanceUnit')}</Text>
           <SegmentedControl
             options={DISTANCE_OPTIONS}
             value={preferences.distanceUnit}
@@ -140,7 +142,7 @@ export default function SettingsScreen({ navigation }: Props) {
         </View>
         <Rule faint />
         <View style={styles.row}>
-          <Text style={styles.rowLabel}>Language</Text>
+          <Text style={styles.rowLabel}>{t('settings.language')}</Text>
           <SegmentedControl
             options={LANGUAGE_OPTIONS}
             value={preferences.language}
@@ -151,15 +153,15 @@ export default function SettingsScreen({ navigation }: Props) {
 
       {/* Legal */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>LEGAL</Text>
+        <Text style={styles.sectionTitle}>{t('settings.legal')}</Text>
         <Rule faint />
         <Pressable style={styles.linkRow} onPress={() => navigation.navigate('Privacy')}>
-          <Text style={styles.rowLabel}>Privacy policy</Text>
+          <Text style={styles.rowLabel}>{t('profile.privacy')}</Text>
           <Feather name="chevron-right" size={16} color={MUTED} />
         </Pressable>
         <Rule faint />
         <Pressable style={styles.linkRow} onPress={() => navigation.navigate('Terms')}>
-          <Text style={styles.rowLabel}>Terms of service</Text>
+          <Text style={styles.rowLabel}>{t('profile.terms')}</Text>
           <Feather name="chevron-right" size={16} color={MUTED} />
         </Pressable>
       </View>

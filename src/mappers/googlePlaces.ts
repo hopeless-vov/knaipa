@@ -33,7 +33,8 @@ export function buildRequestBody(
   userLat: number,
   userLng: number,
   filters: Filters,
-  pageToken?: string
+  pageToken?: string,
+  languageCode = 'en'
 ): Record<string, unknown> {
   const radius = RADIUS_MAP[filters.radius] ?? 1500;
 
@@ -41,7 +42,7 @@ export function buildRequestBody(
     textQuery: filters.query.trim() || DEFAULT_TEXT_QUERY,
     pageSize: PAGE_SIZE,
     rankPreference: filters.sort === 'distance' ? 'DISTANCE' : 'RELEVANCE',
-    languageCode: 'en',
+    languageCode,
     locationBias: {
       circle: { center: { latitude: userLat, longitude: userLng }, radius },
     },
@@ -67,7 +68,8 @@ export function buildRequestBody(
 export function buildNearbyRequestBody(
   userLat: number,
   userLng: number,
-  filters: Filters
+  filters: Filters,
+  languageCode = 'en'
 ): Record<string, unknown> {
   const radius = RADIUS_MAP[filters.radius] ?? 1500;
   const includedTypes = filters.categories.flatMap(
@@ -77,7 +79,7 @@ export function buildNearbyRequestBody(
   const body: Record<string, unknown> = {
     maxResultCount: NEARBY_MAX_RESULTS,
     rankPreference: filters.sort === 'distance' ? 'DISTANCE' : 'POPULARITY',
-    languageCode: 'en',
+    languageCode,
     locationRestriction: {
       circle: { center: { latitude: userLat, longitude: userLng }, radius },
     },

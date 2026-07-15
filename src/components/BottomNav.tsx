@@ -3,11 +3,13 @@ import { View, Pressable, Text, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { INK, PAPER } from '../utils/theme';
+import { useTranslation } from '../hooks/useTranslation';
 
 const TABS = ['Discover', 'Saved', 'Profile'] as const;
 
 export default function BottomNav({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   return (
     <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 20) }]}>
@@ -21,7 +23,7 @@ export default function BottomNav({ state, navigation }: BottomTabBarProps) {
           >
             <View style={[styles.dot, focused && styles.dotActive]} />
             <Text style={[styles.label, focused && styles.labelActive]}>
-              {name}
+              {t(`tabs.${name}`)}
             </Text>
           </Pressable>
         );

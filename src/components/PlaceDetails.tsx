@@ -8,6 +8,7 @@ import { INK, PAPER, MUTED, HAIR, SCREEN_PADDING } from '../utils/theme';
 import Tag from '../ui/Tag';
 import Rule from '../ui/Rule';
 import PhotoViewer from './PhotoViewer';
+import { useTranslation } from '../hooks/useTranslation';
 
 const THUMB_SIZE = 160;
 const GALLERY_PREVIEW = 2; // photos shown before "show all"
@@ -23,6 +24,7 @@ interface PlaceDetailsProps {
 }
 
 export default function PlaceDetails({ place, details, lazyGallery = false }: PlaceDetailsProps) {
+  const { t, tCount } = useTranslation();
   const [viewerIndex, setViewerIndex] = useState(0);
   const [viewerVisible, setViewerVisible] = useState(false);
   const [galleryExpanded, setGalleryExpanded] = useState(false);
@@ -70,12 +72,12 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
       {/* Gallery */}
       {place.gallery.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>GALLERY</Text>
+          <Text style={styles.sectionTitle}>{t('place.gallery')}</Text>
           <Rule faint />
           {!galleryRevealed ? (
             <Pressable onPress={() => setGalleryRevealed(true)} style={styles.showAllBtn}>
               <Text style={styles.showAllText}>
-                SHOW {place.gallery.length} {place.gallery.length === 1 ? 'PHOTO' : 'PHOTOS'}
+                {tCount('place.showPhotos', place.gallery.length)}
               </Text>
             </Pressable>
           ) : (
@@ -125,7 +127,7 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
               )}
               {hasMore && (
                 <Pressable onPress={() => setGalleryExpanded(true)} style={styles.showAllBtn}>
-                  <Text style={styles.showAllText}>SHOW ALL {place.gallery.length} PHOTOS</Text>
+                  <Text style={styles.showAllText}>{t('place.showAll', { count: place.gallery.length })}</Text>
                 </Pressable>
               )}
             </>
@@ -135,28 +137,28 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
 
       {/* Details grid */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>DETAILS</Text>
+        <Text style={styles.sectionTitle}>{t('place.details')}</Text>
         <Rule faint />
         <View style={styles.detailsGrid}>
           <View style={styles.detailCell}>
-            <Text style={styles.detailLabel}>HOURS</Text>
+            <Text style={styles.detailLabel}>{t('place.hours')}</Text>
             <Text style={styles.detailValue}>{place.hours}</Text>
           </View>
           <View style={styles.detailCell}>
-            <Text style={styles.detailLabel}>PRICE</Text>
+            <Text style={styles.detailLabel}>{t('place.price')}</Text>
             <Text style={styles.detailValue}>{place.price}</Text>
           </View>
           <View style={styles.detailCell}>
-            <Text style={styles.detailLabel}>RATING</Text>
+            <Text style={styles.detailLabel}>{t('place.rating')}</Text>
             <Text style={styles.detailValue}>★ {place.rating}</Text>
           </View>
           <View style={styles.detailCell}>
-            <Text style={styles.detailLabel}>TYPE</Text>
+            <Text style={styles.detailLabel}>{t('place.type')}</Text>
             <Text style={styles.detailValue}>{place.type}</Text>
           </View>
           {details?.nationalPhoneNumber && (
             <View style={styles.detailCellFull}>
-              <Text style={styles.detailLabel}>PHONE</Text>
+              <Text style={styles.detailLabel}>{t('place.phone')}</Text>
               <Pressable onPress={() => Linking.openURL(`tel:${details.nationalPhoneNumber}`)}>
                 <Text style={[styles.detailValue, styles.link]}>{details.nationalPhoneNumber}</Text>
               </Pressable>
@@ -167,7 +169,7 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
 
       {/* Highlights */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>HIGHLIGHTS</Text>
+        <Text style={styles.sectionTitle}>{t('place.highlights')}</Text>
         <Rule faint />
         <View style={styles.highlights}>
           {place.highlights.map((h) => (
@@ -178,7 +180,7 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
 
       {/* Location */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>LOCATION</Text>
+        <Text style={styles.sectionTitle}>{t('place.location')}</Text>
         <Rule faint />
 
         {/* Map preview */}
@@ -208,16 +210,16 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
         <Text style={styles.addressText}>{place.address}</Text>
         <View style={styles.locationButtons}>
           <Pressable onPress={handleOpenMaps} style={styles.locationBtn}>
-            <Text style={styles.locationBtnText}>OPEN MAPS</Text>
+            <Text style={styles.locationBtnText}>{t('place.openMaps')}</Text>
           </Pressable>
           <Pressable onPress={handleCopy} style={styles.locationBtn}>
-            <Text style={styles.locationBtnText}>COPY</Text>
+            <Text style={styles.locationBtnText}>{t('place.copy')}</Text>
           </Pressable>
           <Pressable onPress={handleWebsite} style={styles.locationBtn}>
-            <Text style={styles.locationBtnText}>WEBSITE</Text>
+            <Text style={styles.locationBtnText}>{t('place.website')}</Text>
           </Pressable>
           <Pressable onPress={handleShare} style={styles.locationBtn}>
-            <Text style={styles.locationBtnText}>SHARE</Text>
+            <Text style={styles.locationBtnText}>{t('place.share')}</Text>
           </Pressable>
         </View>
       </View>

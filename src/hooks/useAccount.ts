@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../api/supabase';
 import { useAppStore } from '../store/useAppStore';
 import { isValidEmail, MIN_PASSWORD_LENGTH, VALIDATION_MESSAGES } from '../utils/validation';
+import { useTranslation } from './useTranslation';
 
 /**
  * Account self-service: update display name, password, and email via Supabase.
@@ -11,6 +12,7 @@ import { isValidEmail, MIN_PASSWORD_LENGTH, VALIDATION_MESSAGES } from '../utils
 export function useAccount() {
   const user = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => s.setUser);
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export function useAccount() {
   ): Promise<boolean> => {
     const validationError = validate();
     if (validationError) {
-      setError(validationError);
+      setError(t(validationError, { min: MIN_PASSWORD_LENGTH }));
       setMessage(null);
       return false;
     }
@@ -46,7 +48,7 @@ export function useAccount() {
         const { error: e } = await supabase.auth.updateUser({ data: { name: name.trim() } });
         if (e) throw e;
         if (user) setUser({ ...user, name: name.trim() });
-        setMessage('Display name updated');
+        setMessage(t('settings.nameUpdated'));
       }
     );
 
@@ -61,7 +63,7 @@ export function useAccount() {
       async () => {
         const { error: e } = await supabase.auth.updateUser({ password });
         if (e) throw e;
-        setMessage('Password updated');
+        setMessage(t('settings.passwordUpdated'));
       }
     );
 
@@ -76,7 +78,7 @@ export function useAccount() {
       async () => {
         const { error: e } = await supabase.auth.updateUser({ email: email.trim() });
         if (e) throw e;
-        setMessage('Check your inbox to confirm the new email');
+        setMessage(t('settings.emailConfirm'));
       }
     );
 

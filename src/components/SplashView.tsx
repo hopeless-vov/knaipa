@@ -6,7 +6,7 @@ import Wordmark from '../ui/Wordmark';
 export default function SplashView() {
   return (
     <View style={styles.container}>
-      <Wordmark size={64} showTm>kutok</Wordmark>
+      <Wordmark size={64} showTm>knaipa</Wordmark>
     </View>
   );
 }

@@ -13,6 +13,7 @@ import PlaceDetails from '../components/PlaceDetails';
 import { useFindPlace } from '../hooks/useFindPlace';
 import { usePlaceDetails } from '../hooks/usePlaceDetails';
 import { useAppStore } from '../store/useAppStore';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PlaceDetail'>;
 
@@ -21,6 +22,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
   const { placeId, fromDiscover } = route.params;
   const place = useFindPlace(placeId);
   const { details } = usePlaceDetails(placeId);
+  const { t } = useTranslation();
   // Act on the viewed place directly — avoid useDiscover's GPS/fetch lifecycle
   const swipeLike = useAppStore((s) => s.swipeLike);
   const swipePass = useAppStore((s) => s.swipePass);
@@ -28,9 +30,9 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
   if (!place) {
     return (
       <View style={styles.notFound}>
-        <Text style={styles.notFoundText}>Place not found</Text>
+        <Text style={styles.notFoundText}>{t('place.notFound')}</Text>
         <Pressable onPress={() => navigation.goBack()}>
-          <Text style={styles.link}>Go back</Text>
+          <Text style={styles.link}>{t('common.goBack')}</Text>
         </Pressable>
       </View>
     );
@@ -48,7 +50,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
       {/* Back button */}
       <Pressable onPress={() => navigation.goBack()} style={styles.back}>
         <Feather name="arrow-left" size={16} color={INK} />
-        <Text style={styles.backText}>{fromDiscover ? 'DISCOVER' : 'SAVED'}</Text>
+        <Text style={styles.backText}>{fromDiscover ? t('place.fromDiscover') : t('place.fromSaved')}</Text>
       </Pressable>
 
       {/* Place name */}
@@ -61,7 +63,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
       {fromDiscover && (
         <View style={styles.actionRow}>
           <Button
-            label="Pass"
+            label={t('place.pass')}
             onPress={() => {
               swipePass(place);
               navigation.goBack();
@@ -71,7 +73,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
             full
           />
           <Button
-            label="Like"
+            label={t('place.like')}
             onPress={() => {
               swipeLike(place);
               navigation.goBack();

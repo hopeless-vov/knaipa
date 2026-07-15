@@ -16,12 +16,14 @@ import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
 import { useAuth } from '../hooks/useAuth';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { signIn, loading, error } = useAuth();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -44,8 +46,8 @@ export default function LoginScreen({ navigation }: Props) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.header}>
-          <Wordmark size={88} showTm>kutok</Wordmark>
-          <Text style={styles.tagline}>Discover places worth a detour</Text>
+          <Wordmark size={88} showTm>knaipa</Wordmark>
+          <Text style={styles.tagline}>{t('auth.tagline')}</Text>
         </View>
 
         <View style={styles.form}>
@@ -53,16 +55,16 @@ export default function LoginScreen({ navigation }: Props) {
           <TextInput
             value={email}
             onChangeText={setEmail}
-            placeholder="Email address"
+            placeholder={t('auth.email')}
           />
           <TextInput
             value={password}
             onChangeText={setPassword}
-            placeholder="Password"
+            placeholder={t('auth.password')}
             secureTextEntry
           />
           <Button
-            label="Log in"
+            label={t('auth.login')}
             onPress={handleLogin}
             variant="filled"
             size="lg"
@@ -70,12 +72,12 @@ export default function LoginScreen({ navigation }: Props) {
             disabled={loading}
           />
           <Pressable onPress={() => navigation.navigate('Forgot')} style={styles.centered}>
-            <Text style={styles.link}>Forgot password?</Text>
+            <Text style={styles.link}>{t('auth.forgotPassword')}</Text>
           </Pressable>
         </View>
 
         <Pressable onPress={() => navigation.navigate('Signup')} style={styles.centered}>
-          <Text style={styles.signupLink}>New to Kutok? Create an account</Text>
+          <Text style={styles.signupLink}>{t('auth.toSignup')}</Text>
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>

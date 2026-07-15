@@ -20,6 +20,7 @@ import SavedRow from '../components/SavedRow';
 import MapMarker from '../components/MapMarker';
 import { useSaved } from '../hooks/useSaved';
 import { useAppStore } from '../store/useAppStore';
+import { useTranslation } from '../hooks/useTranslation';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, 'Saved'>,
@@ -27,9 +28,9 @@ type Props = CompositeScreenProps<
 >;
 
 const TABS = [
-  { value: 'all', label: 'All' },
-  { value: 'been', label: 'Have been' },
-  { value: 'havent', label: "Haven't been" },
+  { value: 'all', labelKey: 'saved.tabAll' },
+  { value: 'been', labelKey: 'saved.tabBeen' },
+  { value: 'havent', labelKey: 'saved.tabHavent' },
 ] as const;
 
 type Tab = typeof TABS[number]['value'];
@@ -37,6 +38,7 @@ type Tab = typeof TABS[number]['value'];
 export default function SavedScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { activeTab, setActiveTab, filteredPlaces, validPlaces, byCity } = useSaved();
+  const { t, tCount } = useTranslation();
   const removeSaved = useAppStore((s) => s.removeSaved);
   const toggleVisited = useAppStore((s) => s.toggleVisited);
   const [showMap, setShowMap] = useState(false);
@@ -52,14 +54,14 @@ export default function SavedScreen({ navigation }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.headerTop}>
-        <Text style={styles.metaText}>Your collection</Text>
+        <Text style={styles.metaText}>{t('saved.meta')}</Text>
         <Text style={styles.countText}>
-          {filteredPlaces.length} {filteredPlaces.length === 1 ? 'PLACE' : 'PLACES'}
+          {tCount('saved.count', filteredPlaces.length)}
         </Text>
       </View>
 
       <View style={styles.wordmarkRow}>
-        <Wordmark size={56}>Saved</Wordmark>
+        <Wordmark size={56}>{t('saved.title')}</Wordmark>
       </View>
 
       {/* Tabs */}
@@ -71,7 +73,7 @@ export default function SavedScreen({ navigation }: Props) {
             style={styles.tab}
           >
             <Text style={[styles.tabLabel, activeTab === tab.value && styles.tabLabelActive]}>
-              {tab.label.toUpperCase()}
+              {t(tab.labelKey).toUpperCase()}
             </Text>
             {activeTab === tab.value && <View style={styles.tabUnderline} />}
           </Pressable>
@@ -87,13 +89,13 @@ export default function SavedScreen({ navigation }: Props) {
       {/* Content */}
       {filteredPlaces.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>Nothing here yet</Text>
+          <Text style={styles.emptyTitle}>{t('saved.emptyTitle')}</Text>
           <Text style={styles.emptySubtitle}>
             {activeTab === 'all'
-              ? 'Like places on Discover to save them here.'
+              ? t('saved.emptyAll')
               : activeTab === 'been'
-              ? "Mark places as visited to see them here."
-              : "All your saved places are marked as visited."}
+              ? t('saved.emptyBeen')
+              : t('saved.emptyHavent')}
           </Text>
         </View>
       ) : showMap ? (

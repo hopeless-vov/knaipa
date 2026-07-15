@@ -9,6 +9,7 @@ import { Gesture, GestureDetector, Pressable } from 'react-native-gesture-handle
 import { Place } from '../types';
 import { INK, PAPER } from '../utils/theme';
 import PlaceCover from './PlaceCover';
+import { useTranslation } from '../hooks/useTranslation';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 80;
@@ -40,6 +41,7 @@ const SwipeCard = React.memo(
     onPass,
     onPress,
   }, ref) {
+    const { t } = useTranslation();
     const position = useRef(new Animated.ValueXY()).current;
     const animatedDepth = useRef(new Animated.Value(depth)).current;
 
@@ -192,13 +194,13 @@ const SwipeCard = React.memo(
 
           {isTop && (
             <Animated.View style={[styles.stamp, styles.stampLike, { opacity: likeOpacity }]}>
-              <Text style={styles.stampTextLike}>LIKE</Text>
+              <Text style={styles.stampTextLike}>{t('discover.like')}</Text>
             </Animated.View>
           )}
 
           {isTop && (
             <Animated.View style={[styles.stamp, styles.stampPass, { opacity: passOpacity }]}>
-              <Text style={styles.stampTextPass}>PASS</Text>
+              <Text style={styles.stampTextPass}>{t('discover.pass')}</Text>
             </Animated.View>
           )}
         </Animated.View>
