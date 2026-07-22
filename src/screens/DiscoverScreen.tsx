@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
+import { Feather } from '@expo/vector-icons';
 
 const { height: WINDOW_HEIGHT } = Dimensions.get('window');
 // Reserve ~230px for header/title/actions/gaps, ~140px for scrollable details
@@ -234,9 +235,13 @@ export default function DiscoverScreen({ navigation }: Props) {
             <TouchableOpacity
               style={[styles.undoBtn, !canUndo && styles.undoBtnDisabled]}
               onPress={canUndo ? undo : undefined}
+              disabled={!canUndo}
+              accessibilityRole="button"
+              accessibilityLabel={t('a11y.undo')}
+              accessibilityState={{ disabled: !canUndo }}
               activeOpacity={0.8}
             >
-              <Text style={[styles.undoIcon, !canUndo && { opacity: 0.35 }]}>↶</Text>
+              <Feather name="rotate-ccw" size={22} color={INK} />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -454,11 +459,6 @@ const styles = StyleSheet.create({
   },
   undoBtnDisabled: {
     opacity: 0.35,
-  },
-  undoIcon: {
-    fontSize: 24,
-    color: INK,
-    lineHeight: 28,
   },
 
   loadingMore: {

@@ -18,6 +18,7 @@ const uk = {
     useCurrentLocation: 'Використати поточне місцезнаходження',
     selectSuggestion: 'Обрати {name}',
     tab: 'Вкладка {name}',
+    undo: 'Скасувати останнє гортання',
   },
   tabs: {
     Discover: 'Пошук',
@@ -75,6 +76,11 @@ const uk = {
   },
   errors: {
     loadDeck: "Не вдалося завантажити місця. Перевірте з'єднання та спробуйте ще раз.",
+    signInFailed: 'Не вдалося увійти. Спробуйте ще раз.',
+    signUpFailed: 'Не вдалося створити акаунт. Спробуйте ще раз.',
+    resetFailed: 'Не вдалося надіслати посилання для скидання. Спробуйте ще раз.',
+    signOutFailed: 'Не вдалося вийти. Спробуйте ще раз.',
+    updateFailed: 'Не вдалося оновити. Спробуйте ще раз.',
   },
   saved: {
     meta: 'Ваша колекція',
@@ -169,6 +175,10 @@ const uk = {
     preferences: 'НАЛАШТУВАННЯ',
     distanceUnit: 'Одиниця відстані',
     language: 'Мова',
+    unitKm: 'КМ',
+    unitMi: 'МИЛІ',
+    langEn: 'EN',
+    langUk: 'UK',
     legal: 'ПРАВОВЕ',
     nameUpdated: "Відображуване ім'я оновлено",
     passwordUpdated: 'Пароль оновлено',

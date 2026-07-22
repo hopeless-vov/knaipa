@@ -16,15 +16,8 @@ import { useTranslation } from '../hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
-const DISTANCE_OPTIONS = [
-  { value: 'km', label: 'KM' },
-  { value: 'mi', label: 'MI' },
-];
-
-const LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'EN' },
-  { value: 'uk', label: 'UK' },
-];
+// Non-linguistic mask for the hidden password value (not translatable text).
+const PASSWORD_MASK = '••••••••';
 
 export default function SettingsScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
@@ -32,6 +25,15 @@ export default function SettingsScreen({ navigation }: Props) {
   const setPreference = useAppStore((s) => s.setPreference);
   const { user, loading, error, message, updateName, updatePassword, updateEmail } = useAccount();
   const { t } = useTranslation();
+
+  const distanceOptions = [
+    { value: 'km', label: t('settings.unitKm') },
+    { value: 'mi', label: t('settings.unitMi') },
+  ];
+  const languageOptions = [
+    { value: 'en', label: t('settings.langEn') },
+    { value: 'uk', label: t('settings.langUk') },
+  ];
 
   return (
     <ScrollView
@@ -69,7 +71,7 @@ export default function SettingsScreen({ navigation }: Props) {
         <Rule faint />
         <AccountEditRow
           label={t('settings.password')}
-          value="••••••••"
+          value={PASSWORD_MASK}
           actionLabel={t('settings.update')}
           placeholder={t('settings.newPassword')}
           secureTextEntry
@@ -135,7 +137,7 @@ export default function SettingsScreen({ navigation }: Props) {
         <View style={styles.row}>
           <Text style={styles.rowLabel}>{t('settings.distanceUnit')}</Text>
           <SegmentedControl
-            options={DISTANCE_OPTIONS}
+            options={distanceOptions}
             value={preferences.distanceUnit}
             onChange={(v) => setPreference('distanceUnit', v as 'km' | 'mi')}
           />
@@ -144,7 +146,7 @@ export default function SettingsScreen({ navigation }: Props) {
         <View style={styles.row}>
           <Text style={styles.rowLabel}>{t('settings.language')}</Text>
           <SegmentedControl
-            options={LANGUAGE_OPTIONS}
+            options={languageOptions}
             value={preferences.language}
             onChange={(v) => setPreference('language', v)}
           />

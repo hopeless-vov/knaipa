@@ -19,6 +19,7 @@ const en = {
     useCurrentLocation: 'Use current location',
     selectSuggestion: 'Select {name}',
     tab: '{name} tab',
+    undo: 'Undo last swipe',
   },
   tabs: {
     Discover: 'Discover',
@@ -76,6 +77,11 @@ const en = {
   },
   errors: {
     loadDeck: 'Could not load places. Check your connection and try again.',
+    signInFailed: 'Sign in failed. Please try again.',
+    signUpFailed: 'Sign up failed. Please try again.',
+    resetFailed: 'Could not send the reset link. Please try again.',
+    signOutFailed: 'Sign out failed. Please try again.',
+    updateFailed: 'Update failed. Please try again.',
   },
   saved: {
     meta: 'Your collection',
@@ -170,6 +176,10 @@ const en = {
     preferences: 'PREFERENCES',
     distanceUnit: 'Distance unit',
     language: 'Language',
+    unitKm: 'KM',
+    unitMi: 'MI',
+    langEn: 'EN',
+    langUk: 'UK',
     legal: 'LEGAL',
     nameUpdated: 'Display name updated',
     passwordUpdated: 'Password updated',

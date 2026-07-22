@@ -34,7 +34,7 @@ export function useAccount() {
       await action();
       return true;
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Update failed');
+      setError(e instanceof Error ? e.message : t('errors.updateFailed'));
       return false;
     } finally {
       setLoading(false);

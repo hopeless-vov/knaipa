@@ -26,11 +26,14 @@ export function useAuth() {
         password,
       });
       if (authError) throw authError;
-      if (!data.user) throw new Error('Sign in failed');
+      if (!data.user) {
+        setError(t('errors.signInFailed'));
+        return false;
+      }
       setUser(mapSupabaseUser(data.user));
       return true;
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Sign in failed');
+      setError(e instanceof Error ? e.message : t('errors.signInFailed'));
       return false;
     } finally {
       setLoading(false);
@@ -52,11 +55,14 @@ export function useAuth() {
         options: { data: { name: name.trim() } },
       });
       if (authError) throw authError;
-      if (!data.user) throw new Error('Sign up failed');
+      if (!data.user) {
+        setError(t('errors.signUpFailed'));
+        return false;
+      }
       setUser(mapSupabaseUser(data.user));
       return true;
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Sign up failed');
+      setError(e instanceof Error ? e.message : t('errors.signUpFailed'));
       return false;
     } finally {
       setLoading(false);
@@ -71,7 +77,7 @@ export function useAuth() {
       if (authError) throw authError;
       return true;
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Reset failed');
+      setError(e instanceof Error ? e.message : t('errors.resetFailed'));
       return false;
     } finally {
       setLoading(false);
@@ -84,7 +90,7 @@ export function useAuth() {
       await supabase.auth.signOut();
       setUser(null);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Sign out failed');
+      setError(e instanceof Error ? e.message : t('errors.signOutFailed'));
     } finally {
       setLoading(false);
     }
