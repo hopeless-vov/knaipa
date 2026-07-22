@@ -43,15 +43,18 @@ knaipa/
 │   │   ├── formatters.ts    # padIndex(), getSubcategory(), formatHours()
 │   │   ├── geo.ts           # haversineDistance(), formatDistance(m, km|mi)
 │   │   ├── profile.ts       # computeProfileStats(), memberSince(), homeCity()
-│   │   ├── placeFilters.ts  # applyPostFetchFilters() — client-side filters
+│   │   ├── placeFilters.ts  # applyPostFetchFilters() (cached) + applyClientRefinements() (re-derived)
+│   │   ├── filterKey.ts     # serverFilterKey() — deck cache key over server-affecting filters only
 │   │   ├── places.ts        # category/radius/price maps, isOpenEvening()
+│   │   ├── logger.ts        # logWarn()/logError() — single seam for failures / crash reporting
 │   │   └── validation.ts    # isValidEmail(), validateSignIn(), validateSignUp()
 │   ├── i18n/
 │   │   ├── en.ts            # English source dictionary
 │   │   ├── uk.ts            # Ukrainian dictionary
 │   │   └── index.ts         # translate(), translateCount(), translateList()
 │   ├── config/
-│   │   └── googlePlaces.ts  # API key, endpoint URLs, FIELD_MASK constants
+│   │   ├── googlePlaces.ts  # API key, endpoint URLs, FIELD_MASK constants
+│   │   └── links.ts         # APP_SCHEME + password-reset deep-link redirect
 │   ├── mappers/
 │   │   ├── googlePlaces.ts  # buildRequestBody(), mapGooglePlace()
 │   │   └── user.ts          # mapSupabaseUser() — session user → User
@@ -96,6 +99,8 @@ knaipa/
 │   │   ├── BottomNav.tsx    # Custom tab bar
 │   │   ├── SavedRow.tsx     # Swipe-to-delete row for saved list
 │   │   ├── SplashView.tsx   # Branded splash shown while session restores
+│   │   ├── ErrorBoundary.tsx # Catches render errors; shows a recoverable fallback
+│   │   ├── ErrorFallback.tsx # Fallback UI rendered by ErrorBoundary
 │   │   ├── DiscoverSearchBar.tsx # Browse/Search toggle + category chips / query input
 │   │   ├── FilterSection.tsx # Labelled chip-group row (reused across Filters)
 │   │   ├── LegalScreen.tsx  # Shared layout for Privacy/Terms content
@@ -182,6 +187,14 @@ npx jest --coverage
 
 All test files live in `src/__tests__/`. Shared mock data is in `src/__tests__/fixtures/`.
 
+### Linting & formatting
+
+```bash
+npm run lint          # ESLint (eslint-config-expo flat config)
+npm run format        # Prettier — write
+npm run format:check  # Prettier — check only
+```
+
 **Coverage policy:** the logic layers (`hooks/`, `utils/`, `store/`, `api/`, `mappers/`, `i18n/`, `config/`)
 are unit-tested with enforced thresholds (~97% statements / ~99% lines actual; race guards, timeouts,
 and animation-only closures are `istanbul ignore`d). Presentational components/screens keep their
@@ -257,6 +270,10 @@ with a persisted op queue so offline changes are not lost). See `src/store/saved
 4. Restrict the key in Google Cloud Console (bundle id / package name + API list)
    and set daily quota limits (Text Search, Place Details, Photos, Autocomplete)
    so a leaked or abused key can't run up billing
+
+> **Required manual hardening** (console-only, can't be done from code): rotate
+> the leaked key, restrict it, and cap daily quotas. Step-by-step runbook:
+> `docs/google-cloud-hardening.md`.
 
 > **Before making any changes to `src/api/googlePlaces.ts`**, read `docs/google-place-api.md`.
 > It covers the `searchText` endpoint, supported parameters, field masks, pagination rules, and known limitations.
