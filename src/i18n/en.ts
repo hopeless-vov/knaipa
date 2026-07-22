@@ -82,6 +82,8 @@ const en = {
     resetFailed: 'Could not send the reset link. Please try again.',
     signOutFailed: 'Sign out failed. Please try again.',
     updateFailed: 'Update failed. Please try again.',
+    crashTitle: 'SOMETHING BROKE',
+    crashBody: 'The app hit an unexpected error. Try again.',
   },
   saved: {
     meta: 'Your collection',
