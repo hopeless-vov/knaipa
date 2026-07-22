@@ -3,6 +3,7 @@ import { supabase } from '../api/supabase';
 import { useAppStore } from '../store/useAppStore';
 import { mapSupabaseUser } from '../mappers/user';
 import { validateSignIn, validateSignUp, MIN_PASSWORD_LENGTH } from '../utils/validation';
+import { PASSWORD_RESET_REDIRECT } from '../config/links';
 import { useTranslation } from './useTranslation';
 
 export function useAuth() {
@@ -73,7 +74,9 @@ export function useAuth() {
     setLoading(true);
     setError(null);
     try {
-      const { error: authError } = await supabase.auth.resetPasswordForEmail(email.trim());
+      const { error: authError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: PASSWORD_RESET_REDIRECT,
+      });
       if (authError) throw authError;
       return true;
     } catch (e: unknown) {

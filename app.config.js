@@ -6,6 +6,9 @@ export default {
   expo: {
     name: 'knaipa',
     slug: 'knaipa',
+    // Deep-link scheme — keep in sync with APP_SCHEME in src/config/links.ts.
+    // Enables the password-reset email to return into the app.
+    scheme: 'knaipa',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
