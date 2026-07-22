@@ -8,6 +8,8 @@ interface ButtonProps {
   variant?: 'outline' | 'filled';
   size?: 'sm' | 'md' | 'lg' | 'xl';
   full?: boolean;
+  /** Cross-axis alignment when not `full`. Defaults to 'start'. */
+  align?: 'start' | 'center';
   disabled?: boolean;
   loading?: boolean;
   leftIcon?: React.ReactNode;
@@ -40,11 +42,13 @@ export default function Button({
   variant = 'filled',
   size = 'md',
   full = false,
+  align = 'start',
   disabled = false,
   loading = false,
   leftIcon,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
+  const alignSelf = full ? 'stretch' : align === 'center' ? 'center' : 'flex-start';
   return (
     <Pressable
       onPress={onPress}
@@ -57,7 +61,7 @@ export default function Button({
         {
           height: HEIGHT[size],
           paddingHorizontal: PADDING_H[size],
-          alignSelf: full ? 'stretch' : 'flex-start',
+          alignSelf,
           opacity: isDisabled ? 0.4 : 1,
           transform: [{ scale: pressed ? 0.97 : 1 }],
         },

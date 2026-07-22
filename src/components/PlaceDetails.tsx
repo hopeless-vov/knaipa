@@ -6,6 +6,7 @@ import { Place, PlaceExtraDetails } from '../types';
 import { INK, PAPER, MUTED, HAIR, SCREEN_PADDING } from '../utils/theme';
 import Tag from '../ui/Tag';
 import Rule from '../ui/Rule';
+import Button from '../ui/Button';
 import PhotoViewer from './PhotoViewer';
 import { useTranslation } from '../hooks/useTranslation';
 import { usePlaceActions } from '../hooks/usePlaceActions';
@@ -56,11 +57,13 @@ export default function PlaceDetails({
           <Text style={styles.sectionTitle}>{t('place.gallery')}</Text>
           <Rule faint />
           {!galleryRevealed ? (
-            <Pressable onPress={() => setGalleryRevealed(true)} style={styles.showAllBtn}>
-              <Text style={styles.showAllText}>
-                {tCount('place.showPhotos', place.gallery.length)}
-              </Text>
-            </Pressable>
+            <Button
+              label={tCount('place.showPhotos', place.gallery.length)}
+              onPress={() => setGalleryRevealed(true)}
+              variant="outline"
+              size="sm"
+              full
+            />
           ) : (
             <>
               <PhotoViewer
@@ -107,9 +110,13 @@ export default function PlaceDetails({
                 </View>
               )}
               {hasMore && (
-                <Pressable onPress={() => setGalleryExpanded(true)} style={styles.showAllBtn}>
-                  <Text style={styles.showAllText}>{t('place.showAll', { count: place.gallery.length })}</Text>
-                </Pressable>
+                <Button
+                  label={t('place.showAll', { count: place.gallery.length })}
+                  onPress={() => setGalleryExpanded(true)}
+                  variant="outline"
+                  size="sm"
+                  full
+                />
               )}
             </>
           )}
@@ -195,18 +202,10 @@ export default function PlaceDetails({
 
         <Text style={styles.addressText}>{place.address}</Text>
         <View style={styles.locationButtons}>
-          <Pressable onPress={openMaps} style={styles.locationBtn}>
-            <Text style={styles.locationBtnText}>{t('place.openMaps')}</Text>
-          </Pressable>
-          <Pressable onPress={copyAddress} style={styles.locationBtn}>
-            <Text style={styles.locationBtnText}>{t('place.copy')}</Text>
-          </Pressable>
-          <Pressable onPress={openWebsite} style={styles.locationBtn}>
-            <Text style={styles.locationBtnText}>{t('place.website')}</Text>
-          </Pressable>
-          <Pressable onPress={share} style={styles.locationBtn}>
-            <Text style={styles.locationBtnText}>{t('place.share')}</Text>
-          </Pressable>
+          <Button label={t('place.openMaps')} onPress={openMaps} variant="outline" size="sm" />
+          <Button label={t('place.copy')} onPress={copyAddress} variant="outline" size="sm" />
+          <Button label={t('place.website')} onPress={openWebsite} variant="outline" size="sm" />
+          <Button label={t('place.share')} onPress={share} variant="outline" size="sm" />
         </View>
       </View>
     </View>
@@ -249,18 +248,6 @@ const styles = StyleSheet.create({
     width: THUMB_SIZE,
     height: THUMB_SIZE,
     borderRadius: 18,
-  },
-  showAllBtn: {
-    borderWidth: 1.5,
-    borderColor: INK,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  showAllText: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    color: INK,
   },
   detailsGrid: {
     flexDirection: 'row',
@@ -320,17 +307,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-  },
-  locationBtn: {
-    borderWidth: 1.5,
-    borderColor: INK,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  locationBtnText: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    color: INK,
   },
 });

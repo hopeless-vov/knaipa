@@ -22,6 +22,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, TabParamList } from '../types';
 import { INK, PAPER, MUTED, RED, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
+import Button from '../ui/Button';
 import SwipeCard, { SwipeCardRef } from '../components/SwipeCard';
 import PlaceDetails from '../components/PlaceDetails';
 import DiscoverSearchBar from '../components/DiscoverSearchBar';
@@ -153,9 +154,7 @@ export default function DiscoverScreen({ navigation }: Props) {
           <View style={styles.emptyDeck}>
             <Text style={styles.emptyTitle}>{t('discover.errorTitle')}</Text>
             <Text style={styles.emptySub}>{t(deckError)}</Text>
-            <TouchableOpacity style={styles.resetBtn} onPress={() => retryFetch()} activeOpacity={0.8}>
-              <Text style={styles.resetBtnText}>{t('common.tryAgain')}</Text>
-            </TouchableOpacity>
+            <Button label={t('common.tryAgain')} onPress={() => retryFetch()} variant="outline" size="lg" align="center" />
           </View>
         ) : !hasLocation ? (
           <View style={styles.emptyDeck}>
@@ -166,17 +165,9 @@ export default function DiscoverScreen({ navigation }: Props) {
               {locationDenied ? t('discover.locationOffBody') : t('discover.noLocationBody')}
             </Text>
             {locationDenied && (
-              <TouchableOpacity style={styles.resetBtn} onPress={() => requestLocation()} activeOpacity={0.8}>
-                <Text style={styles.resetBtnText}>{t('discover.enableLocation')}</Text>
-              </TouchableOpacity>
+              <Button label={t('discover.enableLocation')} onPress={() => requestLocation()} variant="outline" size="lg" align="center" />
             )}
-            <TouchableOpacity
-              style={styles.resetBtn}
-              onPress={() => navigation.navigate('Filters')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.resetBtnText}>{t('common.openFilters')}</Text>
-            </TouchableOpacity>
+            <Button label={t('common.openFilters')} onPress={() => navigation.navigate('Filters')} variant="outline" size="lg" align="center" />
           </View>
         ) : deck.length > 0 ? (
           <View style={styles.deckWrapper}>
@@ -203,13 +194,7 @@ export default function DiscoverScreen({ navigation }: Props) {
           <View style={styles.emptyDeck}>
             <Text style={styles.emptyTitle}>{t('discover.noResultsTitle')}</Text>
             <Text style={styles.emptySub}>{t('discover.noResultsBody')}</Text>
-            <TouchableOpacity
-              style={styles.resetBtn}
-              onPress={() => navigation.navigate('Filters')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.resetBtnText}>{t('discover.changeFilters')}</Text>
-            </TouchableOpacity>
+            <Button label={t('discover.changeFilters')} onPress={() => navigation.navigate('Filters')} variant="outline" size="lg" align="center" />
           </View>
         )}
 
@@ -224,13 +209,15 @@ export default function DiscoverScreen({ navigation }: Props) {
         {/* Action buttons — Pass | Undo | Like */}
         {hasLocation && deck.length > 0 && (
           <View style={styles.actions}>
-            <TouchableOpacity
-              style={[styles.actionOutline, styles.actionFlex]}
-              onPress={handlePass}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.actionOutlineText}>{t('discover.pass')}</Text>
-            </TouchableOpacity>
+            <View style={styles.actionFlex}>
+              <Button
+                label={t('discover.pass')}
+                onPress={handlePass}
+                variant="outline"
+                size="xl"
+                full
+              />
+            </View>
 
             <TouchableOpacity
               style={[styles.undoBtn, !canUndo && styles.undoBtnDisabled]}
@@ -244,13 +231,15 @@ export default function DiscoverScreen({ navigation }: Props) {
               <Feather name="rotate-ccw" size={22} color={INK} />
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.actionFilled, styles.actionFlex]}
-              onPress={handleLike}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.actionFilledText}>{t('discover.like')}</Text>
-            </TouchableOpacity>
+            <View style={styles.actionFlex}>
+              <Button
+                label={t('discover.like')}
+                onPress={handleLike}
+                variant="filled"
+                size="xl"
+                full
+              />
+            </View>
           </View>
         )}
 
@@ -397,20 +386,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
   },
-  resetBtn: {
-    borderWidth: 1.5,
-    borderColor: INK,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-  },
-  resetBtnText: {
-    fontSize: 13,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: INK,
-  },
-
   // ── Action buttons: Pass | Undo | Like ──
   actions: {
     flexDirection: 'row',
@@ -420,33 +395,6 @@ const styles = StyleSheet.create({
   },
   actionFlex: {
     flex: 1,
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionOutline: {
-    borderWidth: 1.5,
-    borderColor: INK,
-    backgroundColor: PAPER,
-  },
-  actionOutlineText: {
-    fontSize: 14,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: INK,
-  },
-  actionFilled: {
-    backgroundColor: INK,
-    borderWidth: 1.5,
-    borderColor: INK,
-  },
-  actionFilledText: {
-    fontSize: 14,
-    fontWeight: '800',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    color: PAPER,
   },
   undoBtn: {
     width: 60,
