@@ -19,14 +19,15 @@ const DELETE_LABEL_WIDTH = 80;
 interface SavedRowProps {
   place: SavedPlace;
   index: number;
-  onPress: () => void;
-  onToggleVisited: () => void;
-  onRemove: () => void;
+  // id-based so parents can pass stable callbacks (keeps React.memo effective).
+  onPress: (id: string) => void;
+  onToggleVisited: (id: string) => void;
+  onRemove: (id: string) => void;
   onSwipeStart?: () => void;
   onSwipeEnd?: () => void;
 }
 
-export default function SavedRow({
+function SavedRow({
   place,
   index,
   onPress,
@@ -72,7 +73,7 @@ export default function SavedRow({
         duration: 220,
         useNativeDriver: false,
       }),
-    ]).start(() => onRemove());
+    ]).start(() => onRemove(place.id));
   };
 
   const panResponder = PanResponder.create({
@@ -114,7 +115,7 @@ export default function SavedRow({
         {...panResponder.panHandlers}
         onLayout={onRowLayout}
       >
-        <Pressable onPress={onPress} style={styles.mainArea}>
+        <Pressable onPress={() => onPress(place.id)} style={styles.mainArea}>
           <Text style={styles.number}>{padIndex(index + 1)}</Text>
           <Image
             source={{ uri: place.cover }}
@@ -129,7 +130,7 @@ export default function SavedRow({
           </View>
         </Pressable>
 
-        <Pressable onPress={onToggleVisited} style={styles.actionBtn}>
+        <Pressable onPress={() => onToggleVisited(place.id)} style={styles.actionBtn}>
           <Feather
             name={place.visited ? 'check-square' : 'square'}
             size={20}
@@ -140,6 +141,10 @@ export default function SavedRow({
     </Animated.View>
   );
 }
+
+// Memoized so SectionList rows don't re-render when siblings change; relies on
+// the parent passing stable (id-based) callbacks.
+export default React.memo(SavedRow);
 
 const styles = StyleSheet.create({
   wrapper: {

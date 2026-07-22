@@ -1,11 +1,12 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
-  ScrollView,
+  SectionList,
   StyleSheet,
   Pressable,
 } from 'react-native';
+import type { SavedPlace } from '../types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Feather } from '@expo/vector-icons';
@@ -47,9 +48,16 @@ export default function SavedScreen({ navigation }: Props) {
   const handleSwipeStart = useCallback(() => setScrollEnabled(false), []);
   const handleSwipeEnd = useCallback(() => setScrollEnabled(true), []);
 
-  const handlePlacePress = (placeId: string) => {
-    navigation.navigate('PlaceDetail', { placeId });
-  };
+  // Stable callbacks so memoized SavedRows don't re-render across list updates.
+  const handlePlacePress = useCallback(
+    (placeId: string) => navigation.navigate('PlaceDetail', { placeId }),
+    [navigation]
+  );
+
+  const sections = useMemo(
+    () => Object.entries(byCity).map(([title, data]) => ({ title, data })),
+    [byCity]
+  );
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -133,33 +141,29 @@ export default function SavedScreen({ navigation }: Props) {
           ))}
         </MapView>
       ) : (
-        <ScrollView
+        <SectionList
           style={styles.list}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 40 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          sections={sections}
+          keyExtractor={(item) => item.id}
           scrollEnabled={scrollEnabled}
-        >
-          {Object.entries(byCity).map(([city, places]) => (
-            <View key={city} style={styles.cityGroup}>
-              <Text style={styles.cityLabel}>{city.toUpperCase()}</Text>
-              {places.map((place, idx) => (
-                <SavedRow
-                  key={place.id}
-                  place={place}
-                  index={idx}
-                  onPress={() => handlePlacePress(place.id)}
-                  onToggleVisited={() => toggleVisited(place.id)}
-                  onRemove={() => removeSaved(place.id)}
-                  onSwipeStart={handleSwipeStart}
-                  onSwipeEnd={handleSwipeEnd}
-                />
-              ))}
-            </View>
-          ))}
-        </ScrollView>
+          showsVerticalScrollIndicator={false}
+          stickySectionHeadersEnabled={false}
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 40 }]}
+          renderSectionHeader={({ section }) => (
+            <Text style={styles.cityLabel}>{section.title.toUpperCase()}</Text>
+          )}
+          renderItem={({ item, index }: { item: SavedPlace; index: number }) => (
+            <SavedRow
+              place={item}
+              index={index}
+              onPress={handlePlacePress}
+              onToggleVisited={toggleVisited}
+              onRemove={removeSaved}
+              onSwipeStart={handleSwipeStart}
+              onSwipeEnd={handleSwipeEnd}
+            />
+          )}
+        />
       )}
     </View>
   );
@@ -247,17 +251,14 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: SCREEN_PADDING,
-    gap: 0,
-  },
-  cityGroup: {
-    gap: 0,
-    marginBottom: 24,
   },
   cityLabel: {
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 2,
     color: MUTED,
-    paddingVertical: 10,
+    paddingTop: 24,
+    paddingBottom: 10,
+    backgroundColor: PAPER,
   },
 });
