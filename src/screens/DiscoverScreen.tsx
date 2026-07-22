@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   Dimensions,
   Animated,
   ActivityIndicator,
@@ -16,7 +17,7 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, TabParamList } from '../types';
-import { INK, PAPER, MUTED, SCREEN_PADDING } from '../utils/theme';
+import { INK, PAPER, MUTED, GLASS, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import SwipeCard, { SwipeCardRef } from '../components/SwipeCard';
@@ -24,6 +25,7 @@ import PlaceDetails from '../components/PlaceDetails';
 import DiscoverSearchBar from '../components/DiscoverSearchBar';
 import { useDiscover } from '../hooks/useDiscover';
 import { useCardCrossfade } from '../hooks/useCardCrossfade';
+import { useFirstRunHint } from '../hooks/useFirstRunHint';
 import { useTranslation } from '../hooks/useTranslation';
 import { padIndex } from '../utils/formatters';
 
@@ -47,6 +49,7 @@ export default function DiscoverScreen({ navigation }: Props) {
     mode, categories, query, setMode, toggleCategory, submitSearch,
   } = useDiscover();
   const { t } = useTranslation();
+  const { showHint, dismissHint } = useFirstRunHint();
 
   const visibleDeck = useMemo(() => deck.slice(0, VISIBLE_CARDS), [deck]);
   const reversedDeck = useMemo(() => [...visibleDeck].reverse(), [visibleDeck]);
@@ -62,12 +65,24 @@ export default function DiscoverScreen({ navigation }: Props) {
   const { opacity: contentOpacity, displayed: displayedCard } = useCardCrossfade(topCard);
 
   const handleLike = useCallback(() => {
+    dismissHint();
     topCardRef.current?.animateLike();
-  }, []);
+  }, [dismissHint]);
 
   const handlePass = useCallback(() => {
+    dismissHint();
     topCardRef.current?.animatePass();
-  }, []);
+  }, [dismissHint]);
+
+  // Gesture-driven swipes also dismiss the coach hint.
+  const handleDeckLike = useCallback(() => {
+    dismissHint();
+    like();
+  }, [dismissHint, like]);
+  const handleDeckPass = useCallback(() => {
+    dismissHint();
+    pass();
+  }, [dismissHint, pass]);
 
   const handleCardPress = () => {
     if (topCard) {
@@ -167,12 +182,17 @@ export default function DiscoverScreen({ navigation }: Props) {
                   isTop={isTop}
                   index={deckIndex}
                   total={totalDeck}
-                  onLike={like}
-                  onPass={pass}
+                  onLike={handleDeckLike}
+                  onPass={handleDeckPass}
                   onPress={handleCardPress}
                 />
               );
             })}
+            {showHint && (
+              <Pressable style={styles.swipeHint} onPress={dismissHint} accessibilityRole="button">
+                <Text style={styles.swipeHintText}>{t('discover.swipeHint')}</Text>
+              </Pressable>
+            )}
           </View>
         ) : (
           <View style={styles.emptyDeck}>
@@ -335,6 +355,22 @@ const styles = StyleSheet.create({
   deckWrapper: {
     height: DECK_HEIGHT,
     position: 'relative',
+  },
+  swipeHint: {
+    position: 'absolute',
+    top: 16,
+    alignSelf: 'center',
+    zIndex: 20,
+    backgroundColor: GLASS,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 4,
+  },
+  swipeHintText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: INK,
+    letterSpacing: 0.3,
   },
   loadingCard: {
     flex: 1,

@@ -70,6 +70,7 @@ const uk = {
     loadingMore: 'Завантажуємо ще місця…',
     aboutThisPlace: 'Про це місце',
     scrollHint: 'гортай ↓',
+    swipeHint: 'Гортайте вправо — зберегти · вліво — пропустити',
     pass: 'ПРОПУСК',
     like: 'ПОДОБА',
     browse: 'Огляд',

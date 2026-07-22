@@ -71,6 +71,7 @@ const en = {
     loadingMore: 'Loading more places…',
     aboutThisPlace: 'About this place',
     scrollHint: 'scroll ↓',
+    swipeHint: 'Swipe right to save · left to pass',
     pass: 'PASS',
     like: 'LIKE',
     browse: 'Browse',
