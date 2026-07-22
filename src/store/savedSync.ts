@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Place, SavedPlace } from '../types';
+import { Place } from '../types';
 import { fetchRemoteSaved, pushSave, pushUnsave, pushVisited } from '../api/savedPlaces';
 import { SavedPlacesById } from './savedStorage';
 import { logWarn } from '../utils/logger';
@@ -83,7 +83,8 @@ export async function loadDeadLetter(userId: string): Promise<SyncOp[]> {
 
 async function quarantine(userId: string, op: SyncOp): Promise<void> {
   const dead = await loadDeadLetter(userId);
-  const { attempts, ...clean } = op as QueuedOp; // drop the attempt counter
+  const clean = { ...op } as QueuedOp;
+  delete clean.attempts; // strip the internal attempt counter
   dead.push(clean);
   try {
     await AsyncStorage.setItem(deadLetterKey(userId), JSON.stringify(dead));

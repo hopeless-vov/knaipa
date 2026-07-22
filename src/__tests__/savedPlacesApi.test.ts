@@ -1,3 +1,11 @@
+import {
+  fetchRemoteSaved,
+  pushSave,
+  pushUnsave,
+  pushVisited,
+} from '../api/savedPlaces';
+import { MOCK_PLACES } from './fixtures/places';
+
 jest.mock('../api/supabase', () => {
   const state = { result: { data: [], error: null } as { data: unknown; error: unknown } };
   const builder: Record<string, unknown> = {};
@@ -13,15 +21,7 @@ jest.mock('../api/supabase', () => {
   };
 });
 
-import {
-  fetchRemoteSaved,
-  pushSave,
-  pushUnsave,
-  pushVisited,
-} from '../api/savedPlaces';
-import { MOCK_PLACES } from './fixtures/places';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+ 
 const supaMock = require('../api/supabase');
 const state = supaMock.__state as { result: { data: unknown; error: unknown } };
 const builder = supaMock.__builder as Record<string, jest.Mock>;

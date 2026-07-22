@@ -11,10 +11,6 @@ import {
 import { ScrollView } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
-
-const { height: WINDOW_HEIGHT } = Dimensions.get('window');
-// Reserve ~230px for header/title/actions/gaps, ~140px for scrollable details
-const DECK_HEIGHT = Math.min(420, Math.max(260, WINDOW_HEIGHT * 0.42));
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -30,6 +26,10 @@ import { useDiscover } from '../hooks/useDiscover';
 import { useCardCrossfade } from '../hooks/useCardCrossfade';
 import { useTranslation } from '../hooks/useTranslation';
 import { padIndex } from '../utils/formatters';
+
+const { height: WINDOW_HEIGHT } = Dimensions.get('window');
+// Reserve ~230px for header/title/actions/gaps, ~140px for scrollable details
+const DECK_HEIGHT = Math.min(420, Math.max(260, WINDOW_HEIGHT * 0.42));
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<TabParamList, 'Discover'>,

@@ -1,4 +1,4 @@
-import { Place, Filters } from '../types';
+import { Place, Filters , PlaceExtraDetails } from '../types';
 import { GooglePlace, AutocompleteSuggestion, RawAutocompletePrediction } from '../types/googleApi';
 import { RADIUS_MAP } from '../utils/places';
 import { haversineDistance } from '../utils/geo';
@@ -15,7 +15,6 @@ import {
   NEARBY_FIELD_MASK,
   DETAILS_FIELD_MASK,
 } from '../config/googlePlaces';
-import { PlaceExtraDetails } from '../types';
 
 /**
  * fetch() with a hard timeout so a hung Places request can't stall a screen

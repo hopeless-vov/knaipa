@@ -3,7 +3,7 @@ import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
+import { RootStackParamList , UserPreferences } from '../types';
 import { INK, MUTED, RED, PAPER, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
@@ -15,7 +15,6 @@ import AccountEditRow from '../components/AccountEditRow';
 import { useAppStore } from '../store/useAppStore';
 import { useAccount } from '../hooks/useAccount';
 import { useTranslation } from '../hooks/useTranslation';
-import { UserPreferences } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 

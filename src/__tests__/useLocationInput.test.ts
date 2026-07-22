@@ -1,5 +1,10 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
+import * as Location from 'expo-location';
+import { useLocationInput } from '../hooks/useLocationInput';
+import * as api from '../api/googlePlaces';
+import { useAppStore } from '../store/useAppStore';
+
 jest.mock('expo-location', () => ({
   requestForegroundPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
   getCurrentPositionAsync: jest.fn(async () => ({ coords: { latitude: 50.4, longitude: 30.5 } })),
@@ -12,11 +17,6 @@ jest.mock('../api/googlePlaces', () => ({
   ]),
   fetchPlaceLocation: jest.fn(async () => ({ lat: 50.45, lng: 30.52 })),
 }));
-
-import * as Location from 'expo-location';
-import { useLocationInput } from '../hooks/useLocationInput';
-import * as api from '../api/googlePlaces';
-import { useAppStore } from '../store/useAppStore';
 
 const autocompleteMock = api.autocompletePlaces as jest.Mock;
 const fetchLocMock = api.fetchPlaceLocation as jest.Mock;
