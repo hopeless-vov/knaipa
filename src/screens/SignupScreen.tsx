@@ -93,7 +93,8 @@ export default function SignupScreen({ navigation }: Props) {
             variant="filled"
             size="lg"
             full
-            disabled={loading || !agreed}
+            loading={loading}
+            disabled={!agreed}
           />
         </View>
 

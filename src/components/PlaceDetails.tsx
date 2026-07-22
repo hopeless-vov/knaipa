@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet, Linking } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, Linking, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Place, PlaceExtraDetails } from '../types';
@@ -16,6 +16,8 @@ const GALLERY_PREVIEW = 2; // photos shown before "show all"
 interface PlaceDetailsProps {
   place: Place;
   details?: PlaceExtraDetails | null;
+  /** True while the extra Place Details request (phone/website) is in flight. */
+  detailsLoading?: boolean;
   /**
    * Defer loading gallery photos until the user taps to reveal them. Use in the
    * Discover deck preview so passed-over cards never fire photo requests.
@@ -23,7 +25,12 @@ interface PlaceDetailsProps {
   lazyGallery?: boolean;
 }
 
-export default function PlaceDetails({ place, details, lazyGallery = false }: PlaceDetailsProps) {
+export default function PlaceDetails({
+  place,
+  details,
+  detailsLoading = false,
+  lazyGallery = false,
+}: PlaceDetailsProps) {
   const { t, tCount } = useTranslation();
   const [viewerIndex, setViewerIndex] = useState(0);
   const [viewerVisible, setViewerVisible] = useState(false);
@@ -130,14 +137,19 @@ export default function PlaceDetails({ place, details, lazyGallery = false }: Pl
             <Text style={styles.detailLabel}>{t('place.type')}</Text>
             <Text style={styles.detailValue}>{place.type}</Text>
           </View>
-          {details?.nationalPhoneNumber && (
+          {details?.nationalPhoneNumber ? (
             <View style={styles.detailCellFull}>
               <Text style={styles.detailLabel}>{t('place.phone')}</Text>
               <Pressable onPress={() => Linking.openURL(`tel:${details.nationalPhoneNumber}`)}>
                 <Text style={[styles.detailValue, styles.link]}>{details.nationalPhoneNumber}</Text>
               </Pressable>
             </View>
-          )}
+          ) : detailsLoading ? (
+            <View style={styles.detailCellFull}>
+              <Text style={styles.detailLabel}>{t('place.phone')}</Text>
+              <ActivityIndicator size="small" color={MUTED} style={styles.detailLoader} />
+            </View>
+          ) : null}
         </View>
       </View>
 
@@ -279,6 +291,10 @@ const styles = StyleSheet.create({
   },
   link: {
     textDecorationLine: 'underline',
+  },
+  detailLoader: {
+    alignSelf: 'flex-start',
+    marginTop: 2,
   },
   highlights: {
     flexDirection: 'row',

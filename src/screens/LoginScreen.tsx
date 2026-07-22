@@ -69,7 +69,7 @@ export default function LoginScreen({ navigation }: Props) {
             variant="filled"
             size="lg"
             full
-            disabled={loading}
+            loading={loading}
           />
           <Pressable onPress={() => navigation.navigate('Forgot')} style={styles.centered}>
             <Text style={styles.link}>{t('auth.forgotPassword')}</Text>

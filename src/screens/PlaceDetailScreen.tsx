@@ -21,7 +21,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { placeId, fromDiscover } = route.params;
   const place = useFindPlace(placeId);
-  const { details } = usePlaceDetails(placeId);
+  const { details, isLoading: detailsLoading } = usePlaceDetails(placeId);
   const { t } = useTranslation();
   // Act on the viewed place directly — avoid useDiscover's GPS/fetch lifecycle
   const swipeLike = useAppStore((s) => s.swipeLike);
@@ -93,7 +93,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
       <Rule faint />
 
       {/* Place details */}
-      <PlaceDetails place={place} details={details} />
+      <PlaceDetails place={place} details={details} detailsLoading={detailsLoading} />
     </ScrollView>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { INK, PAPER } from '../utils/theme';
 
 interface ButtonProps {
@@ -9,6 +9,7 @@ interface ButtonProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   full?: boolean;
   disabled?: boolean;
+  loading?: boolean;
   leftIcon?: React.ReactNode;
 }
 
@@ -40,37 +41,48 @@ export default function Button({
   size = 'md',
   full = false,
   disabled = false,
+  loading = false,
   leftIcon,
 }: ButtonProps) {
+  const isDisabled = disabled || loading;
   return (
     <Pressable
       onPress={onPress}
-      disabled={disabled}
+      disabled={isDisabled}
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       style={({ pressed }) => [
         styles.base,
         {
           height: HEIGHT[size],
           paddingHorizontal: PADDING_H[size],
           alignSelf: full ? 'stretch' : 'flex-start',
-          opacity: disabled ? 0.4 : 1,
+          opacity: isDisabled ? 0.4 : 1,
           transform: [{ scale: pressed ? 0.97 : 1 }],
         },
         variant === 'filled' ? styles.filled : styles.outline,
       ]}
     >
-      {leftIcon}
-      <Text
-        style={[
-          styles.label,
-          { fontSize: FONT_SIZE[size] },
-          variant === 'filled' ? styles.labelFilled : styles.labelOutline,
-        ]}
-      >
-        {label.toUpperCase()}
-      </Text>
+      {loading ? (
+        <ActivityIndicator
+          size="small"
+          color={variant === 'filled' ? PAPER : INK}
+        />
+      ) : (
+        <>
+          {leftIcon}
+          <Text
+            style={[
+              styles.label,
+              { fontSize: FONT_SIZE[size] },
+              variant === 'filled' ? styles.labelFilled : styles.labelOutline,
+            ]}
+          >
+            {label.toUpperCase()}
+          </Text>
+        </>
+      )}
     </Pressable>
   );
 }

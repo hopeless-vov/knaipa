@@ -65,7 +65,8 @@ export default function ForgotScreen({ navigation }: Props) {
             variant="filled"
             size="lg"
             full
-            disabled={loading || !email}
+            loading={loading}
+            disabled={!email}
           />
         </View>
 
