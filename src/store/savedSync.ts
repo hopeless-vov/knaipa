@@ -7,13 +7,24 @@ import { logWarn } from '../utils/logger';
 // The sync queue is scoped per user so pending offline ops for account A can
 // never be flushed into account B after an account switch on the same device.
 export const SYNC_QUEUE_PREFIX = '@knaipa/syncQueue:';
+export const DEAD_LETTER_PREFIX = '@knaipa/syncDeadLetter:';
+
+// After this many failed flush attempts a head op is treated as a poison pill
+// (e.g. an RLS rejection or a row deleted server-side) and quarantined to the
+// dead-letter store so it stops blocking every other op behind it.
+export const MAX_FLUSH_ATTEMPTS = 6;
 
 export const queueKey = (userId: string) => `${SYNC_QUEUE_PREFIX}${userId}`;
+export const deadLetterKey = (userId: string) => `${DEAD_LETTER_PREFIX}${userId}`;
 
 export type SyncOp =
   | { type: 'save'; place: Place; savedAt: string; visited: boolean }
   | { type: 'unsave'; placeId: string }
   | { type: 'visited'; placeId: string; visited: boolean };
+
+// Persisted ops carry a private attempt counter so a poison op can be detected
+// across flushes without changing the public SyncOp shape at call sites.
+type QueuedOp = SyncOp & { attempts?: number };
 
 function opPlaceId(op: SyncOp): string {
   return op.type === 'save' ? op.place.id : op.placeId;
@@ -57,6 +68,30 @@ export async function clearQueue(userId: string): Promise<void> {
   }
 }
 
+/** Returns ops that were quarantined after repeated flush failures. */
+export async function loadDeadLetter(userId: string): Promise<SyncOp[]> {
+  try {
+    const raw = await AsyncStorage.getItem(deadLetterKey(userId));
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as SyncOp[]) : [];
+  } catch (e) {
+    logWarn('loadDeadLetter failed', e);
+    return [];
+  }
+}
+
+async function quarantine(userId: string, op: SyncOp): Promise<void> {
+  const dead = await loadDeadLetter(userId);
+  const { attempts, ...clean } = op as QueuedOp; // drop the attempt counter
+  dead.push(clean);
+  try {
+    await AsyncStorage.setItem(deadLetterKey(userId), JSON.stringify(dead));
+  } catch (e) {
+    logWarn('quarantine persist failed', e);
+  }
+}
+
 async function runOp(userId: string, op: SyncOp): Promise<void> {
   switch (op.type) {
     case 'save':
@@ -79,12 +114,25 @@ export async function flushQueue(userId: string): Promise<void> {
   if (flushing) return;
   flushing = true;
   try {
-    let queue = await loadQueue(userId);
+    let queue = (await loadQueue(userId)) as QueuedOp[];
     while (queue.length > 0) {
       try {
         await runOp(userId, queue[0]);
       } catch {
-        break; // keep this op and the rest for next time
+        const head = queue[0];
+        const attempts = (head.attempts ?? 0) + 1;
+        if (attempts >= MAX_FLUSH_ATTEMPTS) {
+          // Poison pill — quarantine it and carry on so the rest can drain.
+          await quarantine(userId, head);
+          logWarn(`sync op dead-lettered after ${attempts} attempts`, head.type);
+          queue = queue.slice(1);
+          await persistQueue(userId, queue);
+          continue;
+        }
+        // Transient failure — remember the attempt and retry the queue later.
+        queue[0] = { ...head, attempts };
+        await persistQueue(userId, queue);
+        break;
       }
       queue = queue.slice(1);
       await persistQueue(userId, queue);

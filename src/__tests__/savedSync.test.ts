@@ -8,6 +8,8 @@ import {
   flushQueue,
   pullAndMerge,
   reconcileConcurrent,
+  loadDeadLetter,
+  MAX_FLUSH_ATTEMPTS,
 } from '../store/savedSync';
 import * as api from '../api/savedPlaces';
 import { MOCK_PLACES } from './fixtures/places';
@@ -90,6 +92,29 @@ describe('flushQueue', () => {
     await enqueue(U, { type: 'unsave', placeId: p2.id });
     await flushQueue(U);
     expect(mockedApi.pushUnsave).toHaveBeenCalledWith(U, p2.id);
+    expect(await loadQueue(U)).toEqual([]);
+  });
+
+  it('records an attempt on a transient failure and keeps the op', async () => {
+    await enqueue(U, { type: 'save', place: p1, savedAt: '2025-01-01', visited: false });
+    mockedApi.pushSave.mockRejectedValueOnce(new Error('offline'));
+    await flushQueue(U);
+    const q = await loadQueue(U);
+    expect(q).toHaveLength(1);
+    expect((q[0] as { attempts?: number }).attempts).toBe(1);
+  });
+
+  it('dead-letters a poison op after MAX_FLUSH_ATTEMPTS and drains the rest', async () => {
+    await enqueue(U, { type: 'save', place: p1, savedAt: '2025-01-01', visited: false });
+    await enqueue(U, { type: 'unsave', placeId: p2.id });
+    mockedApi.pushSave.mockRejectedValue(new Error('RLS reject')); // permanent
+
+    for (let i = 0; i < MAX_FLUSH_ATTEMPTS; i++) await flushQueue(U);
+
+    const dead = await loadDeadLetter(U);
+    expect(dead).toHaveLength(1);
+    expect(dead[0]).toMatchObject({ type: 'save', place: p1 });
+    expect(mockedApi.pushUnsave).toHaveBeenCalledWith(U, p2.id); // rest drained
     expect(await loadQueue(U)).toEqual([]);
   });
 });
