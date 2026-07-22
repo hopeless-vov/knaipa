@@ -65,6 +65,8 @@ const en = {
     errorTitle: 'SOMETHING WENT WRONG',
     noResultsTitle: 'NO MORE RESULTS',
     noResultsBody: 'No more places match your current filters.\nTry changing location, radius or category.',
+    browsedAllTitle: "YOU'RE ALL CAUGHT UP",
+    browsedAllBody: "You've seen the top places for this category.\nTry another category or a wider radius.",
     changeFilters: 'CHANGE FILTERS',
     loadingMore: 'Loading more places…',
     aboutThisPlace: 'About this place',

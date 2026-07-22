@@ -176,8 +176,12 @@ export default function DiscoverScreen({ navigation }: Props) {
           </View>
         ) : (
           <View style={styles.emptyDeck}>
-            <Text style={styles.emptyTitle}>{t('discover.noResultsTitle')}</Text>
-            <Text style={styles.emptySub}>{t('discover.noResultsBody')}</Text>
+            <Text style={styles.emptyTitle}>
+              {mode === 'browse' ? t('discover.browsedAllTitle') : t('discover.noResultsTitle')}
+            </Text>
+            <Text style={styles.emptySub}>
+              {mode === 'browse' ? t('discover.browsedAllBody') : t('discover.noResultsBody')}
+            </Text>
             <Button label={t('discover.changeFilters')} onPress={() => navigation.navigate('Filters')} variant="outline" size="lg" align="center" />
           </View>
         )}
