@@ -18,6 +18,25 @@ import {
 import { PlaceExtraDetails } from '../types';
 
 /**
+ * fetch() with a hard timeout so a hung Places request can't stall a screen
+ * indefinitely. Aborts after `timeoutMs` and lets the caller handle the throw.
+ */
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs = REQUEST_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  /* istanbul ignore next -- request timeout abort */
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
  * Fetches a page of places for the deck. BROWSE mode uses searchNearby
  * (category + popularity, max 20, no pagination); SEARCH mode uses searchText
  * (free text, paginated). Radius is always enforced strictly post-fetch.
@@ -38,25 +57,15 @@ export async function fetchNearbyPlaces(
     ? buildNearbyRequestBody(userLat, userLng, filters, languageCode)
     : buildRequestBody(userLat, userLng, filters, pageToken, languageCode);
 
-  const controller = new AbortController();
-  /* istanbul ignore next -- request timeout abort */
-  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': GOOGLE_API_KEY,
-        'X-Goog-FieldMask': fieldMask,
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(timeout);
-  }
+  const response = await fetchWithTimeout(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': GOOGLE_API_KEY,
+      'X-Goog-FieldMask': fieldMask,
+    },
+    body: JSON.stringify(body),
+  });
 
   if (!response.ok) {
     const errText = await response.text();
@@ -87,7 +96,7 @@ export async function fetchPlaceLocation(
     const url = sessionToken
       ? `${PLACES_BASE_URL}/places/${placeId}?sessionToken=${sessionToken}`
       : `${PLACES_BASE_URL}/places/${placeId}`;
-    const response = await fetch(url, {
+    const response = await fetchWithTimeout(url, {
       headers: {
         'X-Goog-Api-Key': GOOGLE_API_KEY,
         'X-Goog-FieldMask': 'location',
@@ -97,7 +106,8 @@ export async function fetchPlaceLocation(
     const data = await response.json();
     const lat = data.location?.latitude;
     const lng = data.location?.longitude;
-    if (!lat || !lng) return null;
+    // Nullish check, not falsy — (0,0) is a valid coordinate (equator/meridian).
+    if (lat == null || lng == null) return null;
     return { lat, lng };
   } catch {
     return null;
@@ -108,7 +118,7 @@ export async function fetchPlaceDetails(
   placeId: string
 ): Promise<PlaceExtraDetails | null> {
   try {
-    const response = await fetch(`${PLACES_BASE_URL}/places/${placeId}`, {
+    const response = await fetchWithTimeout(`${PLACES_BASE_URL}/places/${placeId}`, {
       headers: {
         'X-Goog-Api-Key': GOOGLE_API_KEY,
         'X-Goog-FieldMask': DETAILS_FIELD_MASK,
@@ -132,7 +142,7 @@ export async function autocompletePlaces(
 ): Promise<AutocompleteSuggestion[]> {
   if (!input.trim()) return [];
   try {
-    const response = await fetch(AUTOCOMPLETE_URL, {
+    const response = await fetchWithTimeout(AUTOCOMPLETE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
