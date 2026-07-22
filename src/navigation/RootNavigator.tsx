@@ -82,6 +82,9 @@ export default function RootNavigator() {
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="Forgot" component={ForgotScreen} />
+          {/* Legal must be reachable before sign-up (the consent checkbox links here) */}
+          <Stack.Screen name="Privacy" component={PrivacyScreen} />
+          <Stack.Screen name="Terms" component={TermsScreen} />
         </>
       )}
     </Stack.Navigator>

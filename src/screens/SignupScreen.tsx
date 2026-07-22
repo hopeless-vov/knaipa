@@ -87,6 +87,17 @@ export default function SignupScreen({ navigation }: Props) {
             </Text>
           </Pressable>
 
+          {/* The docs being agreed to must be readable before creating an account */}
+          <View style={styles.legalLinks}>
+            <Pressable onPress={() => navigation.navigate('Terms')}>
+              <Text style={styles.legalLink}>{t('profile.terms')}</Text>
+            </Pressable>
+            <Text style={styles.legalDot}>·</Text>
+            <Pressable onPress={() => navigation.navigate('Privacy')}>
+              <Text style={styles.legalLink}>{t('profile.privacy')}</Text>
+            </Pressable>
+          </View>
+
           <Button
             label={t('auth.createAccount')}
             onPress={handleSignup}
@@ -146,6 +157,21 @@ const styles = StyleSheet.create({
     color: MUTED,
     flex: 1,
     lineHeight: 18,
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingLeft: 28,
+  },
+  legalLink: {
+    fontSize: 12,
+    color: INK,
+    textDecorationLine: 'underline',
+  },
+  legalDot: {
+    fontSize: 12,
+    color: MUTED,
   },
   centered: {
     alignItems: 'center',
