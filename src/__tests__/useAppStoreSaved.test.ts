@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppStore, DEFAULT_FILTERS } from '../store/useAppStore';
-import { SAVED_KEY } from '../store/savedStorage';
+import { savedKey } from '../store/savedStorage';
 import * as sync from '../store/savedSync';
 import { MOCK_PLACES } from './fixtures/places';
 import { buildSavedMap } from './fixtures/saved';
@@ -13,10 +13,12 @@ jest.mock('../store/savedSync', () => ({
 
 const mockedSync = sync as jest.Mocked<typeof sync>;
 const [p1, p2, p3] = MOCK_PLACES;
+// The app is auth-gated, so saving always happens with a signed-in user.
+const USER = { id: 'u1', email: 'e', name: 'n', createdAt: '2025-01-01' };
 
 function resetStore() {
   useAppStore.setState({
-    user: null,
+    user: USER,
     deck: [...MOCK_PLACES],
     allFetchedPlaces: [...MOCK_PLACES],
     savedPlacesById: {},
@@ -32,6 +34,28 @@ beforeEach(async () => {
   resetStore();
 });
 
+describe('setUser', () => {
+  it('sets the user when signing in', () => {
+    useAppStore.setState({ user: null });
+    useAppStore.getState().setUser(USER);
+    expect(useAppStore.getState().user).toEqual(USER);
+  });
+
+  it('clears in-memory saved/deck/history on sign-out', () => {
+    useAppStore.setState({
+      savedPlacesById: buildSavedMap([p1, p2]),
+      history: [{ place: p1, action: 'like' }],
+      deck: [p3],
+    });
+    useAppStore.getState().setUser(null);
+    const s = useAppStore.getState();
+    expect(s.user).toBeNull();
+    expect(s.savedPlacesById).toEqual({});
+    expect(s.history).toEqual([]);
+    expect(s.deck).toEqual([]);
+  });
+});
+
 describe('swipeLike', () => {
   it('saves the place, removes it from the deck, and records history', () => {
     useAppStore.getState().swipeLike(p1);
@@ -44,26 +68,33 @@ describe('swipeLike', () => {
     expect(s.history[0]).toEqual({ place: p1, action: 'like' });
   });
 
-  it('enqueues a save op', () => {
+  it('enqueues a save op for the signed-in user', () => {
     useAppStore.getState().swipeLike(p1);
     expect(mockedSync.enqueue).toHaveBeenCalledWith(
+      'u1',
       expect.objectContaining({ type: 'save', place: p1, visited: false })
     );
   });
 
-  it('persists the snapshot locally', async () => {
+  it('persists the snapshot under the per-user key', async () => {
     useAppStore.getState().swipeLike(p1);
     await Promise.resolve();
-    const raw = await AsyncStorage.getItem(SAVED_KEY);
+    const raw = await AsyncStorage.getItem(savedKey('u1'));
     expect(raw && JSON.parse(raw)[p1.id]).toBeTruthy();
   });
 
   it('flushes the sync queue when a user is signed in', async () => {
-    useAppStore.setState({ user: { id: 'u1', email: 'e', name: 'n', createdAt: '2025-01-01' } });
     useAppStore.getState().swipeLike(p1);
     await Promise.resolve();
     await Promise.resolve();
     expect(mockedSync.flushQueue).toHaveBeenCalledWith('u1');
+  });
+
+  it('keeps a save in memory but does not persist when signed out', () => {
+    useAppStore.setState({ user: null });
+    useAppStore.getState().swipeLike(p1);
+    expect(useAppStore.getState().isSaved(p1.id)).toBe(true);
+    expect(mockedSync.enqueue).not.toHaveBeenCalled();
   });
 });
 
@@ -86,7 +117,7 @@ describe('undoSwipe', () => {
     const s = useAppStore.getState();
     expect(s.isSaved(p1.id)).toBe(false);
     expect(s.deck[0].id).toBe(p1.id);
-    expect(mockedSync.enqueue).toHaveBeenLastCalledWith({ type: 'unsave', placeId: p1.id });
+    expect(mockedSync.enqueue).toHaveBeenLastCalledWith('u1', { type: 'unsave', placeId: p1.id });
   });
 
   it('restores the deck after a pass without touching saved', () => {
@@ -107,7 +138,7 @@ describe('removeSaved', () => {
     useAppStore.setState({ savedPlacesById: buildSavedMap([p1, p2]) });
     useAppStore.getState().removeSaved(p1.id);
     expect(useAppStore.getState().isSaved(p1.id)).toBe(false);
-    expect(mockedSync.enqueue).toHaveBeenCalledWith({ type: 'unsave', placeId: p1.id });
+    expect(mockedSync.enqueue).toHaveBeenCalledWith('u1', { type: 'unsave', placeId: p1.id });
   });
 
   it('is a no-op for an unknown id', () => {
@@ -121,7 +152,7 @@ describe('toggleVisited', () => {
     useAppStore.setState({ savedPlacesById: buildSavedMap([p1]) });
     useAppStore.getState().toggleVisited(p1.id);
     expect(useAppStore.getState().savedPlacesById[p1.id].visited).toBe(true);
-    expect(mockedSync.enqueue).toHaveBeenCalledWith({ type: 'visited', placeId: p1.id, visited: true });
+    expect(mockedSync.enqueue).toHaveBeenCalledWith('u1', { type: 'visited', placeId: p1.id, visited: true });
   });
 
   it('is a no-op for an unknown id', () => {
@@ -173,8 +204,8 @@ describe('activeFilterCount', () => {
 describe('hydrateSaved / syncSaved', () => {
   it('hydrates the snapshot from local storage', async () => {
     const map = buildSavedMap([p1, p2]);
-    await AsyncStorage.setItem(SAVED_KEY, JSON.stringify(map));
-    await useAppStore.getState().hydrateSaved();
+    await AsyncStorage.setItem(savedKey('u1'), JSON.stringify(map));
+    await useAppStore.getState().hydrateSaved('u1');
     expect(useAppStore.getState().savedPlacesById).toEqual(map);
   });
 

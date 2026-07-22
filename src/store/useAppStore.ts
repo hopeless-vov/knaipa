@@ -11,6 +11,7 @@ import {
   toSavedList,
 } from './savedStorage';
 import { SyncOp, enqueue, flushQueue, pullAndMerge } from './savedSync';
+import { logError } from '../utils/logger';
 
 export const FILTERS_KEY = '@knaipa/filters';
 const PREFS_KEY = '@knaipa/preferences';
@@ -78,7 +79,7 @@ interface AppState {
   fetchMoreDeck: () => Promise<void>;
   hydrateFilters: () => Promise<void>;
   hydratePreferences: () => Promise<void>;
-  hydrateSaved: () => Promise<void>;
+  hydrateSaved: (userId: string) => Promise<void>;
   syncSaved: (userId: string) => Promise<void>;
 
   // Getters
@@ -94,11 +95,12 @@ export const useAppStore = create<AppState>((set, get) => {
    */
   const commitSaved = (next: SavedPlacesById, op: SyncOp) => {
     set({ savedPlacesById: next });
-    persistSavedPlaces(next);
-    enqueue(op).then(() => {
-      const { user } = get();
-      if (user) flushQueue(user.id);
-    });
+    const uid = get().user?.id;
+    // The app is auth-gated, so a user is always present when swiping/saving.
+    // Guard defensively: with no user we keep the change in memory only.
+    if (!uid) return;
+    persistSavedPlaces(uid, next);
+    enqueue(uid, op).then(() => flushQueue(uid));
   };
 
   return {
@@ -118,7 +120,23 @@ export const useAppStore = create<AppState>((set, get) => {
     nextPageToken: null,
     deckError: null,
 
-    setUser: (user) => set({ user }),
+    // Signing out clears all in-memory user data so nothing bleeds into the
+    // next account. Each user's saved snapshot + sync queue stay isolated on
+    // disk under per-user keys and reload when that user signs back in.
+    setUser: (user) =>
+      set(
+        user
+          ? { user }
+          : {
+              user: null,
+              savedPlacesById: {},
+              history: [],
+              deck: [],
+              allFetchedPlaces: [],
+              swipedIds: new Set<string>(),
+              seenIds: new Set<string>(),
+            }
+      ),
 
     setUserLocation: (loc) => set({ userLocation: loc }),
 
@@ -142,8 +160,8 @@ export const useAppStore = create<AppState>((set, get) => {
       } catch {}
     },
 
-    hydrateSaved: async () => {
-      const map = await loadSavedPlaces();
+    hydrateSaved: async (userId) => {
+      const map = await loadSavedPlaces(userId);
       set({ savedPlacesById: map });
     },
 
@@ -151,10 +169,11 @@ export const useAppStore = create<AppState>((set, get) => {
       try {
         const merged = await pullAndMerge(userId, get().savedPlacesById);
         set({ savedPlacesById: merged });
-        await persistSavedPlaces(merged);
+        await persistSavedPlaces(userId, merged);
         await flushQueue(userId);
-      } catch {
+      } catch (e) {
         // Offline / transient — local snapshot stays authoritative
+        logError('syncSaved failed — keeping local snapshot', e);
       }
     },
 

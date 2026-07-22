@@ -12,12 +12,18 @@ export function useSavedBootstrap() {
   const hydratePreferences = useAppStore((s) => s.hydratePreferences);
   const syncSaved = useAppStore((s) => s.syncSaved);
 
+  // Preferences are device-level (not per-user), so hydrate them on mount.
   useEffect(() => {
-    hydrateSaved();
     hydratePreferences();
   }, []);
 
+  // Saved data is per-user: load *that* user's snapshot then reconcile with
+  // Supabase whenever the signed-in user changes. (Sign-out clears in-memory
+  // saved state via setUser, so nothing carries into the next account.)
   useEffect(() => {
-    if (userId) syncSaved(userId);
+    if (userId) {
+      hydrateSaved(userId);
+      syncSaved(userId);
+    }
   }, [userId]);
 }

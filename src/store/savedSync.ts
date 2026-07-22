@@ -2,8 +2,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Place, SavedPlace } from '../types';
 import { fetchRemoteSaved, pushSave, pushUnsave, pushVisited } from '../api/savedPlaces';
 import { SavedPlacesById } from './savedStorage';
+import { logWarn } from '../utils/logger';
 
-export const SYNC_QUEUE_KEY = '@knaipa/syncQueue';
+// The sync queue is scoped per user so pending offline ops for account A can
+// never be flushed into account B after an account switch on the same device.
+export const SYNC_QUEUE_PREFIX = '@knaipa/syncQueue:';
+
+export const queueKey = (userId: string) => `${SYNC_QUEUE_PREFIX}${userId}`;
 
 export type SyncOp =
   | { type: 'save'; place: Place; savedAt: string; visited: boolean }
@@ -14,30 +19,42 @@ function opPlaceId(op: SyncOp): string {
   return op.type === 'save' ? op.place.id : op.placeId;
 }
 
-/** Loads the pending sync-op queue. Returns [] on miss or corruption. */
-export async function loadQueue(): Promise<SyncOp[]> {
+/** Loads a user's pending sync-op queue. Returns [] on miss or corruption. */
+export async function loadQueue(userId: string): Promise<SyncOp[]> {
   try {
-    const raw = await AsyncStorage.getItem(SYNC_QUEUE_KEY);
+    const raw = await AsyncStorage.getItem(queueKey(userId));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as SyncOp[]) : [];
-  } catch {
+  } catch (e) {
+    logWarn('loadQueue failed', e);
     return [];
   }
 }
 
-async function persistQueue(queue: SyncOp[]): Promise<void> {
+async function persistQueue(userId: string, queue: SyncOp[]): Promise<void> {
   try {
-    await AsyncStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(queue));
-  } catch {}
+    await AsyncStorage.setItem(queueKey(userId), JSON.stringify(queue));
+  } catch (e) {
+    logWarn('persistQueue failed — a pending sync op may be lost', e);
+  }
 }
 
-/** Appends an op to the persisted queue and returns the new queue. */
-export async function enqueue(op: SyncOp): Promise<SyncOp[]> {
-  const queue = await loadQueue();
+/** Appends an op to a user's persisted queue and returns the new queue. */
+export async function enqueue(userId: string, op: SyncOp): Promise<SyncOp[]> {
+  const queue = await loadQueue(userId);
   queue.push(op);
-  await persistQueue(queue);
+  await persistQueue(userId, queue);
   return queue;
+}
+
+/** Clears a user's queue (used on sign-out after a best-effort flush). */
+export async function clearQueue(userId: string): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(queueKey(userId));
+  } catch (e) {
+    logWarn('clearQueue failed', e);
+  }
 }
 
 async function runOp(userId: string, op: SyncOp): Promise<void> {
@@ -62,7 +79,7 @@ export async function flushQueue(userId: string): Promise<void> {
   if (flushing) return;
   flushing = true;
   try {
-    let queue = await loadQueue();
+    let queue = await loadQueue(userId);
     while (queue.length > 0) {
       try {
         await runOp(userId, queue[0]);
@@ -70,7 +87,7 @@ export async function flushQueue(userId: string): Promise<void> {
         break; // keep this op and the rest for next time
       }
       queue = queue.slice(1);
-      await persistQueue(queue);
+      await persistQueue(userId, queue);
     }
   } finally {
     flushing = false;
@@ -92,7 +109,7 @@ export async function pullAndMerge(
     merged[place.id] = place;
   }
 
-  const queue = await loadQueue();
+  const queue = await loadQueue(userId);
   for (const op of queue) {
     const id = opPlaceId(op);
     if (op.type === 'unsave') {

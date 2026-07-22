@@ -68,15 +68,17 @@ describe('useTranslation', () => {
 });
 
 describe('useSavedBootstrap', () => {
-  it('hydrates on mount and syncs once a user is present', () => {
+  it('hydrates preferences on mount, then loads + syncs saved per user', () => {
     const hydrateSaved = jest.fn();
     const hydratePreferences = jest.fn();
     const syncSaved = jest.fn();
     useAppStore.setState({ hydrateSaved, hydratePreferences, syncSaved, user: null });
 
     const { rerender } = renderHook(() => useSavedBootstrap());
-    expect(hydrateSaved).toHaveBeenCalledTimes(1);
+    // Preferences are device-level → hydrated on mount. Saved data is per-user
+    // → nothing loaded until a user is present (prevents cross-account bleed).
     expect(hydratePreferences).toHaveBeenCalledTimes(1);
+    expect(hydrateSaved).not.toHaveBeenCalled();
     expect(syncSaved).not.toHaveBeenCalled();
 
     act(() =>
@@ -85,6 +87,7 @@ describe('useSavedBootstrap', () => {
       })
     );
     rerender({});
+    expect(hydrateSaved).toHaveBeenCalledWith('u1');
     expect(syncSaved).toHaveBeenCalledWith('u1');
   });
 });
