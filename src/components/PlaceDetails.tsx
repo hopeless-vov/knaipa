@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet, Linking, ActivityIndicator } from 'react-native';
-import { Image } from 'expo-image';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import React from 'react';
+import { View, Text, Pressable, StyleSheet, Linking, ActivityIndicator } from 'react-native';
 import { Place, PlaceExtraDetails } from '../types';
-import { INK, PAPER, MUTED, HAIR, SCREEN_PADDING } from '../utils/theme';
+import { INK, MUTED } from '../utils/theme';
 import Tag from '../ui/Tag';
 import Rule from '../ui/Rule';
-import Button from '../ui/Button';
-import PhotoViewer from './PhotoViewer';
+import PlaceGallery from './PlaceGallery';
+import PlaceLocation from './PlaceLocation';
 import { useTranslation } from '../hooks/useTranslation';
-import { usePlaceActions } from '../hooks/usePlaceActions';
-
-const THUMB_SIZE = 160;
-const GALLERY_PREVIEW = 2; // photos shown before "show all"
 
 interface PlaceDetailsProps {
   place: Place;
@@ -32,22 +26,7 @@ export default function PlaceDetails({
   detailsLoading = false,
   lazyGallery = false,
 }: PlaceDetailsProps) {
-  const { t, tCount } = useTranslation();
-  const [viewerIndex, setViewerIndex] = useState(0);
-  const [viewerVisible, setViewerVisible] = useState(false);
-  const [galleryExpanded, setGalleryExpanded] = useState(false);
-  // When lazy, images (and their photo requests) are held back until revealed
-  const [galleryRevealed, setGalleryRevealed] = useState(!lazyGallery);
-
-  const visiblePhotos = galleryExpanded ? place.gallery : place.gallery.slice(0, GALLERY_PREVIEW);
-  const hasMore = place.gallery.length > GALLERY_PREVIEW && !galleryExpanded;
-
-  const { openMaps, copyAddress, openWebsite, share } = usePlaceActions(place, details);
-
-  const openPhoto = (index: number) => {
-    setViewerIndex(index);
-    setViewerVisible(true);
-  };
+  const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
@@ -56,70 +35,7 @@ export default function PlaceDetails({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('place.gallery')}</Text>
           <Rule faint />
-          {!galleryRevealed ? (
-            <Button
-              label={tCount('place.showPhotos', place.gallery.length)}
-              onPress={() => setGalleryRevealed(true)}
-              variant="outline"
-              size="sm"
-              full
-            />
-          ) : (
-            <>
-              <PhotoViewer
-                photos={place.gallery}
-                initialIndex={viewerIndex}
-                visible={viewerVisible}
-                onClose={() => setViewerVisible(false)}
-              />
-              {visiblePhotos.length > 2 ? (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  nestedScrollEnabled
-                  contentContainerStyle={styles.galleryScroll}
-                  style={styles.galleryScrollView}
-                >
-                  {visiblePhotos.map((uri, i) => (
-                    <Pressable key={i} onPress={() => openPhoto(i)}>
-                      <Image
-                        source={{ uri }}
-                        style={styles.galleryThumb}
-                        contentFit="cover"
-                        cachePolicy="memory-disk"
-                        recyclingKey={uri}
-                        priority="low"
-                      />
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              ) : (
-                <View style={styles.gallery}>
-                  {visiblePhotos.map((uri, i) => (
-                    <Pressable key={i} onPress={() => openPhoto(i)} style={styles.galleryItem}>
-                      <Image
-                        source={{ uri }}
-                        style={styles.galleryImage}
-                        contentFit="cover"
-                        cachePolicy="memory-disk"
-                        recyclingKey={uri}
-                        priority="low"
-                      />
-                    </Pressable>
-                  ))}
-                </View>
-              )}
-              {hasMore && (
-                <Button
-                  label={t('place.showAll', { count: place.gallery.length })}
-                  onPress={() => setGalleryExpanded(true)}
-                  variant="outline"
-                  size="sm"
-                  full
-                />
-              )}
-            </>
-          )}
+          <PlaceGallery photos={place.gallery} lazyGallery={lazyGallery} />
         </View>
       )}
 
@@ -175,38 +91,7 @@ export default function PlaceDetails({
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('place.location')}</Text>
         <Rule faint />
-
-        {/* Map preview */}
-        {place.lat !== 0 && place.lng !== 0 && (
-          <Pressable onPress={openMaps} style={styles.mapContainer}>
-            <MapView
-              provider={PROVIDER_GOOGLE}
-              style={styles.map}
-              initialRegion={{
-                latitude: place.lat,
-                longitude: place.lng,
-                latitudeDelta: 0.005,
-                longitudeDelta: 0.005,
-              }}
-              scrollEnabled={false}
-              zoomEnabled={false}
-              rotateEnabled={false}
-              pitchEnabled={false}
-              liteMode
-              pointerEvents="none"
-            >
-              <Marker coordinate={{ latitude: place.lat, longitude: place.lng }} />
-            </MapView>
-          </Pressable>
-        )}
-
-        <Text style={styles.addressText}>{place.address}</Text>
-        <View style={styles.locationButtons}>
-          <Button label={t('place.openMaps')} onPress={openMaps} variant="outline" size="sm" />
-          <Button label={t('place.copy')} onPress={copyAddress} variant="outline" size="sm" />
-          <Button label={t('place.website')} onPress={openWebsite} variant="outline" size="sm" />
-          <Button label={t('place.share')} onPress={share} variant="outline" size="sm" />
-        </View>
+        <PlaceLocation place={place} details={details} />
       </View>
     </View>
   );
@@ -224,30 +109,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 2,
     color: MUTED,
-  },
-  gallery: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  galleryItem: {
-    flex: 1,
-  },
-  galleryImage: {
-    flex: 1,
-    aspectRatio: 1,
-    borderRadius: 18,
-  },
-  galleryScrollView: {
-    marginHorizontal: -SCREEN_PADDING,
-  },
-  galleryScroll: {
-    paddingHorizontal: SCREEN_PADDING,
-    gap: 8,
-  },
-  galleryThumb: {
-    width: THUMB_SIZE,
-    height: THUMB_SIZE,
-    borderRadius: 18,
   },
   detailsGrid: {
     flexDirection: 'row',
@@ -284,26 +145,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   highlights: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  mapContainer: {
-    height: 160,
-    overflow: 'hidden',
-    borderRadius: 0,
-    borderWidth: 1.5,
-    borderColor: INK,
-  },
-  map: {
-    flex: 1,
-  },
-  addressText: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: INK,
-  },
-  locationButtons: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
