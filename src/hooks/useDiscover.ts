@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { Place, Filters } from '../types';
 import { useDeckLocation } from './useDeckLocation';
@@ -49,7 +49,7 @@ export function useDiscover() {
 
   // Re-fetch when filter values actually change (skip if same). Debounced so
   // rapid browse-category toggles collapse into a single request.
-  const filtersKey = JSON.stringify(filters);
+  const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);
   const prevFiltersKey = useRef(filtersKey);
   const refetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
