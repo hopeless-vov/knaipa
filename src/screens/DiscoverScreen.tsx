@@ -179,10 +179,10 @@ export default function DiscoverScreen({ navigation }: Props) {
             <Text style={styles.emptySub}>
               {locationDenied ? t('discover.locationOffBody') : t('discover.noLocationBody')}
             </Text>
-            {locationDenied && (
-              <Button label={t('discover.enableLocation')} onPress={() => requestLocation()} variant="outline" size="lg" align="center" />
-            )}
-            <Button label={t('common.openFilters')} onPress={() => navigation.navigate('Filters')} variant="outline" size="lg" align="center" />
+            {/* GPS is the fastest path to a location — always offer it as the
+                primary action, with Filters as the manual "enter a city" fallback. */}
+            <Button label={t('discover.enableLocation')} onPress={() => requestLocation()} variant="filled" size="lg" align="center" />
+            <Button label={t('discover.setCity')} onPress={() => navigation.navigate('Filters')} variant="outline" size="lg" align="center" />
           </View>
         ) : deck.length > 0 ? (
           <View style={styles.deckWrapper}>
