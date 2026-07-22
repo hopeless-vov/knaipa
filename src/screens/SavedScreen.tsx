@@ -7,7 +7,7 @@ import {
   Pressable,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Feather } from '@expo/vector-icons';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -109,6 +109,7 @@ export default function SavedScreen({ navigation }: Props) {
         </View>
       ) : showMap ? (
         <MapView
+          provider={PROVIDER_GOOGLE}
           style={styles.map}
           initialRegion={{
             latitude: validPlaces[0]?.lat ?? 51.505,
@@ -123,6 +124,9 @@ export default function SavedScreen({ navigation }: Props) {
               coordinate={{ latitude: place.lat, longitude: place.lng }}
               title={place.name}
               onPress={() => handlePlacePress(place.id)}
+              // Custom marker view is static → don't re-render the native marker
+              // on every frame (major jank source with many pins).
+              tracksViewChanges={false}
             >
               <MapMarker />
             </Marker>
