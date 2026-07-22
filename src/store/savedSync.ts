@@ -121,3 +121,26 @@ export async function pullAndMerge(
 
   return merged;
 }
+
+/**
+ * Re-applies local mutations that happened *during* a sync round-trip on top of
+ * the merged result, so a swipe/toggle made while `pullAndMerge` was in flight
+ * isn't clobbered by the pre-sync snapshot. `before` is the local map captured
+ * before the network call; `current` is the live map at write time.
+ */
+export function reconcileConcurrent(
+  merged: SavedPlacesById,
+  before: SavedPlacesById,
+  current: SavedPlacesById
+): SavedPlacesById {
+  const result = { ...merged };
+  // Saves/edits added or changed during the round-trip win over the snapshot.
+  for (const id of Object.keys(current)) {
+    if (current[id] !== before[id]) result[id] = current[id];
+  }
+  // Unsaves that happened during the round-trip are honored.
+  for (const id of Object.keys(before)) {
+    if (!(id in current)) delete result[id];
+  }
+  return result;
+}

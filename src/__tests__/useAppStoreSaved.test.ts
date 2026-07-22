@@ -6,6 +6,8 @@ import { MOCK_PLACES } from './fixtures/places';
 import { buildSavedMap } from './fixtures/saved';
 
 jest.mock('../store/savedSync', () => ({
+  // reconcileConcurrent is a pure helper — use the real implementation.
+  reconcileConcurrent: jest.requireActual('../store/savedSync').reconcileConcurrent,
   enqueue: jest.fn(async () => []),
   flushQueue: jest.fn(async () => {}),
   pullAndMerge: jest.fn(async () => ({})),
@@ -222,5 +224,18 @@ describe('hydrateSaved / syncSaved', () => {
     mockedSync.pullAndMerge.mockRejectedValueOnce(new Error('offline'));
     await useAppStore.getState().syncSaved('user-1');
     expect(useAppStore.getState().isSaved(p1.id)).toBe(true);
+  });
+
+  it('preserves a swipe made while sync is in flight', async () => {
+    useAppStore.setState({ savedPlacesById: {} });
+    // Remote returns only p3, but a like for p2 lands during the await.
+    mockedSync.pullAndMerge.mockImplementationOnce(async () => {
+      useAppStore.getState().swipeLike(p2);
+      return buildSavedMap([p3]);
+    });
+    await useAppStore.getState().syncSaved('u1');
+    const s = useAppStore.getState();
+    expect(s.isSaved(p3.id)).toBe(true); // merged from remote
+    expect(s.isSaved(p2.id)).toBe(true); // concurrent swipe not clobbered
   });
 });

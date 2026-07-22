@@ -10,7 +10,7 @@ import {
   persistSavedPlaces,
   toSavedList,
 } from './savedStorage';
-import { SyncOp, enqueue, flushQueue, pullAndMerge } from './savedSync';
+import { SyncOp, enqueue, flushQueue, pullAndMerge, reconcileConcurrent } from './savedSync';
 import { logError } from '../utils/logger';
 
 export const FILTERS_KEY = '@knaipa/filters';
@@ -166,10 +166,15 @@ export const useAppStore = create<AppState>((set, get) => {
     },
 
     syncSaved: async (userId) => {
+      const before = get().savedPlacesById;
       try {
-        const merged = await pullAndMerge(userId, get().savedPlacesById);
-        set({ savedPlacesById: merged });
-        await persistSavedPlaces(userId, merged);
+        const merged = await pullAndMerge(userId, before);
+        // A swipe/toggle may have landed during the await — re-apply it on top
+        // of the merged result instead of overwriting with the stale snapshot.
+        set((state) => ({
+          savedPlacesById: reconcileConcurrent(merged, before, state.savedPlacesById),
+        }));
+        await persistSavedPlaces(userId, get().savedPlacesById);
         await flushQueue(userId);
       } catch (e) {
         // Offline / transient — local snapshot stays authoritative

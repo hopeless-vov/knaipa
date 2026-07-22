@@ -7,6 +7,7 @@ import {
   clearQueue,
   flushQueue,
   pullAndMerge,
+  reconcileConcurrent,
 } from '../store/savedSync';
 import * as api from '../api/savedPlaces';
 import { MOCK_PLACES } from './fixtures/places';
@@ -143,5 +144,39 @@ describe('pullAndMerge', () => {
     const merged = await pullAndMerge(U, local);
 
     expect(merged[p1.id].visited).toBe(true);
+  });
+});
+
+describe('reconcileConcurrent', () => {
+  const s1 = { ...p1, visited: false, savedAt: '2025-01-01' };
+  const s2 = { ...p2, visited: false, savedAt: '2025-01-02' };
+
+  it('keeps merged values when nothing changed during the round-trip', () => {
+    const merged = { [p1.id]: s1 };
+    expect(reconcileConcurrent(merged, {}, {})).toEqual(merged);
+  });
+
+  it('re-applies a save added during the round-trip', () => {
+    const before = {};
+    const current = { [p2.id]: s2 };
+    const merged = { [p1.id]: s1 };
+    const out = reconcileConcurrent(merged, before, current);
+    expect(out[p1.id]).toEqual(s1);
+    expect(out[p2.id]).toEqual(s2);
+  });
+
+  it('re-applies an update made during the round-trip', () => {
+    const before = { [p1.id]: s1 };
+    const updated = { ...s1, visited: true };
+    const current = { [p1.id]: updated };
+    const merged = { [p1.id]: s1 };
+    expect(reconcileConcurrent(merged, before, current)[p1.id].visited).toBe(true);
+  });
+
+  it('honors an unsave made during the round-trip', () => {
+    const before = { [p1.id]: s1 };
+    const current = {};
+    const merged = { [p1.id]: s1 };
+    expect(reconcileConcurrent(merged, before, current)[p1.id]).toBeUndefined();
   });
 });
