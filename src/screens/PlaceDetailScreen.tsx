@@ -1,5 +1,13 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import React, { useRef } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Pressable,
+  Animated,
+  Dimensions,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
@@ -17,6 +25,8 @@ import { useTranslation } from '../hooks/useTranslation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PlaceDetail'>;
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
 export default function PlaceDetailScreen({ route, navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { placeId, fromDiscover } = route.params;
@@ -26,6 +36,30 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
   // Act on the viewed place directly — avoid useDiscover's GPS/fetch lifecycle
   const swipeLike = useAppStore((s) => s.swipeLike);
   const swipePass = useAppStore((s) => s.swipePass);
+
+  // Animate the card off-screen (like → right, pass → left) before returning,
+  // mirroring the Discover deck so the two entry points feel consistent.
+  const translateX = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  const handleDecision = (type: 'like' | 'pass') => {
+    Animated.parallel([
+      Animated.timing(translateX, {
+        toValue: type === 'like' ? SCREEN_WIDTH : -SCREEN_WIDTH,
+        duration: 240,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 240,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      if (type === 'like') swipeLike(place!);
+      else swipePass(place!);
+      navigation.goBack();
+    });
+  };
 
   if (!place) {
     return (
@@ -39,6 +73,7 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
   }
 
   return (
+    <Animated.View style={[styles.animWrap, { transform: [{ translateX }], opacity }]}>
     <ScrollView
       style={styles.scroll}
       contentContainerStyle={[
@@ -69,20 +104,14 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
         <View style={styles.actionRow}>
           <Button
             label={t('place.pass')}
-            onPress={() => {
-              swipePass(place);
-              navigation.goBack();
-            }}
+            onPress={() => handleDecision('pass')}
             variant="outline"
             size="lg"
             full
           />
           <Button
             label={t('place.like')}
-            onPress={() => {
-              swipeLike(place);
-              navigation.goBack();
-            }}
+            onPress={() => handleDecision('like')}
             variant="filled"
             size="lg"
             full
@@ -95,10 +124,15 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
       {/* Place details */}
       <PlaceDetails place={place} details={details} detailsLoading={detailsLoading} />
     </ScrollView>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  animWrap: {
+    flex: 1,
+    backgroundColor: PAPER,
+  },
   scroll: {
     flex: 1,
     backgroundColor: PAPER,
