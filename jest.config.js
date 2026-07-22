@@ -35,6 +35,8 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/i18n/index.ts',
     '!src/utils/theme.ts',
+    // Animation-only hook — RN's Animated driver isn't unit-testable in node.
+    '!src/hooks/useCardCrossfade.ts',
   ],
   coveragePathIgnorePatterns: ['/node_modules/', '/__tests__/', '/__mocks__/'],
   // Enforced floor on the logic layers. Actual is higher (~97% stmts / ~99%

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import React, { useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,7 @@ import SwipeCard, { SwipeCardRef } from '../components/SwipeCard';
 import PlaceDetails from '../components/PlaceDetails';
 import DiscoverSearchBar from '../components/DiscoverSearchBar';
 import { useDiscover } from '../hooks/useDiscover';
+import { useCardCrossfade } from '../hooks/useCardCrossfade';
 import { useTranslation } from '../hooks/useTranslation';
 import { padIndex } from '../utils/formatters';
 
@@ -58,24 +59,7 @@ export default function DiscoverScreen({ navigation }: Props) {
   }, [deck]);
 
   // Fade content when top card changes
-  const contentOpacity = useRef(new Animated.Value(1)).current;
-  const [displayedCard, setDisplayedCard] = useState(topCard);
-
-  useEffect(() => {
-    if (topCard?.id === displayedCard?.id) return;
-    Animated.timing(contentOpacity, {
-      toValue: 0,
-      duration: 120,
-      useNativeDriver: true,
-    }).start(() => {
-      setDisplayedCard(topCard);
-      Animated.timing(contentOpacity, {
-        toValue: 1,
-        duration: 180,
-        useNativeDriver: true,
-      }).start();
-    });
-  }, [topCard?.id]);
+  const { opacity: contentOpacity, displayed: displayedCard } = useCardCrossfade(topCard);
 
   const handleLike = useCallback(() => {
     topCardRef.current?.animateLike();
