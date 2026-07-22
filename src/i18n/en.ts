@@ -132,6 +132,9 @@ const en = {
     hideSeenSub: "Skip places you've already swiped",
     reset: 'RESET ALL FILTERS',
     apply: 'Apply filters',
+    locationDenied: 'Location permission denied — enter a place instead.',
+    locationUnavailable: 'Could not get your location. Try again.',
+    locationLookupFailed: 'Could not set that place. Try another.',
   },
   profile: {
     meta: 'User profile',

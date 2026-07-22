@@ -90,6 +90,36 @@ describe('useLocationInput', () => {
       await result.current.onCurrentLocation();
     });
     expect(Location.getCurrentPositionAsync).not.toHaveBeenCalled();
+    expect(result.current.error).toBe('Location permission denied — enter a place instead.');
+  });
+
+  it('onCurrentLocation surfaces an error when GPS is unavailable', async () => {
+    (Location.getCurrentPositionAsync as jest.Mock).mockRejectedValueOnce(new Error('no gps'));
+    const { result } = renderHook(() => useLocationInput(updateLocal));
+    await act(async () => {
+      await result.current.onCurrentLocation();
+    });
+    expect(result.current.error).toBe('Could not get your location. Try again.');
+  });
+
+  it('onSelectSuggestion surfaces an error when location lookup fails', async () => {
+    fetchLocMock.mockResolvedValueOnce(null);
+    const { result } = renderHook(() => useLocationInput(updateLocal));
+    await act(async () => {
+      await result.current.onSelectSuggestion({ placeId: 'p1', text: 'Kyiv', mainText: 'Kyiv', secondaryText: '' });
+    });
+    expect(result.current.error).toBe('Could not set that place. Try another.');
+  });
+
+  it('typing again clears a previous error', async () => {
+    (Location.requestForegroundPermissionsAsync as jest.Mock).mockResolvedValueOnce({ status: 'denied' });
+    const { result } = renderHook(() => useLocationInput(updateLocal));
+    await act(async () => {
+      await result.current.onCurrentLocation();
+    });
+    expect(result.current.error).not.toBeNull();
+    act(() => result.current.onLocationChange('Lv'));
+    expect(result.current.error).toBeNull();
   });
 
   it('clearSuggestions empties the list', () => {

@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
 import { RootStackParamList, Filters } from '../types';
-import { INK, PAPER, MUTED, HAIR, SCREEN_PADDING } from '../utils/theme';
+import { INK, PAPER, MUTED, RED, HAIR, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
@@ -41,7 +41,7 @@ export default function FiltersScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const { localFilters, updateLocal, applyFilters, resetFilters } = useFilters();
   const { t } = useTranslation();
-  const { suggestions, onLocationChange, onSelectSuggestion, onCurrentLocation, clearSuggestions } =
+  const { suggestions, error, onLocationChange, onSelectSuggestion, onCurrentLocation, clearSuggestions } =
     useLocationInput(updateLocal);
 
   const handleApply = () => {
@@ -105,6 +105,7 @@ export default function FiltersScreen({ navigation }: Props) {
               </Pressable>
             }
           />
+          {!!error && <Text style={styles.locationError}>{error}</Text>}
           {suggestions.length > 0 && (
             <View style={styles.suggestions}>
               {suggestions.map((s, i) => (
@@ -276,6 +277,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 1.2,
     color: INK,
+  },
+  locationError: {
+    fontSize: 12,
+    color: RED,
   },
   suggestions: {
     borderWidth: 1.5,
