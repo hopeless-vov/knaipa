@@ -75,6 +75,20 @@ describe('fetchDeck', () => {
     expect(useAppStore.getState().deck).toHaveLength(MOCK_PLACES.length);
   });
 
+  it('re-derives from cache when only a client filter (sort) changes — no billed fetch', async () => {
+    await useAppStore.getState().fetchDeck(); // seeds cache
+    mockedApi.fetchNearbyPlaces.mockClear();
+
+    // Toggle a client-only refinement; server key is unchanged → cache hit.
+    useAppStore.setState({ filters: { ...DEFAULT_FILTERS, sort: 'rating' } });
+    await useAppStore.getState().fetchDeck();
+    await flush();
+
+    expect(mockedApi.fetchNearbyPlaces).not.toHaveBeenCalled();
+    const ratings = useAppStore.getState().deck.map((p) => parseFloat(p.rating));
+    expect(ratings).toEqual([...ratings].sort((a, b) => b - a)); // sorted desc locally
+  });
+
   it('revalidates in the background when the cache is stale-ish (10–30 min)', async () => {
     await useAppStore.getState().fetchDeck();
     mockedApi.fetchNearbyPlaces.mockClear();

@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Place, SavedPlace, User, Filters, SwipeHistoryEntry, UserPreferences } from '../types';
 import { fetchNearbyPlaces } from '../api/googlePlaces';
 import { formatDistance } from '../utils/geo';
+import { applyClientRefinements } from '../utils/placeFilters';
+import { serverFilterKey } from '../utils/filterKey';
 import {
   SavedPlacesById,
   loadSavedPlaces,
@@ -187,11 +189,14 @@ export const useAppStore = create<AppState>((set, get) => {
       if (!state.userLocation) return;
 
       const { lat, lng } = state.userLocation;
-      const cacheKey = `${DECK_CACHE_PREFIX}${state.preferences.language}:${JSON.stringify(state.filters)}:${Math.round(lat * 100)}:${Math.round(lng * 100)}`;
+      // Key on server-affecting filters only, so toggling sort/minReviews/hideSeen
+      // re-derives from cache instead of paying for a fresh Google search.
+      const cacheKey = `${DECK_CACHE_PREFIX}${state.preferences.language}:${serverFilterKey(state.filters)}:${Math.round(lat * 100)}:${Math.round(lng * 100)}`;
 
       const applyPlaces = (places: Place[], nextPageToken: string | null) => {
         const { swipedIds, filters } = get();
-        const visible = filters.hideSeen ? places.filter((p) => !swipedIds.has(p.id)) : places;
+        const refined = applyClientRefinements(places, filters);
+        const visible = filters.hideSeen ? refined.filter((p) => !swipedIds.has(p.id)) : refined;
         set({
           deck: visible,
           allFetchedPlaces: visible,
@@ -261,7 +266,7 @@ export const useAppStore = create<AppState>((set, get) => {
           state.preferences.language
         );
         const { seenIds, swipedIds, filters, deck, allFetchedPlaces } = get();
-        let fresh = newPlaces.filter((p) => !seenIds.has(p.id));
+        let fresh = applyClientRefinements(newPlaces, filters).filter((p) => !seenIds.has(p.id));
         if (filters.hideSeen) fresh = fresh.filter((p) => !swipedIds.has(p.id));
         const newSeenIds = new Set([...seenIds, ...fresh.map((p) => p.id)]);
         set({
