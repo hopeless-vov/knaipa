@@ -172,6 +172,7 @@ const uk = {
     notifications: 'СПОВІЩЕННЯ',
     push: 'Пуш-сповіщення',
     emailUpdates: 'Новини на пошту',
+    comingSoon: 'СКОРО',
     locationServices: 'Служби локації',
     locationServicesSub: 'Використовувати GPS для пошуку місць поруч',
     preferences: 'НАЛАШТУВАННЯ',

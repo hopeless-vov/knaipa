@@ -173,6 +173,7 @@ const en = {
     notifications: 'NOTIFICATIONS',
     push: 'Push notifications',
     emailUpdates: 'Email updates',
+    comingSoon: 'SOON',
     locationServices: 'Location services',
     locationServicesSub: 'Use your GPS to find places nearby',
     preferences: 'PREFERENCES',

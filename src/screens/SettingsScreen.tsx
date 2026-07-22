@@ -24,12 +24,23 @@ const PASSWORD_MASK = '••••••••';
 interface NotificationRowProps {
   label: string;
   sub?: string;
-  value: boolean;
-  onValueChange: (v: boolean) => void;
+  value?: boolean;
+  onValueChange?: (v: boolean) => void;
+  // Not yet wired to any backend — show a "SOON" tag instead of a live toggle
+  // so the UI never promises a control that does nothing.
+  comingSoon?: boolean;
+  comingSoonLabel?: string;
 }
 
 /** A single notification/preference toggle row (with optional subtitle). */
-function NotificationRow({ label, sub, value, onValueChange }: NotificationRowProps) {
+function NotificationRow({
+  label,
+  sub,
+  value,
+  onValueChange,
+  comingSoon,
+  comingSoonLabel,
+}: NotificationRowProps) {
   return (
     <View style={styles.row}>
       {sub ? (
@@ -40,7 +51,11 @@ function NotificationRow({ label, sub, value, onValueChange }: NotificationRowPr
       ) : (
         <Text style={styles.rowLabel}>{label}</Text>
       )}
-      <Toggle value={value} onValueChange={onValueChange} accessibilityLabel={label} />
+      {comingSoon ? (
+        <Text style={styles.soonTag}>{comingSoonLabel}</Text>
+      ) : (
+        <Toggle value={!!value} onValueChange={onValueChange ?? (() => {})} accessibilityLabel={label} />
+      )}
     </View>
   );
 }
@@ -130,17 +145,9 @@ export default function SettingsScreen({ navigation }: Props) {
       <View style={styles.section}>
         <SectionLabel style={styles.sectionSpacing}>{t('settings.notifications')}</SectionLabel>
         <Rule faint />
-        <NotificationRow
-          label={t('settings.push')}
-          value={preferences.notifications.push}
-          onValueChange={(v) => setNotif('push', v)}
-        />
+        <NotificationRow label={t('settings.push')} comingSoon comingSoonLabel={t('settings.comingSoon')} />
         <Rule faint />
-        <NotificationRow
-          label={t('settings.emailUpdates')}
-          value={preferences.notifications.email}
-          onValueChange={(v) => setNotif('email', v)}
-        />
+        <NotificationRow label={t('settings.emailUpdates')} comingSoon comingSoonLabel={t('settings.comingSoon')} />
         <Rule faint />
         <NotificationRow
           label={t('settings.locationServices')}
@@ -213,6 +220,16 @@ const styles = StyleSheet.create({
   rowInfo: { gap: 2, flex: 1 },
   rowLabel: { fontSize: 15, fontWeight: '500', color: INK },
   rowValue: { fontSize: 13, color: MUTED },
+  soonTag: {
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 1.5,
+    color: MUTED,
+    borderWidth: 1.5,
+    borderColor: MUTED,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
   error: { fontSize: 13, color: RED, paddingTop: 10 },
   message: { fontSize: 13, color: INK, paddingTop: 10 },
 });
