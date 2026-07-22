@@ -5,6 +5,7 @@ import {
   persistSavedPlaces,
   clearSavedPlaces,
   toSavedList,
+  SCHEMA_VERSION,
 } from '../store/savedStorage';
 import { MOCK_PLACES } from './fixtures/places';
 import { buildSavedMap } from './fixtures/saved';
@@ -42,6 +43,40 @@ describe('loadSavedPlaces', () => {
     await persistSavedPlaces('user-A', mapA);
     expect(await loadSavedPlaces('user-B')).toEqual({});
     expect(await loadSavedPlaces('user-A')).toEqual(mapA);
+  });
+});
+
+describe('schema versioning', () => {
+  it('persists in a versioned envelope', async () => {
+    await persistSavedPlaces(U, buildSavedMap([MOCK_PLACES[0]]));
+    const raw = JSON.parse((await AsyncStorage.getItem(savedKey(U)))!);
+    expect(raw.version).toBe(SCHEMA_VERSION);
+    expect(raw.places[MOCK_PLACES[0].id]).toBeTruthy();
+  });
+
+  it('migrates a legacy raw map (pre-versioning) forward', async () => {
+    const legacy = buildSavedMap(MOCK_PLACES.slice(0, 2));
+    await AsyncStorage.setItem(savedKey(U), JSON.stringify(legacy)); // no version wrapper
+    expect(await loadSavedPlaces(U)).toEqual(legacy);
+  });
+
+  it('prunes malformed entries on load', async () => {
+    const good = buildSavedMap([MOCK_PLACES[0]]);
+    const places = { ...good, bad1: { id: 'bad1' }, bad2: 42 }; // missing savedAt / not object
+    await AsyncStorage.setItem(savedKey(U), JSON.stringify({ version: SCHEMA_VERSION, places }));
+    const loaded = await loadSavedPlaces(U);
+    expect(Object.keys(loaded)).toEqual([MOCK_PLACES[0].id]);
+  });
+
+  it('returns {} when a versioned snapshot has no places object', async () => {
+    await AsyncStorage.setItem(savedKey(U), JSON.stringify({ version: SCHEMA_VERSION, places: null }));
+    expect(await loadSavedPlaces(U)).toEqual({});
+  });
+
+  it('migrates (validates) an unknown future version', async () => {
+    const places = buildSavedMap([MOCK_PLACES[0]]);
+    await AsyncStorage.setItem(savedKey(U), JSON.stringify({ version: 999, places }));
+    expect(await loadSavedPlaces(U)).toEqual(places);
   });
 });
 

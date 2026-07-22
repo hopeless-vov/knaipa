@@ -82,7 +82,7 @@ describe('swipeLike', () => {
     useAppStore.getState().swipeLike(p1);
     await Promise.resolve();
     const raw = await AsyncStorage.getItem(savedKey('u1'));
-    expect(raw && JSON.parse(raw)[p1.id]).toBeTruthy();
+    expect(raw && JSON.parse(raw).places[p1.id]).toBeTruthy();
   });
 
   it('flushes the sync queue when a user is signed in', async () => {
