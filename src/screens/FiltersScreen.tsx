@@ -14,9 +14,10 @@ import { INK, PAPER, MUTED, RED, HAIR, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import TextInput from '../ui/TextInput';
-import ChipGroup from '../ui/ChipGroup';
 import Toggle from '../ui/Toggle';
 import Rule from '../ui/Rule';
+import SectionLabel from '../ui/SectionLabel';
+import FilterSection from '../components/FilterSection';
 import { useFilters } from '../hooks/useFilters';
 import { useLocationInput } from '../hooks/useLocationInput';
 import { useTranslation } from '../hooks/useTranslation';
@@ -73,7 +74,7 @@ export default function FiltersScreen({ navigation }: Props) {
       >
         {/* Presets */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('filters.quick')}</Text>
+          <SectionLabel>{t('filters.quick')}</SectionLabel>
           <View style={styles.presets}>
             {PRESETS.map((preset) => (
               <Pressable
@@ -90,7 +91,7 @@ export default function FiltersScreen({ navigation }: Props) {
 
         {/* Location */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('filters.location')}</Text>
+          <SectionLabel>{t('filters.location')}</SectionLabel>
           <TextInput
             value={localFilters.locText}
             onChangeText={onLocationChange}
@@ -129,70 +130,52 @@ export default function FiltersScreen({ navigation }: Props) {
         </View>
 
         {/* Radius */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('filters.radius')}</Text>
-          <ChipGroup
-            options={RADIUS_OPTIONS}
-            value={localFilters.radius}
-            onChange={(v) => updateLocal({ radius: v })}
-            size="sm"
-          />
-        </View>
+        <FilterSection
+          label={t('filters.radius')}
+          options={RADIUS_OPTIONS}
+          value={localFilters.radius}
+          onChange={(v) => updateLocal({ radius: v })}
+        />
 
         {/* Sort */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('filters.sortBy')}</Text>
-          <ChipGroup
-            options={SORT_OPTIONS}
-            value={localFilters.sort}
-            onChange={(v) => updateLocal({ sort: v as Filters['sort'] })}
-            size="sm"
-          />
-        </View>
+        <FilterSection
+          label={t('filters.sortBy')}
+          options={SORT_OPTIONS}
+          value={localFilters.sort}
+          onChange={(v) => updateLocal({ sort: v as Filters['sort'] })}
+        />
 
         {/* Price */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('filters.price')}</Text>
-          <ChipGroup
-            options={PRICE_OPTIONS}
-            value={localFilters.price}
-            onChange={(v) => updateLocal({ price: v })}
-            size="sm"
-          />
-        </View>
+        <FilterSection
+          label={t('filters.price')}
+          options={PRICE_OPTIONS}
+          value={localFilters.price}
+          onChange={(v) => updateLocal({ price: v })}
+        />
 
         {/* Rating */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('filters.rating')}</Text>
-          <ChipGroup
-            options={RATING_OPTIONS}
-            value={localFilters.rating}
-            onChange={(v) => updateLocal({ rating: v })}
-            size="sm"
-          />
-        </View>
+        <FilterSection
+          label={t('filters.rating')}
+          options={RATING_OPTIONS}
+          value={localFilters.rating}
+          onChange={(v) => updateLocal({ rating: v })}
+        />
 
         {/* Min reviews */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('filters.minReviews')}</Text>
-          <ChipGroup
-            options={MIN_REVIEWS_OPTIONS}
-            value={localFilters.minReviews}
-            onChange={(v) => updateLocal({ minReviews: v as Filters['minReviews'] })}
-            size="sm"
-          />
-        </View>
+        <FilterSection
+          label={t('filters.minReviews')}
+          options={MIN_REVIEWS_OPTIONS}
+          value={localFilters.minReviews}
+          onChange={(v) => updateLocal({ minReviews: v as Filters['minReviews'] })}
+        />
 
         {/* Availability */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>{t('filters.availability')}</Text>
-          <ChipGroup
-            options={AVAILABILITY_OPTIONS}
-            value={localFilters.availability}
-            onChange={(v) => updateLocal({ availability: v })}
-            size="sm"
-          />
-        </View>
+        <FilterSection
+          label={t('filters.availability')}
+          options={AVAILABILITY_OPTIONS}
+          value={localFilters.availability}
+          onChange={(v) => updateLocal({ availability: v })}
+        />
 
         {/* Hide seen */}
         <View style={styles.toggleRow}>
@@ -243,12 +226,6 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 10,
-  },
-  sectionLabel: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 2,
-    color: MUTED,
   },
   presets: {
     flexDirection: 'row',

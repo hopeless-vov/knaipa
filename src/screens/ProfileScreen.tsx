@@ -15,6 +15,7 @@ import { RootStackParamList, TabParamList } from '../types';
 import { INK, PAPER, MUTED, HAIR, RED, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
+import MetaLabel from '../ui/MetaLabel';
 import { useAuth } from '../hooks/useAuth';
 import { useAppStore } from '../store/useAppStore';
 import { padIndex } from '../utils/formatters';
@@ -73,8 +74,8 @@ export default function ProfileScreen({ navigation }: Props) {
     >
       {/* Header */}
       <View style={styles.headerTop}>
-        <Text style={styles.metaText}>{t('profile.meta')}</Text>
-        {!!since && <Text style={styles.metaRight}>{since}</Text>}
+        <MetaLabel>{t('profile.meta')}</MetaLabel>
+        {!!since && <MetaLabel>{since}</MetaLabel>}
       </View>
 
       {/* User name */}
@@ -139,20 +140,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  metaText: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    color: MUTED,
-    textTransform: 'uppercase',
-  },
-  metaRight: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    color: MUTED,
-    textTransform: 'uppercase',
   },
   locationRow: {
     flexDirection: 'row',

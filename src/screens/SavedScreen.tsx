@@ -16,6 +16,7 @@ import { RootStackParamList, TabParamList } from '../types';
 import { INK, PAPER, MUTED, HAIR, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
+import MetaLabel from '../ui/MetaLabel';
 import SavedRow from '../components/SavedRow';
 import MapMarker from '../components/MapMarker';
 import { useSaved } from '../hooks/useSaved';
@@ -54,7 +55,7 @@ export default function SavedScreen({ navigation }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.headerTop}>
-        <Text style={styles.metaText}>{t('saved.meta')}</Text>
+        <MetaLabel>{t('saved.meta')}</MetaLabel>
         <Text style={styles.countText}>
           {tCount('saved.count', filteredPlaces.length)}
         </Text>
@@ -172,13 +173,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SCREEN_PADDING,
     paddingTop: 16,
-  },
-  metaText: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    color: MUTED,
-    textTransform: 'uppercase',
   },
   countText: {
     fontSize: 11,

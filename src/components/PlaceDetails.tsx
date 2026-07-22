@@ -4,6 +4,7 @@ import { Place, PlaceExtraDetails } from '../types';
 import { INK, MUTED } from '../utils/theme';
 import Tag from '../ui/Tag';
 import Rule from '../ui/Rule';
+import SectionLabel from '../ui/SectionLabel';
 import PlaceGallery from './PlaceGallery';
 import PlaceLocation from './PlaceLocation';
 import { useTranslation } from '../hooks/useTranslation';
@@ -33,7 +34,7 @@ export default function PlaceDetails({
       {/* Gallery */}
       {place.gallery.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('place.gallery')}</Text>
+          <SectionLabel>{t('place.gallery')}</SectionLabel>
           <Rule faint />
           <PlaceGallery photos={place.gallery} lazyGallery={lazyGallery} />
         </View>
@@ -41,7 +42,7 @@ export default function PlaceDetails({
 
       {/* Details grid */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('place.details')}</Text>
+        <SectionLabel>{t('place.details')}</SectionLabel>
         <Rule faint />
         <View style={styles.detailsGrid}>
           <View style={styles.detailCell}>
@@ -78,7 +79,7 @@ export default function PlaceDetails({
 
       {/* Highlights */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('place.highlights')}</Text>
+        <SectionLabel>{t('place.highlights')}</SectionLabel>
         <Rule faint />
         <View style={styles.highlights}>
           {place.highlights.map((h) => (
@@ -89,7 +90,7 @@ export default function PlaceDetails({
 
       {/* Location */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('place.location')}</Text>
+        <SectionLabel>{t('place.location')}</SectionLabel>
         <Rule faint />
         <PlaceLocation place={place} details={details} />
       </View>
@@ -103,12 +104,6 @@ const styles = StyleSheet.create({
   },
   section: {
     gap: 12,
-  },
-  sectionTitle: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 2,
-    color: MUTED,
   },
   detailsGrid: {
     flexDirection: 'row',

@@ -9,15 +9,42 @@ import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
 import Toggle from '../ui/Toggle';
 import SegmentedControl from '../ui/SegmentedControl';
+import SectionLabel from '../ui/SectionLabel';
+import MetaLabel from '../ui/MetaLabel';
 import AccountEditRow from '../components/AccountEditRow';
 import { useAppStore } from '../store/useAppStore';
 import { useAccount } from '../hooks/useAccount';
 import { useTranslation } from '../hooks/useTranslation';
+import { UserPreferences } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 // Non-linguistic mask for the hidden password value (not translatable text).
 const PASSWORD_MASK = '••••••••';
+
+interface NotificationRowProps {
+  label: string;
+  sub?: string;
+  value: boolean;
+  onValueChange: (v: boolean) => void;
+}
+
+/** A single notification/preference toggle row (with optional subtitle). */
+function NotificationRow({ label, sub, value, onValueChange }: NotificationRowProps) {
+  return (
+    <View style={styles.row}>
+      {sub ? (
+        <View style={styles.rowInfo}>
+          <Text style={styles.rowLabel}>{label}</Text>
+          <Text style={styles.rowValue}>{sub}</Text>
+        </View>
+      ) : (
+        <Text style={styles.rowLabel}>{label}</Text>
+      )}
+      <Toggle value={value} onValueChange={onValueChange} accessibilityLabel={label} />
+    </View>
+  );
+}
 
 export default function SettingsScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
@@ -25,6 +52,9 @@ export default function SettingsScreen({ navigation }: Props) {
   const setPreference = useAppStore((s) => s.setPreference);
   const { user, loading, error, message, updateName, updatePassword, updateEmail } = useAccount();
   const { t } = useTranslation();
+
+  const setNotif = (key: keyof UserPreferences['notifications'], v: boolean) =>
+    setPreference('notifications', { ...preferences.notifications, [key]: v });
 
   const distanceOptions = [
     { value: 'km', label: t('settings.unitKm') },
@@ -47,17 +77,22 @@ export default function SettingsScreen({ navigation }: Props) {
     >
       {/* Header */}
       <View style={styles.headerTop}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.back}>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.goBack')}
+          style={styles.back}
+        >
           <Feather name="arrow-left" size={16} color={INK} />
         </Pressable>
-        <Text style={styles.metaText}>{t('settings.meta')}</Text>
+        <MetaLabel>{t('settings.meta')}</MetaLabel>
       </View>
 
       <Wordmark size={56}>{t('settings.title')}</Wordmark>
 
       {/* Account */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('settings.account')}</Text>
+        <SectionLabel style={styles.sectionSpacing}>{t('settings.account')}</SectionLabel>
         <Rule faint />
         <AccountEditRow
           label={t('settings.email')}
@@ -94,45 +129,31 @@ export default function SettingsScreen({ navigation }: Props) {
 
       {/* Notifications */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('settings.notifications')}</Text>
+        <SectionLabel style={styles.sectionSpacing}>{t('settings.notifications')}</SectionLabel>
         <Rule faint />
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>{t('settings.push')}</Text>
-          <Toggle
-            value={preferences.notifications.push}
-            onValueChange={(v) =>
-              setPreference('notifications', { ...preferences.notifications, push: v })
-            }
-          />
-        </View>
+        <NotificationRow
+          label={t('settings.push')}
+          value={preferences.notifications.push}
+          onValueChange={(v) => setNotif('push', v)}
+        />
         <Rule faint />
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>{t('settings.emailUpdates')}</Text>
-          <Toggle
-            value={preferences.notifications.email}
-            onValueChange={(v) =>
-              setPreference('notifications', { ...preferences.notifications, email: v })
-            }
-          />
-        </View>
+        <NotificationRow
+          label={t('settings.emailUpdates')}
+          value={preferences.notifications.email}
+          onValueChange={(v) => setNotif('email', v)}
+        />
         <Rule faint />
-        <View style={styles.row}>
-          <View style={styles.rowInfo}>
-            <Text style={styles.rowLabel}>{t('settings.locationServices')}</Text>
-            <Text style={styles.rowValue}>{t('settings.locationServicesSub')}</Text>
-          </View>
-          <Toggle
-            value={preferences.notifications.location}
-            onValueChange={(v) =>
-              setPreference('notifications', { ...preferences.notifications, location: v })
-            }
-          />
-        </View>
+        <NotificationRow
+          label={t('settings.locationServices')}
+          sub={t('settings.locationServicesSub')}
+          value={preferences.notifications.location}
+          onValueChange={(v) => setNotif('location', v)}
+        />
       </View>
 
       {/* Preferences */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('settings.preferences')}</Text>
+        <SectionLabel style={styles.sectionSpacing}>{t('settings.preferences')}</SectionLabel>
         <Rule faint />
         <View style={styles.row}>
           <Text style={styles.rowLabel}>{t('settings.distanceUnit')}</Text>
@@ -155,7 +176,7 @@ export default function SettingsScreen({ navigation }: Props) {
 
       {/* Legal */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t('settings.legal')}</Text>
+        <SectionLabel style={styles.sectionSpacing}>{t('settings.legal')}</SectionLabel>
         <Rule faint />
         <Pressable style={styles.linkRow} onPress={() => navigation.navigate('Privacy')}>
           <Text style={styles.rowLabel}>{t('profile.privacy')}</Text>
@@ -176,21 +197,8 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: SCREEN_PADDING, gap: 24 },
   headerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   back: { padding: 4 },
-  metaText: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    color: MUTED,
-    textTransform: 'uppercase',
-  },
   section: { gap: 0 },
-  sectionTitle: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 2,
-    color: MUTED,
-    marginBottom: 12,
-  },
+  sectionSpacing: { marginBottom: 12 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
