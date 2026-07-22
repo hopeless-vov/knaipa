@@ -15,6 +15,7 @@ A Tinder-like place discovery app. Users swipe right (like) or left (pass) on pl
 | Maps | react-native-maps + expo-location |
 | Gestures | react-native-gesture-handler |
 | Animations | react-native-reanimated v4 |
+| Haptics | expo-haptics |
 | Images | expo-image (memory-disk cache) |
 | Gradients | expo-linear-gradient |
 | Icons | @expo/vector-icons (Feather) |
@@ -47,6 +48,7 @@ knaipa/
 │   │   ├── filterKey.ts     # serverFilterKey() — deck cache key over server-affecting filters only
 │   │   ├── places.ts        # category/radius/price maps, isOpenEvening()
 │   │   ├── logger.ts        # logWarn()/logError() — single seam for failures / crash reporting
+│   │   ├── haptics.ts       # hapticLike()/hapticPass() — expo-haptics wrapper
 │   │   └── validation.ts    # isValidEmail(), validateSignIn(), validateSignUp()
 │   ├── i18n/
 │   │   ├── en.ts            # English source dictionary
@@ -77,7 +79,8 @@ knaipa/
 │   │   ├── useFilters.ts    # Local filter state + applyFilters()
 │   │   ├── useFindPlace.ts  # Look up a place by id from fetched pool
 │   │   ├── usePlaceDetails.ts # Lazy Place Details (phone/website), cached
-│   │   └── useLocationInput.ts  # Location text input, autocomplete, GPS
+│   │   ├── useLocationInput.ts  # Location text input, autocomplete, GPS
+│   │   └── useFirstRunHint.ts   # One-time swipe coach hint (persisted flag)
 │   ├── ui/                  # Logic-free primitives
 │   │   ├── Button.tsx       # variants (outline/filled), sizes, align, loading spinner, a11y
 │   │   ├── Chip.tsx
@@ -89,7 +92,8 @@ knaipa/
 │   │   ├── Wordmark.tsx
 │   │   ├── SectionLabel.tsx # Small uppercase section heading (shared)
 │   │   ├── MetaLabel.tsx    # Uppercase header-meta caption (shared)
-│   │   └── SegmentedControl.tsx
+│   │   ├── SegmentedControl.tsx
+│   │   └── Snackbar.tsx      # Bottom toast with a single action (Undo)
 │   ├── components/          # Composite components (may use hooks)
 │   │   ├── PlaceCover.tsx   # Image card with gradient, rating pill, counter
 │   │   ├── PlaceDetails.tsx # Composer: gallery / details grid / highlights / location
@@ -109,6 +113,7 @@ knaipa/
 │   │   ├── LoginScreen.tsx
 │   │   ├── SignupScreen.tsx
 │   │   ├── ForgotScreen.tsx
+│   │   ├── ResetPasswordScreen.tsx
 │   │   ├── DiscoverScreen.tsx
 │   │   ├── PlaceDetailScreen.tsx
 │   │   ├── FiltersScreen.tsx
