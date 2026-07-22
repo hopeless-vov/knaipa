@@ -149,7 +149,7 @@ const uk = {
     visited: 'ВІДВІДАНО',
     pending: 'В ПЛАНАХ',
     cities: 'МІСТА',
-    guides: 'ГІДИ',
+    saved: 'ЗБЕРЕЖЕНО',
     accountSettings: 'Налаштування акаунта',
     privacy: 'Політика конфіденційності',
     terms: 'Умови використання',

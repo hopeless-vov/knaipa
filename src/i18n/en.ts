@@ -150,7 +150,7 @@ const en = {
     visited: 'VISITED',
     pending: 'PENDING',
     cities: 'CITIES',
-    guides: 'GUIDES',
+    saved: 'SAVED',
     accountSettings: 'Account settings',
     privacy: 'Privacy policy',
     terms: 'Terms of service',

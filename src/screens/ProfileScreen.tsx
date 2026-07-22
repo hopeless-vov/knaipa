@@ -106,8 +106,8 @@ export default function ProfileScreen({ navigation }: Props) {
           <Text style={styles.statLabel}>{t('profile.cities')}</Text>
         </View>
         <View style={styles.statCell}>
-          <Text style={styles.statNumber}>{padIndex(0)}</Text>
-          <Text style={styles.statLabel}>{t('profile.guides')}</Text>
+          <Text style={styles.statNumber}>{padIndex(savedPlaces.length)}</Text>
+          <Text style={styles.statLabel}>{t('profile.saved')}</Text>
         </View>
       </View>
 
