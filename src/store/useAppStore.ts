@@ -73,6 +73,7 @@ interface AppState {
   undoSwipe: () => void;
   resetDeck: () => void;
   removeSaved: (placeId: string) => void;
+  restoreSaved: (place: SavedPlace) => void;
   toggleVisited: (placeId: string) => void;
   setFilters: (filters: Partial<Filters>) => void;
   setPreference: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
@@ -345,6 +346,14 @@ export const useAppStore = create<AppState>((set, get) => {
       const next = { ...savedPlacesById };
       delete next[placeId];
       commitSaved(next, { type: 'unsave', placeId });
+    },
+
+    // Re-adds a just-removed place exactly (preserves savedAt/visited) — used by
+    // the "undo" affordance after a swipe-to-delete on Saved.
+    restoreSaved: (place) => {
+      const { savedPlacesById } = get();
+      const next = { ...savedPlacesById, [place.id]: place };
+      commitSaved(next, { type: 'save', place, savedAt: place.savedAt, visited: place.visited });
     },
 
     toggleVisited: (placeId) => {

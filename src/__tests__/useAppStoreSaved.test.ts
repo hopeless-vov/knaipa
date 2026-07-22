@@ -149,6 +149,20 @@ describe('removeSaved', () => {
   });
 });
 
+describe('restoreSaved', () => {
+  it('re-adds a removed place with its original savedAt/visited and enqueues a save', () => {
+    const map = buildSavedMap([p1], { 'place-1': { visited: true, savedAt: '2025-02-02T00:00:00Z' } });
+    const saved = map[p1.id];
+    useAppStore.getState().restoreSaved(saved);
+    const s = useAppStore.getState();
+    expect(s.savedPlacesById[p1.id]).toEqual(saved);
+    expect(mockedSync.enqueue).toHaveBeenCalledWith(
+      'u1',
+      { type: 'save', place: saved, savedAt: '2025-02-02T00:00:00Z', visited: true }
+    );
+  });
+});
+
 describe('toggleVisited', () => {
   it('flips visited and enqueues a visited op', () => {
     useAppStore.setState({ savedPlacesById: buildSavedMap([p1]) });

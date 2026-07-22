@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { INK, PAPER, MUTED, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
 import MetaLabel from '../ui/MetaLabel';
+import Snackbar from '../ui/Snackbar';
 import SavedRow from '../components/SavedRow';
 import MapMarker from '../components/MapMarker';
 import { useSaved } from '../hooks/useSaved';
@@ -42,11 +43,36 @@ export default function SavedScreen({ navigation }: Props) {
   const { activeTab, setActiveTab, filteredPlaces, validPlaces, byCity } = useSaved();
   const { t, tCount } = useTranslation();
   const removeSaved = useAppStore((s) => s.removeSaved);
+  const restoreSaved = useAppStore((s) => s.restoreSaved);
   const toggleVisited = useAppStore((s) => s.toggleVisited);
   const [showMap, setShowMap] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const handleSwipeStart = useCallback(() => setScrollEnabled(false), []);
   const handleSwipeEnd = useCallback(() => setScrollEnabled(true), []);
+
+  // Undo affordance for swipe-to-delete: keep the removed place around briefly.
+  const [undoItem, setUndoItem] = useState<SavedPlace | null>(null);
+  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+  }, []);
+
+  const handleRemove = useCallback((id: string) => {
+    const place = useAppStore.getState().savedPlacesById[id];
+    removeSaved(id);
+    if (!place) return;
+    setUndoItem(place);
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    undoTimer.current = setTimeout(() => setUndoItem(null), 4000);
+  }, [removeSaved]);
+
+  const handleUndo = useCallback(() => {
+    if (undoTimer.current) clearTimeout(undoTimer.current);
+    setUndoItem((item) => {
+      if (item) restoreSaved(item);
+      return null;
+    });
+  }, [restoreSaved]);
 
   // Stable callbacks so memoized SavedRows don't re-render across list updates.
   const handlePlacePress = useCallback(
@@ -158,12 +184,22 @@ export default function SavedScreen({ navigation }: Props) {
               index={index}
               onPress={handlePlacePress}
               onToggleVisited={toggleVisited}
-              onRemove={removeSaved}
+              onRemove={handleRemove}
               onSwipeStart={handleSwipeStart}
               onSwipeEnd={handleSwipeEnd}
             />
           )}
         />
+      )}
+
+      {undoItem && (
+        <View style={[styles.snackbarWrap, { paddingBottom: insets.bottom }]}>
+          <Snackbar
+            message={t('saved.removed')}
+            actionLabel={t('common.undo')}
+            onAction={handleUndo}
+          />
+        </View>
       )}
     </View>
   );
@@ -248,6 +284,12 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+  },
+  snackbarWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   listContent: {
     paddingHorizontal: SCREEN_PADDING,

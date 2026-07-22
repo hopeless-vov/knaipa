@@ -8,6 +8,7 @@ const en = {
     goBack: 'Go back',
     tryAgain: 'TRY AGAIN',
     openFilters: 'OPEN FILTERS',
+    undo: 'UNDO',
   },
   a11y: {
     close: 'Close',
@@ -100,6 +101,7 @@ const en = {
     emptyAll: 'Like places on Discover to save them here.',
     emptyBeen: 'Mark places as visited to see them here.',
     emptyHavent: 'All your saved places are marked as visited.',
+    removed: 'Removed',
   },
   place: {
     notFound: 'Place not found',
