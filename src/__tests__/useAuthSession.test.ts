@@ -20,7 +20,7 @@ let unsubscribeMock: jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
-  useAppStore.setState({ user: null });
+  useAppStore.setState({ user: null, passwordRecovery: false });
   authCallback = null;
   unsubscribeMock = jest.fn();
   getSessionMock.mockResolvedValue({ data: { session: null }, error: null });
@@ -72,6 +72,18 @@ describe('useAuthSession', () => {
       authCallback?.('SIGNED_OUT', null);
     });
     expect(useAppStore.getState().user).toBeNull();
+  });
+
+  it('flags password recovery when the reset deep link opens a session', async () => {
+    const { result } = renderHook(() => useAuthSession());
+    await waitFor(() => expect(result.current.restoring).toBe(false));
+
+    act(() => {
+      authCallback?.('PASSWORD_RECOVERY', { user: SUPA_USER });
+    });
+
+    expect(useAppStore.getState().passwordRecovery).toBe(true);
+    expect(useAppStore.getState().user?.id).toBe('user-1');
   });
 
   it('unsubscribes from auth changes on unmount', async () => {

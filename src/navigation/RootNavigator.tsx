@@ -6,11 +6,13 @@ import BottomNav from '../components/BottomNav';
 import SplashView from '../components/SplashView';
 import { useAuthSession } from '../hooks/useAuthSession';
 import { useSavedBootstrap } from '../hooks/useSavedBootstrap';
+import { useAppStore } from '../store/useAppStore';
 
 // Auth screens
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
 import ForgotScreen from '../screens/ForgotScreen';
+import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 
 // Tab screens
 import DiscoverScreen from '../screens/DiscoverScreen';
@@ -42,10 +44,21 @@ function TabNavigator() {
 
 export default function RootNavigator() {
   const { user, restoring } = useAuthSession();
+  const passwordRecovery = useAppStore((s) => s.passwordRecovery);
   useSavedBootstrap();
 
   if (restoring) {
     return <SplashView />;
+  }
+
+  // A reset-password deep link opens a recovery session — take over the whole
+  // stack with the set-new-password screen until the user finishes (or skips).
+  if (user && passwordRecovery) {
+    return (
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      </Stack.Navigator>
+    );
   }
 
   return (

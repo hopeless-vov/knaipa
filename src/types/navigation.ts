@@ -2,6 +2,7 @@ export type RootStackParamList = {
   Login: undefined;
   Signup: undefined;
   Forgot: undefined;
+  ResetPassword: undefined;
   Main: undefined;
   PlaceDetail: { placeId: string; fromDiscover?: boolean };
   Filters: undefined;

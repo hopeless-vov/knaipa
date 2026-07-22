@@ -11,6 +11,7 @@ import { mapSupabaseUser } from '../mappers/user';
 export function useAuthSession() {
   const user = useAppStore((s) => s.user);
   const setUser = useAppStore((s) => s.setUser);
+  const setPasswordRecovery = useAppStore((s) => s.setPasswordRecovery);
   const [restoring, setRestoring] = useState(true);
 
   useEffect(() => {
@@ -27,9 +28,12 @@ export function useAuthSession() {
         if (active) setRestoring(false);
       });
 
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       /* istanbul ignore next -- post-unmount race guard */
       if (!active) return;
+      // A reset-password email deep-links back as a PASSWORD_RECOVERY session —
+      // flag it so the navigator can route to the set-new-password screen.
+      if (event === 'PASSWORD_RECOVERY') setPasswordRecovery(true);
       setUser(session ? mapSupabaseUser(session.user) : null);
     });
 

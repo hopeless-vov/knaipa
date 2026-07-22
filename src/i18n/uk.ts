@@ -43,6 +43,9 @@ const uk = {
     resetSent: 'Перевірте пошту — ми надіслали посилання для скидання.',
     sendReset: 'Надіслати посилання',
     backToLoginPlain: 'Назад до входу',
+    newPasswordTitle: 'новий /\nпароль',
+    newPasswordCta: 'Оновити пароль',
+    newPasswordLater: 'Зробити пізніше',
   },
   validation: {
     emailRequired: 'Введіть електронну пошту',

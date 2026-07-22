@@ -44,6 +44,9 @@ const en = {
     resetSent: 'Check your inbox for the reset link.',
     sendReset: 'Send reset link',
     backToLoginPlain: 'Back to login',
+    newPasswordTitle: 'set /\nnew password',
+    newPasswordCta: 'Update password',
+    newPasswordLater: 'Do this later',
   },
   validation: {
     emailRequired: 'Please enter your email address',

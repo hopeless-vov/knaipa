@@ -65,9 +65,11 @@ interface AppState {
   totalFetched: number;
   nextPageToken: string | null;
   deckError: string | null;
+  passwordRecovery: boolean;
 
   // Actions
   setUser: (user: User | null) => void;
+  setPasswordRecovery: (active: boolean) => void;
   swipeLike: (place: Place) => void;
   swipePass: (place: Place) => void;
   undoSwipe: () => void;
@@ -122,6 +124,9 @@ export const useAppStore = create<AppState>((set, get) => {
     totalFetched: 0,
     nextPageToken: null,
     deckError: null,
+    passwordRecovery: false,
+
+    setPasswordRecovery: (active) => set({ passwordRecovery: active }),
 
     // Signing out clears all in-memory user data so nothing bleeds into the
     // next account. Each user's saved snapshot + sync queue stay isolated on
@@ -138,6 +143,7 @@ export const useAppStore = create<AppState>((set, get) => {
               allFetchedPlaces: [],
               swipedIds: new Set<string>(),
               seenIds: new Set<string>(),
+              passwordRecovery: false,
             }
       ),
 
