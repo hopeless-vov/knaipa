@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect, useMemo } from 'react';
+import React, { useCallback, useRef, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Dimensions,
   Animated,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
@@ -45,11 +46,21 @@ export default function DiscoverScreen({ navigation }: Props) {
   const {
     deck, topCard, totalDeck, deckIndex, activeFilterCount, canUndo,
     isLoading, isLoadingMore, hasLocation, deckError, locationDenied,
-    requestLocation, retryFetch, like, pass, undo,
+    requestLocation, retryFetch, refresh, like, pass, undo,
     mode, categories, query, setMode, toggleCategory, submitSearch,
   } = useDiscover();
   const { t } = useTranslation();
   const { showHint, dismissHint } = useFirstRunHint();
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refresh();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refresh]);
 
   const visibleDeck = useMemo(() => deck.slice(0, VISIBLE_CARDS), [deck]);
   const reversedDeck = useMemo(() => [...visibleDeck].reverse(), [visibleDeck]);
@@ -95,6 +106,11 @@ export default function DiscoverScreen({ navigation }: Props) {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          hasLocation ? (
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={INK} />
+          ) : undefined
+        }
       >
         {/* Header meta row */}
         <View style={styles.headerRow}>

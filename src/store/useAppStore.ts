@@ -78,7 +78,7 @@ interface AppState {
   setFilters: (filters: Partial<Filters>) => void;
   setPreference: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
   setUserLocation: (loc: { lat: number; lng: number }) => void;
-  fetchDeck: () => Promise<void>;
+  fetchDeck: (opts?: { force?: boolean }) => Promise<void>;
   fetchMoreDeck: () => Promise<void>;
   hydrateFilters: () => Promise<void>;
   hydratePreferences: () => Promise<void>;
@@ -189,9 +189,10 @@ export const useAppStore = create<AppState>((set, get) => {
       }
     },
 
-    fetchDeck: async () => {
+    fetchDeck: async (opts) => {
       const state = get();
       if (!state.userLocation) return;
+      const force = opts?.force ?? false;
 
       const { lat, lng } = state.userLocation;
       // Key on server-affecting filters only, so toggling sort/minReviews/hideSeen
@@ -235,9 +236,9 @@ export const useAppStore = create<AppState>((set, get) => {
         }
       };
 
-      // Try cached data first
+      // Try cached data first (skipped on a forced refresh, e.g. pull-to-refresh)
       try {
-        const raw = await AsyncStorage.getItem(cacheKey);
+        const raw = force ? null : await AsyncStorage.getItem(cacheKey);
         if (raw) {
           const { data, nextPageToken, timestamp } = JSON.parse(raw) as { data: Place[]; nextPageToken: string | null; timestamp: number };
           const age = Date.now() - timestamp;

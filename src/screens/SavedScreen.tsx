@@ -45,6 +45,18 @@ export default function SavedScreen({ navigation }: Props) {
   const removeSaved = useAppStore((s) => s.removeSaved);
   const restoreSaved = useAppStore((s) => s.restoreSaved);
   const toggleVisited = useAppStore((s) => s.toggleVisited);
+  const syncSaved = useAppStore((s) => s.syncSaved);
+  const userId = useAppStore((s) => s.user?.id ?? null);
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    if (!userId) return;
+    setRefreshing(true);
+    try {
+      await syncSaved(userId);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [userId, syncSaved]);
   const [showMap, setShowMap] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const handleSwipeStart = useCallback(() => setScrollEnabled(false), []);
@@ -172,6 +184,8 @@ export default function SavedScreen({ navigation }: Props) {
           sections={sections}
           keyExtractor={(item) => item.id}
           scrollEnabled={scrollEnabled}
+          refreshing={refreshing}
+          onRefresh={userId ? onRefresh : undefined}
           showsVerticalScrollIndicator={false}
           stickySectionHeadersEnabled={false}
           contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 40 }]}

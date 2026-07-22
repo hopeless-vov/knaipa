@@ -89,6 +89,17 @@ describe('fetchDeck', () => {
     expect(ratings).toEqual([...ratings].sort((a, b) => b - a)); // sorted desc locally
   });
 
+  it('force refresh bypasses a fresh cache and re-fetches (pull-to-refresh)', async () => {
+    await useAppStore.getState().fetchDeck(); // seeds cache at now
+    mockedApi.fetchNearbyPlaces.mockClear();
+
+    now += 1 * MIN; // still well within the fresh window → normally no fetch
+    resetStore();
+    await useAppStore.getState().fetchDeck({ force: true });
+
+    expect(mockedApi.fetchNearbyPlaces).toHaveBeenCalledTimes(1);
+  });
+
   it('revalidates in the background when the cache is stale-ish (10–30 min)', async () => {
     await useAppStore.getState().fetchDeck();
     mockedApi.fetchNearbyPlaces.mockClear();

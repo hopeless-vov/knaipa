@@ -112,6 +112,7 @@ export function useDiscover() {
     locationDenied,
     requestLocation,
     retryFetch: fetchDeck,
+    refresh: () => fetchDeck({ force: true }),
     mode: filters.mode,
     categories: filters.categories,
     query: filters.query,
