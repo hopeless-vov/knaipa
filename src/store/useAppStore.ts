@@ -13,7 +13,7 @@ import {
   toSavedList,
 } from './savedStorage';
 import { SyncOp, enqueue, flushQueue, pullAndMerge, reconcileConcurrent } from './savedSync';
-import { logError } from '../utils/logger';
+import { logError, logWarn } from '../utils/logger';
 
 export const FILTERS_KEY = '@knaipa/filters';
 const PREFS_KEY = '@knaipa/preferences';
@@ -149,7 +149,9 @@ export const useAppStore = create<AppState>((set, get) => {
           const saved = JSON.parse(raw) as Partial<Filters>;
           set((state) => ({ filters: { ...DEFAULT_FILTERS, ...state.filters, ...saved } }));
         }
-      } catch {}
+      } catch (e) {
+        logWarn('hydrateFilters failed — using defaults', e);
+      }
     },
 
     hydratePreferences: async () => {
@@ -159,7 +161,9 @@ export const useAppStore = create<AppState>((set, get) => {
           const saved = JSON.parse(raw) as Partial<UserPreferences>;
           set((state) => ({ preferences: { ...DEFAULT_PREFERENCES, ...state.preferences, ...saved } }));
         }
-      } catch {}
+      } catch (e) {
+        logWarn('hydratePreferences failed — using defaults', e);
+      }
     },
 
     hydrateSaved: async (userId) => {
@@ -224,7 +228,7 @@ export const useAppStore = create<AppState>((set, get) => {
           applyPlaces(places, nextPageToken);
         } catch (err) {
           if (!background) {
-            console.error('fetchDeck error:', err);
+            logError('fetchDeck failed', err);
             set({ isLoading: false, deckError: 'errors.loadDeck' }); // i18n key, translated in UI
           }
         }
@@ -245,7 +249,9 @@ export const useAppStore = create<AppState>((set, get) => {
             return;
           }
         }
-      } catch {}
+      } catch (e) {
+        logWarn('deck cache read failed', e);
+      }
 
       // No valid cache — show spinner
       set({ isLoading: true, deck: [], nextPageToken: null, seenIds: new Set(), deckError: null });
@@ -278,7 +284,7 @@ export const useAppStore = create<AppState>((set, get) => {
           isLoadingMore: false,
         });
       } catch (err) {
-        console.error('fetchMoreDeck error:', err);
+        logError('fetchMoreDeck failed', err);
         set({ isLoadingMore: false });
       }
     },
@@ -356,7 +362,9 @@ export const useAppStore = create<AppState>((set, get) => {
 
     setPreference: (key, value) => {
       set((state) => ({ preferences: { ...state.preferences, [key]: value } }));
-      AsyncStorage.setItem(PREFS_KEY, JSON.stringify(get().preferences)).catch(() => {});
+      AsyncStorage.setItem(PREFS_KEY, JSON.stringify(get().preferences)).catch((e) =>
+        logWarn('persist preferences failed', e)
+      );
       // Re-format already-loaded distances immediately, no network needed
       if (key === 'distanceUnit') {
         const unit = value as UserPreferences['distanceUnit'];
