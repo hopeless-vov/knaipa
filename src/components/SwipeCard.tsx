@@ -11,6 +11,7 @@ import { INK, PAPER } from '../utils/theme';
 import PlaceCover from './PlaceCover';
 import { useTranslation } from '../hooks/useTranslation';
 import { resolveSwipeOutcome, SWIPE_THRESHOLD } from '../utils/swipe';
+import { hapticLike, hapticPass } from '../utils/haptics';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -66,6 +67,7 @@ const SwipeCard = React.memo(
     // Button-triggered swipes (LIKE / PASS buttons in DiscoverScreen)
     useImperativeHandle(ref, () => ({
       animateLike: () => {
+        hapticLike();
         Animated.timing(position, {
           toValue: { x: SCREEN_WIDTH * 1.5, y: 0 },
           duration: 250,
@@ -73,6 +75,7 @@ const SwipeCard = React.memo(
         }).start(() => onLikeRef.current());
       },
       animatePass: () => {
+        hapticPass();
         Animated.timing(position, {
           toValue: { x: -SCREEN_WIDTH * 1.5, y: 0 },
           duration: 250,
@@ -101,12 +104,14 @@ const SwipeCard = React.memo(
           if (!isTopRef.current) return;
           const outcome = resolveSwipeOutcome(e.translationX, e.velocityX);
           if (outcome === 'like') {
+            hapticLike();
             Animated.timing(position, {
               toValue: { x: SCREEN_WIDTH * 1.5, y: e.translationY },
               duration: 250,
               useNativeDriver: true,
             }).start(() => onLikeRef.current());
           } else if (outcome === 'pass') {
+            hapticPass();
             Animated.timing(position, {
               toValue: { x: -SCREEN_WIDTH * 1.5, y: e.translationY },
               duration: 250,
