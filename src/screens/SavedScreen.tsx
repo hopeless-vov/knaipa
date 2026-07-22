@@ -13,7 +13,7 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, TabParamList } from '../types';
-import { INK, PAPER, MUTED, HAIR, SCREEN_PADDING } from '../utils/theme';
+import { INK, PAPER, MUTED, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
 import MetaLabel from '../ui/MetaLabel';
@@ -146,7 +146,6 @@ export default function SavedScreen({ navigation }: Props) {
                   key={place.id}
                   place={place}
                   index={idx}
-                  editing={false}
                   onPress={() => handlePlacePress(place.id)}
                   onToggleVisited={() => toggleVisited(place.id)}
                   onRemove={() => removeSaved(place.id)}

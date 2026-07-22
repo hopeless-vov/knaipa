@@ -20,7 +20,7 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, TabParamList } from '../types';
-import { INK, PAPER, MUTED, RED, SCREEN_PADDING } from '../utils/theme';
+import { INK, PAPER, MUTED, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Button from '../ui/Button';
 import SwipeCard, { SwipeCardRef } from '../components/SwipeCard';

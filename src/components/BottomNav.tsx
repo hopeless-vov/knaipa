@@ -25,9 +25,7 @@ export default function BottomNav({ state, navigation }: BottomTabBarProps) {
             accessibilityState={{ selected: focused }}
           >
             <View style={[styles.dot, focused && styles.dotActive]} />
-            <Text style={[styles.label, focused && styles.labelActive]}>
-              {t(`tabs.${name}`)}
-            </Text>
+            <Text style={styles.label}>{t(`tabs.${name}`)}</Text>
           </Pressable>
         );
       })}
@@ -62,9 +60,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
-    color: INK,
-  },
-  labelActive: {
     color: INK,
   },
 });

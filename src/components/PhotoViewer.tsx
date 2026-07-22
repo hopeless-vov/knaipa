@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import {
   Modal,
   View,
-  Image,
   FlatList,
   TouchableOpacity,
   Text,
@@ -12,6 +11,7 @@ import {
   Animated,
   ListRenderItemInfo,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PAPER, BLACK, OVERLAY } from '../utils/theme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -45,7 +45,13 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
 
   const renderItem = ({ item }: ListRenderItemInfo<string>) => (
     <View style={styles.page}>
-      <Image source={{ uri: item }} style={styles.image} resizeMode="contain" />
+      <Image
+        source={{ uri: item }}
+        style={styles.image}
+        contentFit="contain"
+        cachePolicy="memory-disk"
+        recyclingKey={item}
+      />
     </View>
   );
 

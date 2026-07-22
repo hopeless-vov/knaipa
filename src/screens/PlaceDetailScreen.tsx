@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Feather } from '@expo/vector-icons';
 import { RootStackParamList } from '../types';
-import { INK, PAPER, MUTED, RED, HAIR, SCREEN_PADDING } from '../utils/theme';
+import { INK, PAPER, MUTED, SCREEN_PADDING } from '../utils/theme';
 import Wordmark from '../ui/Wordmark';
 import Rule from '../ui/Rule';
 import Button from '../ui/Button';

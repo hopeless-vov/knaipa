@@ -63,6 +63,8 @@ knaipa/
 │   │   └── useAppStore.ts   # Single Zustand store; DEFAULT_FILTERS
 │   ├── hooks/
 │   │   ├── useDiscover.ts   # Deck logic: like/pass/undo/reset, auto-fetch, browse/search mode + category/query controls
+│   │   ├── useDeckLocation.ts # GPS permission/resolution, denied state, requestLocation (composed by useDiscover)
+│   │   ├── useCardCrossfade.ts # Fade-swap animation when the deck's top card changes (animation-only)
 │   │   ├── useSaved.ts      # Tab filtering + city grouping
 │   │   ├── useAuth.ts       # signIn, signUp, signOut, sendPasswordReset (validate first, return success)
 │   │   ├── useAuthSession.ts # Session restore on launch + auth state subscription
@@ -74,7 +76,7 @@ knaipa/
 │   │   ├── usePlaceDetails.ts # Lazy Place Details (phone/website), cached
 │   │   └── useLocationInput.ts  # Location text input, autocomplete, GPS
 │   ├── ui/                  # Logic-free primitives
-│   │   ├── Button.tsx
+│   │   ├── Button.tsx       # variants (outline/filled), sizes, align, loading spinner, a11y
 │   │   ├── Chip.tsx
 │   │   ├── ChipGroup.tsx
 │   │   ├── TextInput.tsx
@@ -82,15 +84,20 @@ knaipa/
 │   │   ├── Rule.tsx
 │   │   ├── Tag.tsx
 │   │   ├── Wordmark.tsx
+│   │   ├── SectionLabel.tsx # Small uppercase section heading (shared)
+│   │   ├── MetaLabel.tsx    # Uppercase header-meta caption (shared)
 │   │   └── SegmentedControl.tsx
 │   ├── components/          # Composite components (may use hooks)
 │   │   ├── PlaceCover.tsx   # Image card with gradient, rating pill, counter
-│   │   ├── PlaceDetails.tsx # About, gallery, details grid, highlights, location
+│   │   ├── PlaceDetails.tsx # Composer: gallery / details grid / highlights / location
+│   │   ├── PlaceGallery.tsx # Lazy-reveal photo gallery + fullscreen viewer
+│   │   ├── PlaceLocation.tsx # Map preview + address + maps/copy/website/share actions
 │   │   ├── SwipeCard.tsx    # Pan gesture + LIKE/PASS stamps
 │   │   ├── BottomNav.tsx    # Custom tab bar
-│   │   ├── SavedRow.tsx     # Horizontal row for saved list
+│   │   ├── SavedRow.tsx     # Swipe-to-delete row for saved list
 │   │   ├── SplashView.tsx   # Branded splash shown while session restores
 │   │   ├── DiscoverSearchBar.tsx # Browse/Search toggle + category chips / query input
+│   │   ├── FilterSection.tsx # Labelled chip-group row (reused across Filters)
 │   │   ├── LegalScreen.tsx  # Shared layout for Privacy/Terms content
 │   │   └── MapMarker.tsx    # Diamond pin for map view
 │   ├── screens/

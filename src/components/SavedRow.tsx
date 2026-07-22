@@ -2,24 +2,23 @@ import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
-  Image,
   Pressable,
   Animated,
   PanResponder,
   StyleSheet,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
 import { SavedPlace } from '../types';
 import { INK, MUTED, RED, HAIR, PAPER } from '../utils/theme';
 import { padIndex, getSubcategory } from '../utils/formatters';
+import { SWIPE_THRESHOLD } from '../utils/swipe';
 
-const SWIPE_THRESHOLD = 80;
 const DELETE_LABEL_WIDTH = 80;
 
 interface SavedRowProps {
   place: SavedPlace;
   index: number;
-  editing: boolean;
   onPress: () => void;
   onToggleVisited: () => void;
   onRemove: () => void;
@@ -30,7 +29,6 @@ interface SavedRowProps {
 export default function SavedRow({
   place,
   index,
-  editing,
   onPress,
   onToggleVisited,
   onRemove,
@@ -116,31 +114,28 @@ export default function SavedRow({
         {...panResponder.panHandlers}
         onLayout={onRowLayout}
       >
-        <Pressable
-          onPress={editing ? undefined : onPress}
-          style={styles.mainArea}
-        >
+        <Pressable onPress={onPress} style={styles.mainArea}>
           <Text style={styles.number}>{padIndex(index + 1)}</Text>
-          <Image source={{ uri: place.cover }} style={styles.image} resizeMode="cover" />
+          <Image
+            source={{ uri: place.cover }}
+            style={styles.image}
+            contentFit="cover"
+            cachePolicy="memory-disk"
+            recyclingKey={place.id}
+          />
           <View style={styles.info}>
             <Text style={styles.name} numberOfLines={1}>{place.name}</Text>
             <Text style={styles.sub}>{getSubcategory(place.category)}</Text>
           </View>
         </Pressable>
 
-        {editing ? (
-          <Pressable onPress={() => collapseAndRemove()} style={styles.actionBtn}>
-            <Feather name="trash-2" size={18} color={RED} />
-          </Pressable>
-        ) : (
-          <Pressable onPress={onToggleVisited} style={styles.actionBtn}>
-            <Feather
-              name={place.visited ? 'check-square' : 'square'}
-              size={20}
-              color={place.visited ? INK : MUTED}
-            />
-          </Pressable>
-        )}
+        <Pressable onPress={onToggleVisited} style={styles.actionBtn}>
+          <Feather
+            name={place.visited ? 'check-square' : 'square'}
+            size={20}
+            color={place.visited ? INK : MUTED}
+          />
+        </Pressable>
       </Animated.View>
     </Animated.View>
   );
