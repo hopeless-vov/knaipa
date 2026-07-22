@@ -13,6 +13,9 @@ export default function Chip({ label, selected, onPress, size = 'md' }: ChipProp
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected }}
       style={[
         styles.base,
         size === 'sm' ? styles.sm : styles.md,

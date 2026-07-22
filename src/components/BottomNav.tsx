@@ -20,6 +20,9 @@ export default function BottomNav({ state, navigation }: BottomTabBarProps) {
             key={name}
             style={styles.tab}
             onPress={() => navigation.navigate(name)}
+            accessibilityRole="tab"
+            accessibilityLabel={t('a11y.tab', { name: t(`tabs.${name}`) })}
+            accessibilityState={{ selected: focused }}
           >
             <View style={[styles.dot, focused && styles.dotActive]} />
             <Text style={[styles.label, focused && styles.labelActive]}>

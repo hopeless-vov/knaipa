@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PAPER, BLACK, OVERLAY } from '../utils/theme';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -26,6 +27,7 @@ interface PhotoViewerProps {
 
 export default function PhotoViewer({ photos, initialIndex, visible, onClose }: PhotoViewerProps) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const listRef = useRef<FlatList<string>>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const scrollX = useRef(new Animated.Value(initialIndex * SCREEN_WIDTH)).current;
@@ -82,7 +84,14 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
         />
 
         {/* Counter top-left */}
-        <View style={[styles.counter, { top: insets.top + 16 }]}>
+        <View
+          style={[styles.counter, { top: insets.top + 16 }]}
+          accessibilityRole="text"
+          accessibilityLabel={t('a11y.photoCounter', {
+            index: currentIndex + 1,
+            total: photos.length,
+          })}
+        >
           <Text style={styles.counterText}>
             {currentIndex + 1} / {photos.length}
           </Text>
@@ -93,6 +102,8 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
           style={[styles.closeBtn, { top: insets.top + 12 }]}
           onPress={onClose}
           activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t('a11y.close')}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
           <Text style={styles.closeBtnText}>✕</Text>

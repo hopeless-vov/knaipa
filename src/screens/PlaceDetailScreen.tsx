@@ -48,7 +48,12 @@ export default function PlaceDetailScreen({ route, navigation }: Props) {
       showsVerticalScrollIndicator={false}
     >
       {/* Back button */}
-      <Pressable onPress={() => navigation.goBack()} style={styles.back}>
+      <Pressable
+        onPress={() => navigation.goBack()}
+        accessibilityRole="button"
+        accessibilityLabel={t('common.goBack')}
+        style={styles.back}
+      >
         <Feather name="arrow-left" size={16} color={INK} />
         <Text style={styles.backText}>{fromDiscover ? t('place.fromDiscover') : t('place.fromSaved')}</Text>
       </Pressable>

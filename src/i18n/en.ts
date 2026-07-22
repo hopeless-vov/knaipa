@@ -9,6 +9,17 @@ const en = {
     tryAgain: 'TRY AGAIN',
     openFilters: 'OPEN FILTERS',
   },
+  a11y: {
+    close: 'Close',
+    closeFilters: 'Close filters',
+    photoCounter: 'Photo {index} of {total}',
+    placeCard: '{name}, tap for details',
+    showMap: 'Show map view',
+    showList: 'Show list view',
+    useCurrentLocation: 'Use current location',
+    selectSuggestion: 'Select {name}',
+    tab: '{name} tab',
+  },
   tabs: {
     Discover: 'Discover',
     Saved: 'Saved',

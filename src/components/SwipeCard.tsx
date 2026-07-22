@@ -181,6 +181,8 @@ const SwipeCard = React.memo(
         <Animated.View style={[styles.card, cardStyle]}>
           <Pressable
             onPress={isTop ? onPress : undefined}
+            accessibilityRole="button"
+            accessibilityLabel={t('a11y.placeCard', { name: place.name })}
             style={styles.pressable}
           >
             <PlaceCover

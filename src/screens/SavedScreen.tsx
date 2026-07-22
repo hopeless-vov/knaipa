@@ -70,6 +70,9 @@ export default function SavedScreen({ navigation }: Props) {
           <Pressable
             key={tab.value}
             onPress={() => setActiveTab(tab.value as Tab)}
+            accessibilityRole="tab"
+            accessibilityLabel={t('a11y.tab', { name: t(tab.labelKey) })}
+            accessibilityState={{ selected: activeTab === tab.value }}
             style={styles.tab}
           >
             <Text style={[styles.tabLabel, activeTab === tab.value && styles.tabLabelActive]}>
@@ -79,7 +82,12 @@ export default function SavedScreen({ navigation }: Props) {
           </Pressable>
         ))}
 
-        <Pressable onPress={() => setShowMap((v) => !v)} style={styles.mapToggle}>
+        <Pressable
+          onPress={() => setShowMap((v) => !v)}
+          accessibilityRole="button"
+          accessibilityLabel={showMap ? t('a11y.showList') : t('a11y.showMap')}
+          style={styles.mapToggle}
+        >
           <Feather name={showMap ? 'list' : 'map'} size={18} color={INK} />
         </Pressable>
       </View>

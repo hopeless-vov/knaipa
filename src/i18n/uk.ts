@@ -8,6 +8,17 @@ const uk = {
     tryAgain: 'СПРОБУВАТИ ЗНОВУ',
     openFilters: 'ВІДКРИТИ ФІЛЬТРИ',
   },
+  a11y: {
+    close: 'Закрити',
+    closeFilters: 'Закрити фільтри',
+    photoCounter: 'Фото {index} з {total}',
+    placeCard: '{name}, торкніться для деталей',
+    showMap: 'Показати на карті',
+    showList: 'Показати списком',
+    useCurrentLocation: 'Використати поточне місцезнаходження',
+    selectSuggestion: 'Обрати {name}',
+    tab: 'Вкладка {name}',
+  },
   tabs: {
     Discover: 'Пошук',
     Saved: 'Збережене',

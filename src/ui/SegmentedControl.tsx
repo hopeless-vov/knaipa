@@ -22,6 +22,9 @@ export default function SegmentedControl({ options, value, onChange }: Segmented
           <Pressable
             key={opt.value}
             onPress={() => onChange(opt.value)}
+            accessibilityRole="button"
+            accessibilityLabel={opt.label}
+            accessibilityState={{ selected }}
             style={[
               styles.segment,
               selected && styles.segmentSelected,

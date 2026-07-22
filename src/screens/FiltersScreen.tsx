@@ -54,7 +54,11 @@ export default function FiltersScreen({ navigation }: Props) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         <Wordmark size={32}>{t('filters.title')}</Wordmark>
-        <Pressable onPress={() => navigation.goBack()}>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          accessibilityRole="button"
+          accessibilityLabel={t('a11y.closeFilters')}
+        >
           <Feather name="x" size={24} color={INK} />
         </Pressable>
       </View>
@@ -92,7 +96,11 @@ export default function FiltersScreen({ navigation }: Props) {
             onChangeText={onLocationChange}
             placeholder={t('filters.locationPlaceholder')}
             rightElement={
-              <Pressable onPress={onCurrentLocation}>
+              <Pressable
+                onPress={onCurrentLocation}
+                accessibilityRole="button"
+                accessibilityLabel={t('a11y.useCurrentLocation')}
+              >
                 <Text style={styles.currentBtn}>{t('filters.current')}</Text>
               </Pressable>
             }
@@ -104,6 +112,8 @@ export default function FiltersScreen({ navigation }: Props) {
                   <Pressable
                     style={styles.suggestionRow}
                     onPress={() => onSelectSuggestion(s)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('a11y.selectSuggestion', { name: s.mainText })}
                   >
                     <Text style={styles.suggestionMain}>{s.mainText}</Text>
                     {!!s.secondaryText && (

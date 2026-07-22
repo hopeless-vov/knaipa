@@ -10,9 +10,10 @@ const THUMB_OFFSET = 3;
 interface ToggleProps {
   value: boolean;
   onValueChange: (v: boolean) => void;
+  accessibilityLabel?: string;
 }
 
-export default function Toggle({ value, onValueChange }: ToggleProps) {
+export default function Toggle({ value, onValueChange, accessibilityLabel }: ToggleProps) {
   const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   useEffect(() => {
@@ -34,7 +35,13 @@ export default function Toggle({ value, onValueChange }: ToggleProps) {
   });
 
   return (
-    <Pressable onPress={() => onValueChange(!value)} style={styles.container}>
+    <Pressable
+      onPress={() => onValueChange(!value)}
+      accessibilityRole="switch"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ checked: value }}
+      style={styles.container}
+    >
       <Animated.View style={[styles.track, { backgroundColor: trackColor }]}>
         <Animated.View style={[styles.thumb, { transform: [{ translateX }] }]} />
       </Animated.View>
